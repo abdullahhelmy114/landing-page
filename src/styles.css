@@ -1,0 +1,221 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Shukraan Akademi — Royal Navy × Gold.
+ * Navy axis hue ~265, gold hue ~85, warm ivory canvas hue ~85.
+ */
+
+@theme inline {
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-ivory: var(--ivory);
+  --color-on-navy: var(--on-navy);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-arabic: "Amiri", serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  color-scheme: light;
+
+  --navy: oklch(0.27 0.07 265);
+  --navy-deep: oklch(0.18 0.05 265);
+  --ivory: oklch(0.975 0.012 85);
+  --on-navy: oklch(0.96 0.015 85);
+
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.22 0.06 265);
+  --card: oklch(0.99 0.006 85);
+  --card-foreground: oklch(0.22 0.06 265);
+  --popover: oklch(0.99 0.006 85);
+  --popover-foreground: oklch(0.22 0.06 265);
+  --primary: oklch(0.27 0.07 265);
+  --primary-foreground: oklch(0.96 0.015 85);
+  --secondary: oklch(0.94 0.02 85);
+  --secondary-foreground: oklch(0.22 0.06 265);
+  --muted: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.45 0.04 265);
+  --accent: oklch(0.76 0.12 85);
+  --accent-foreground: oklch(0.18 0.05 265);
+  --gold: oklch(0.74 0.12 82);
+  --gold-soft: oklch(0.86 0.08 85);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.97 0.01 85);
+  --border: oklch(0.88 0.025 85);
+  --input: oklch(0.86 0.03 85);
+  --ring: oklch(0.74 0.12 82);
+
+  --gradient-navy: linear-gradient(160deg, oklch(0.27 0.07 265) 0%, oklch(0.16 0.045 265) 100%);
+  --gradient-gold: linear-gradient(120deg, oklch(0.68 0.12 75), oklch(0.86 0.1 88) 50%, oklch(0.7 0.12 78));
+  --shadow-elegant: 0 30px 80px -30px color-mix(in oklab, oklch(0.18 0.05 265) 45%, transparent);
+  --shadow-gold: 0 14px 40px -12px color-mix(in oklab, oklch(0.74 0.12 82) 55%, transparent);
+}
+
+@utility gradient-navy {
+  background-image: var(--gradient-navy);
+}
+@utility gradient-gold {
+  background-image: var(--gradient-gold);
+}
+@utility text-gold-shine {
+  background-image: var(--gradient-gold);
+  background-size: 200% auto;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+@utility shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+@utility shadow-gold {
+  box-shadow: var(--shadow-gold);
+}
+@utility gold-rule {
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+@utility glass-navy {
+  background: color-mix(in oklab, var(--navy-deep) 55%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--gold) 25%, transparent);
+}
+@utility glass {
+  background: color-mix(in oklab, var(--card) 75%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--gold) 25%, transparent);
+  box-shadow: var(--shadow-elegant);
+}
+@utility geo-pattern {
+  background-image:
+    radial-gradient(circle at 50% 50%, transparent 38%, color-mix(in oklab, var(--gold) 22%, transparent) 39%, transparent 40%),
+    radial-gradient(circle at 0 0, transparent 38%, color-mix(in oklab, var(--gold) 22%, transparent) 39%, transparent 40%),
+    radial-gradient(circle at 100% 100%, transparent 38%, color-mix(in oklab, var(--gold) 22%, transparent) 39%, transparent 40%);
+  background-size: 64px 64px;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes floaty {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+[data-speed] {
+  will-change: transform;
+}
+.phrase-scroll {
+  height: 480svh;
+}
+.phrase-card {
+  --local: calc(var(--p, 0) * var(--count) - var(--phrase));
+  transform: translateY(calc((1 - clamp(0, var(--local), 1)) * 65px));
+  /* Hide the previous phrase before the next one enters. */
+  opacity: min(clamp(0, calc(var(--local) * 10), 1), clamp(0, calc((1 - var(--local)) * 10), 1));
+}
+.phrase-card:last-child { opacity: clamp(0, calc(var(--local) * 10), 1); }
+.phrase-word {
+  opacity: clamp(0, calc(var(--local) * (var(--words) + 2) - var(--word)), 1);
+  transform: translateY(calc((1 - clamp(0, calc(var(--local) * (var(--words) + 2) - var(--word)), 1)) * 28px));
+}
+@media (max-width: 1023px), (max-height: 799px), (prefers-reduced-motion: reduce) {
+  .program-word,
+  .program-activity {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+@media (min-width: 1024px) and (min-height: 800px) {
+  .program-scroll { height: 260vh; }
+  .program-stage { position: sticky; top: 76px; height: calc(100svh - 76px); overflow: hidden; }
+  /* Parallax drift inside the pinned scene: columns move at different depths. */
+  .program-col-a { transform: translateY(calc(var(--p, 0) * -56px)); }
+  .program-col-b { transform: translateY(calc((1 - var(--p, 0)) * 56px)); }
+  .program-stage > p { opacity: calc(0.35 + var(--p, 0) * 0.65); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phrase-scroll { height: auto; }
+  .phrase-stage { position: relative; height: auto; }
+  .phrase-stage > div { gap: 1.5rem; }
+  .phrase-card { grid-row: auto; opacity: 1; transform: none; }
+  .phrase-word { opacity: 1; transform: none; }
+  [data-speed] {
+    transform: none !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+}
