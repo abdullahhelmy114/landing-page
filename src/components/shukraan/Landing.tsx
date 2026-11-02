@@ -1,8 +1,8 @@
 import { useState } from "react";
-import logoGold from "@/assets/logo_gold.png.asset.json";
-import logoNavy from "@/assets/logo_navy.png.asset.json";
-import library from "@/assets/arabic_library.png.asset.json";
-import classroom from "@/assets/classroom.jpg.asset.json";
+const logoGold = { url: "/images/logo_gold.png" };
+const logoNavy = { url: "/images/logo_navy.png" };
+const library = { url: "/images/arabic_library.png" };
+const classroom = { url: "/images/classroom.jpg" };
 import { ACTIVITIES, CREDENTIALS, FAQ, GROUPS, PHRASES, STEPS, type Gender } from "./data";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
@@ -38,7 +38,7 @@ function Header() {
               ["program", "Program"],
               ["egitmen", "Eğitmen"],
               ["gruplar", "Gruplar"],
-              ["s.s.s.", "S.S.S."],
+              ["sss", "SSS"],
             ].map(([id, t]) => (
               <button key={id} onClick={() => go(id!)} className="rounded-full px-4 py-2 text-sm text-on-navy/75 transition hover:text-gold">
                 {t}
@@ -271,8 +271,9 @@ function Groups({ onChoose }: { onChoose: (g: Gender, id: string) => void }) {
               {GROUPS.filter((g) => g.gender === gender).map((g) => (
                 <button
                   key={g.id}
-                  onClick={() => onChoose(gender, g.id)}
-                  className="group reveal rounded-2xl bg-card p-5 text-start shadow-elegant ring-1 ring-gold/20 transition duration-300 hover:-translate-y-1 hover:ring-gold"
+                  onClick={() => !g.full && onChoose(gender, g.id)}
+                  disabled={g.full}
+                  className="group reveal disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:ring-gold/20 rounded-2xl bg-card p-5 text-start shadow-elegant ring-1 ring-gold/20 transition duration-300 hover:-translate-y-1 hover:ring-gold"
                 >
                   <div className="flex items-baseline justify-between">
                     <span className="font-serif text-2xl font-semibold text-primary">{g.id}</span>
@@ -283,7 +284,11 @@ function Groups({ onChoose }: { onChoose: (g: Gender, id: string) => void }) {
                     <span className="rounded-lg border border-dashed border-gold/50 p-2 text-gold"><b className="block">{g.pause}</b>10 dk ara</span>
                     <span className="rounded-lg bg-muted p-2"><b className="block text-foreground">{g.second}</b>2. ders</span>
                   </div>
-                  <span className="mt-4 inline-flex text-sm font-semibold text-gold transition group-hover:translate-x-1">Seç ↗</span>
+                  {g.full ? (
+                    <span className="mt-4 inline-flex rounded-full bg-destructive/10 px-3 py-1 text-sm font-semibold text-destructive">Dolu</span>
+                  ) : (
+                    <span className="mt-4 inline-flex text-sm font-semibold text-gold transition group-hover:translate-x-1">Seç ↗</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -368,7 +373,7 @@ function Register({ preset }: { preset: Preset }) {
 
 function Faq() {
   return (
-    <section id="s.s.s." className="scroll-mt-24 bg-secondary/60 py-24 sm:py-32">
+    <section id="sss" className="scroll-mt-24 bg-secondary/60 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl px-4 sm:px-8">
         <div className="reveal text-center">
           <Eyebrow>Aklınızdaki sorular</Eyebrow>

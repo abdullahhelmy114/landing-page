@@ -7,19 +7,27 @@ export type Group = {
   first: string;
   pause: string;
   second: string;
+  full: boolean;
 };
 
-const DAYS = ["Salı", "Çarşamba", "Perşembe", "Cuma"];
+const SLOTS: Record<Gender, [string, string, string]> = {
+  Kadın: ["18:00–18:40", "18:40–18:50", "18:50–19:30"],
+  Erkek: ["20:00–20:40", "20:40–20:50", "20:50–21:30"],
+};
+const MONDAY: Record<Gender, [string, string, string]> = {
+  Kadın: ["17:00–17:40", "17:40–17:50", "17:50–18:30"],
+  Erkek: ["15:00–15:40", "15:40–15:50", "15:50–16:30"],
+};
+const DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
+/** Groups marked full cannot be chosen. */
+const FULL = new Set(["Kadın A", "Erkek A"]);
 
 export const GROUPS: Group[] = (["Kadın", "Erkek"] as Gender[]).flatMap((gender) =>
-  DAYS.map((day, i) => ({
-    id: `${gender} ${String.fromCharCode(65 + i)}`,
-    gender,
-    day,
-    first: gender === "Kadın" ? "18:00–18:40" : "20:00–20:40",
-    pause: gender === "Kadın" ? "18:40–18:50" : "20:40–20:50",
-    second: gender === "Kadın" ? "18:50–19:30" : "20:50–21:30",
-  })),
+  DAYS.map((day, i) => {
+    const id = `${gender} ${String.fromCharCode(65 + i)}`;
+    const [first, pause, second] = i === 0 ? MONDAY[gender] : SLOTS[gender];
+    return { id, gender, day, first, pause, second, full: FULL.has(id) };
+  }),
 );
 
 /** QR images live in /public/QR CODE/<Group id>.png — replace the files, keep the names. */
@@ -58,7 +66,7 @@ export const STEPS = [
   {
     n: "01",
     title: "Size uygun günü seçin",
-    body: "Salıdan cumaya, kadın veya erkek gruplarından birini tercih edin. Her grupta en fazla 5 kişi bulunur.",
+    body: "Pazartesiden cumaya, kadın veya erkek gruplarından birini tercih edin. Her grupta en fazla 5 kişi bulunur.",
   },
   {
     n: "02",

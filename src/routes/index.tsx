@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Dr. Jehan Ali Ziad ile 5 kişilik canlı gruplarda Arapça konuşma pratiği. 8 ders, 4 hafta, Zoom üzerinden. A2–B2 seviyeleri için.",
+          "Dr. Jehan Ziad ile 5 kişilik canlı gruplarda Arapça konuşma pratiği. 8 ders, 4 hafta, Zoom üzerinden. A2–B2 seviyeleri için.",
       },
       { property: "og:title", content: "Arapça Konuşma Pratiği | Shukraan Akademi" },
       {

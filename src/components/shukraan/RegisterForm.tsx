@@ -235,8 +235,8 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <select required className={field} value={f.group} onChange={(e) => set("group", e.target.value)}>
               <option value="">Grup seçiniz</option>
               {groups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.id} · {g.day} · {g.first.slice(0, 5)} başlangıç
+                <option key={g.id} value={g.id} disabled={g.full}>
+                  {g.id} · {g.day} · {g.first.slice(0, 5)} başlangıç{g.full ? " · Dolu" : ""}
                 </option>
               ))}
               {f.gender && <option value="new">Yeni bir gruba katılmak istiyorum</option>}
