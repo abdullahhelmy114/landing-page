@@ -168,20 +168,27 @@
   opacity: clamp(0, calc(var(--local) * (var(--words) + 2) - var(--word)), 1);
   transform: translateY(calc((1 - clamp(0, calc(var(--local) * (var(--words) + 2) - var(--word)), 1)) * 28px));
 }
-@media (max-width: 1023px), (max-height: 799px), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .program-word,
   .program-activity {
     opacity: 1 !important;
     transform: none !important;
   }
 }
+.program-scroll { height: 260vh; }
+.program-stage { position: sticky; top: 76px; overflow: hidden; }
+/* Parallax drift inside the pinned scene: columns move at different depths. */
+.program-col-a { transform: translateY(calc(var(--p, 0) * -56px)); }
+.program-col-b { transform: translateY(calc((1 - var(--p, 0)) * 56px)); }
+.program-stage > p { opacity: calc(0.35 + var(--p, 0) * 0.65); }
 @media (min-width: 1024px) and (min-height: 800px) {
-  .program-scroll { height: 260vh; }
-  .program-stage { position: sticky; top: 76px; height: calc(100svh - 76px); overflow: hidden; }
-  /* Parallax drift inside the pinned scene: columns move at different depths. */
-  .program-col-a { transform: translateY(calc(var(--p, 0) * -56px)); }
-  .program-col-b { transform: translateY(calc((1 - var(--p, 0)) * 56px)); }
-  .program-stage > p { opacity: calc(0.35 + var(--p, 0) * 0.65); }
+  .program-stage { height: calc(100svh - 76px); }
+}
+@media (max-width: 1023px), (max-height: 799px) {
+  /* Mobile keeps the pinned scene but lets stacked content grow naturally. */
+  .program-stage { min-height: calc(100svh - 76px); }
+  .program-col-a { transform: translateY(calc(var(--p, 0) * -28px)); }
+  .program-col-b { transform: translateY(calc((1 - var(--p, 0)) * 28px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .phrase-scroll { height: auto; }

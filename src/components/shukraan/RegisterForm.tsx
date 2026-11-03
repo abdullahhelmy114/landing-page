@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GROUPS, WHATSAPP, qrFor, type Gender } from "./data";
+import { WHATSAPP, qrFor, groupsFor, priceFor, courseTitle, waitlistFor, type CourseType, type Gender } from "./data";
+import { Button } from "@/components/ui/button";
 
-export type Preset = { gender: Gender; groupId: string; nonce: number } | null;
+export type Preset = { gender: Gender; groupId: string; course: CourseType; nonce: number } | null;
 
 const field =
   "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-foreground outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30";
@@ -27,6 +28,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
   const [f, setF] = useState({
+    course: "intensive" as CourseType,
     gender: "" as Gender | "",
     group: "",
     level: "",
@@ -43,37 +45,42 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   useEffect(() => {
     if (!preset) return;
-    setF((p) => ({ ...p, gender: preset.gender, group: preset.groupId }));
+    setF((p) => ({ ...p, course: preset.course, gender: preset.gender, group: preset.groupId }));
     setStep(0);
     setDone(false);
   }, [preset]);
 
+  const PRICE = priceFor(f.course);
+  const WAITLIST_NOTE = waitlistFor(f.course);
+  const GROUPS = groupsFor(f.course);
   const groups = GROUPS.filter((g) => g.gender === f.gender);
   const group = GROUPS.find((g) => g.id === f.group);
 
   const price =
     f.eligible === "other"
-      ? "Standart grup dersi: kişi başı 550 TL / 40 dakika. 8 ders: 4.400 TL. Özel teklif bu kategori için geçerli değildir."
+      ? `Standart grup dersi: kişi başı ${PRICE.standardPerLesson} TL / 40 dakika. ${PRICE.lessons} ders: ${PRICE.standardTotal} TL. Özel teklif bu kategori için geçerli değildir.`
       : f.eligible
-        ? "Özel teklif: 250 TL × 8 ders = 2.000 TL / kişi. Her ders 40 dakika."
+        ? `Özel teklif: ${PRICE.perLesson} TL × ${PRICE.lessons} ders = ${PRICE.total} TL / kişi. Her ders 40 dakika.`
         : "Özel teklif için uygunluk seçiminizi yapın.";
 
   const summary = useMemo(
     () =>
       [
+        courseTitle(f.course),
         f.name.trim(),
         "WhatsApp: " + f.phone.trim(),
         "E-posta: " + f.email.trim(),
         group
-          ? `${group.id} · ${group.day}\n${group.first} / ${group.second} · 10 dk ara`
+          ? `${group.id}${group.full ? " · BEKLEME LİSTESİ" : ""}\n${group.slots.map((s) => `${s.day}: ${s.first} / ${s.second} · 10 dk ara`).join("\n")}`
           : `${f.gender} · Yeni grup talebi\n${f.availability.trim()}`,
         "Seviye: " + f.level,
         "Hedef: " + f.goal.trim(),
         "Teklif uygunluğu: " + (ELIGIBLE.find((e) => e.v === f.eligible)?.t ?? ""),
         price,
+        ...(group?.full ? [WAITLIST_NOTE] : []),
         "Sonraki kurslar: öncelikli rezervasyon + %20 indirim",
       ].join("\n\n"),
-    [f, group, price],
+    [f, group, price, WAITLIST_NOTE],
   );
 
   const validate = (i: number) => {
@@ -102,7 +109,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           gender: f.gender,
-          group_id: f.group,
+          group_id: f.group === "new" ? `${f.gender} new${f.course === "intensive" ? "+" : ""}` : f.group,
           level: f.level,
           availability: f.availability,
           full_name: f.name,
@@ -173,23 +180,23 @@ export function RegisterForm({ preset }: { preset: Preset }) {
           {summary}
         </pre>
         <div className="mt-4 flex flex-wrap gap-3">
-          <button
+          <Button
             type="button"
             onClick={copy}
-            className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+            className="h-auto rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
           >
             Kayıt bilgilerimi kopyala
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => {
               setDone(false);
               setStep(0);
             }}
-            className="rounded-full border border-primary/30 px-5 py-2.5 text-sm font-medium text-primary"
+            variant="outline" className="h-auto rounded-full border border-primary/30 px-5 py-2.5 text-sm font-medium text-primary"
           >
             Bilgilerimi düzenle
-          </button>
+          </Button>
         </div>
         {copyMsg && <p className="mt-3 text-xs text-gold">{copyMsg}</p>}
         <p className="mt-5 text-[11px] text-muted-foreground">
@@ -211,12 +218,23 @@ export function RegisterForm({ preset }: { preset: Preset }) {
         ))}
       </div>
       <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
-        {step + 1} / 4 · {STEP_TITLES[step]![0]}
+        {step + 1} / 4 · {STEP_TITLES[step]?.[0]}
       </p>
-      <h3 className="mt-1 text-2xl font-semibold text-primary">{STEP_TITLES[step]![1]}</h3>
+      <h3 className="mt-1 text-2xl font-semibold text-primary">{STEP_TITLES[step]?.[1]}</h3>
 
       <form onSubmit={(e) => e.preventDefault()} onInput={(e) => (e.target as HTMLInputElement).setCustomValidity?.("")} className="mt-6">
         <div data-step="0" hidden={step !== 0} className="space-y-4">
+          <fieldset>
+            <legend className={label}>Kurs türü *</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {(["regular", "intensive"] as CourseType[]).map((course) => (
+                <label key={course} className="flex cursor-pointer items-start gap-2 rounded-lg border border-input bg-card p-3 text-sm text-primary">
+                  <input type="radio" name="course" value={course} checked={f.course === course} onChange={() => setF((p) => ({ ...p, course, group: "" }))} className="mt-1 accent-primary" />
+                  <span>{courseTitle(course)}<span className="mt-1 block text-xs text-muted-foreground">{priceFor(course).lessons} ders · {priceFor(course).total} TL</span></span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <div>
             <label className={label}>Grup türü *</label>
             <select
@@ -235,8 +253,8 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <select required className={field} value={f.group} onChange={(e) => set("group", e.target.value)}>
               <option value="">Grup seçiniz</option>
               {groups.map((g) => (
-                <option key={g.id} value={g.id} disabled={g.full}>
-                  {g.id} · {g.day} · {g.first.slice(0, 5)} başlangıç{g.full ? " · Dolu" : ""}
+                <option key={g.id} value={g.id} disabled={f.course === "regular" && g.full}>
+                  {g.id} · {g.slots.map((s) => `${s.day} ${s.first.slice(0, 5)}`).join(" + ")}{g.full ? f.course === "intensive" ? " · Dolu — Bekleme listesi" : " · Dolu" : ""}
                 </option>
               ))}
               {f.gender && <option value="new">Yeni bir gruba katılmak istiyorum</option>}
@@ -318,15 +336,15 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
         <div className="mt-8 flex items-center justify-between gap-3">
           {step > 0 ? (
-            <button type="button" onClick={() => setStep(step - 1)} className="rounded-full border border-primary/30 px-6 py-3 text-sm font-medium text-primary">
+            <Button type="button" onClick={() => setStep(step - 1)} variant="outline" className="h-auto rounded-full border border-primary/30 px-6 py-3 text-sm font-medium text-primary">
               Geri
-            </button>
+            </Button>
           ) : (
             <span />
           )}
-          <button type="button" onClick={next} disabled={sending} className="disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
+          <Button type="button" onClick={next} disabled={sending} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
             {sending ? "Gönderiliyor…" : step === 3 ? "Tamamla ve WhatsApp’a geç →" : "Devam et →"}
-          </button>
+          </Button>
         </div>
         {err && <p className="mt-4 text-sm text-destructive">{err}</p>}
       </form>
