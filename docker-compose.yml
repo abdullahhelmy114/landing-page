@@ -11,7 +11,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
     healthcheck:
-      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/').then(r=>{if(!r.ok)throw new Error(r.status);process.exit(0)}).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>{if(!r.ok)throw new Error(r.status);process.exit(0)}).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

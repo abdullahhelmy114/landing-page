@@ -42,8 +42,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-arabic: "Amiri", serif;
+  --font-sans: "Calibri Light", Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --font-arabic: "Traditional Arabic", "Amiri", serif;
 }
 
 :root {
@@ -155,7 +155,7 @@
   will-change: transform;
 }
 .phrase-scroll {
-  height: 480svh;
+  height: 400svh;
 }
 .phrase-card {
   --local: calc(var(--p, 0) * var(--count) - var(--phrase));
@@ -225,4 +225,26 @@
     font-family: var(--font-serif);
     letter-spacing: -0.01em;
   }
+}
+
+/* Coffee card (price section) */
+.coffee-card { --mx: 0; --my: 0; }
+.coffee-cup { transform: translate(calc(var(--mx) * 14px), calc(var(--my) * 10px)); transition: transform .4s ease-out; }
+.coffee-glow { transform: translate(calc(var(--mx) * -40px), calc(var(--my) * -30px)); transition: transform .6s ease-out; }
+.coffee-steam path { animation: steam 6s ease-in-out infinite; transform-box: fill-box; }
+.coffee-steam path:nth-child(2) { animation-delay: .4s; }
+.coffee-steam path:nth-child(3) { animation-delay: .8s; }
+.coffee-hello { opacity: 0; animation: hello 6s ease-in-out infinite; }
+@keyframes steam { 0%,100% { opacity: 0; transform: translateY(8px); } 20%,45% { opacity: 1; transform: translateY(0); } 60% { opacity: 0; transform: translateY(-10px); } }
+@keyframes hello { 0%,50% { opacity: 0; transform: translateY(6px); } 62%,85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
+@media (hover: hover) and (pointer: fine) {
+  .coffee-sip { opacity: 0; transform: translateY(6px); transition: opacity .5s, transform .5s; }
+  .coffee-card:hover .coffee-sip { opacity: 1; transform: none; }
+}
+@media (hover: none) { .coffee-cup, .coffee-glow { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .coffee-steam path, .coffee-hello { animation: none; }
+  .coffee-steam path { opacity: 1; }
+  .coffee-cup, .coffee-glow { transform: none; transition: none; }
+  .coffee-sip { opacity: 1 !important; transform: none !important; transition: none; }
 }

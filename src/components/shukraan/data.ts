@@ -37,16 +37,16 @@ export const PRICE = {
   lessons: 16,
   total: "3.600",
   deposit: "1.800",
-  standardPerLesson: 550,
-  standardTotal: "8.800",
+  standardPerLesson: 380,
+  standardTotal: "6.080",
 };
 
 export const REGULAR_PRICE = {
   perLesson: 250,
   lessons: 8,
   total: "2.000",
-  standardPerLesson: 550,
-  standardTotal: "4.400",
+  standardPerLesson: 380,
+  standardTotal: "3.040",
 };
 
 export const REGULAR_GROUPS: Group[] = [
@@ -64,13 +64,13 @@ export const REGULAR_GROUPS: Group[] = [
 
 export const groupsFor = (course: CourseType) => course === "regular" ? REGULAR_GROUPS : GROUPS;
 export const priceFor = (course: CourseType) => course === "regular" ? REGULAR_PRICE : PRICE;
-export const courseTitle = (course: CourseType) => course === "regular" ? "Konuşma Kursu" : "Yoğunlaştırılmış Konuşma Kursu (+)";
+export const courseTitle = (course: CourseType) => course === "regular" ? "Normal Konuşma Kursu" : "Yoğunlaştırılmış Konuşma Kursu (+)";
 export const waitlistFor = (course: CourseType) => course === "regular"
   ? "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtabilirsiniz. Kesin kayıt ve ödeme adımları WhatsApp topluluğunda paylaşılır."
   : WAITLIST_NOTE;
 
 export const WAITLIST_NOTE =
-  "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için şimdiden yerinizi ayırtabilirsiniz. (Not: Koltuk rezervasyonu, 16 derslik ücretin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar ise kurs başlangıç tarihinden önce tamamlanır.)";
+  "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için şimdiden yerinizi ayırtabilirsiniz. (Not: Koltuk rezervasyonu, 3.600 TL'lik yoğunlaştırılmış kurs paketinin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar ise kurs başlangıç tarihinden önce tamamlanır.)";
 
 /** QR images live in /public/QR CODE/<Kadın|Erkek> <A–E>.png — replace the files, keep the names. */
 export function qrFor(groupId: string, gender: Gender) {
@@ -90,13 +90,6 @@ export const WHATSAPP: Record<Gender, { url: string; title: string }> = {
   },
 };
 
-export const STATS = [
-  { value: "16", label: "ders", note: "4 haftalık yoğun paket" },
-  { value: "40", label: "dakika", note: "Her bir dersin süresi" },
-  { value: "2", label: "gün / hafta", note: "Her gün iki ders, 10 dk ara" },
-  { value: "3.600", label: "TL", note: "Özel teklif · Kişi başı" },
-];
-
 export const ACTIVITIES = [
   "Günlük konular üzerinden yönlendirilmiş diyaloglar",
   "Fikir belirtme, soru sorma ve cevap verme çalışmaları",
@@ -108,18 +101,18 @@ export const ACTIVITIES = [
 export const STEPS = [
   {
     n: "01",
-    title: "Size uygun grubu seçin",
-    body: "A+ – E+ yoğun gruplarından birini tercih edin. Her grubun haftada iki günü vardır: bir sabah ve bir akşam buluşması. Her grupta en fazla 5 kişi bulunur.",
+    title: "Kurs türünü ve grubunuzu seçin",
+    body: "Normal veya Yoğunlaştırılmış (+) kurstan birini, ardından size uygun Kadın ya da Erkek grubunu seçin. Her grupta en fazla 5 kişi bulunur.",
   },
   {
     n: "02",
-    title: "40 dakika + 10 dakika ara + 40 dakika",
-    body: "Her buluşmada 40'ar dakikalık iki ders yapılır. Kısa aradan sonra ikinci derste pratiğe devam edersiniz.",
+    title: "40 dakika ders + 10 dakika ara + 40 dakika ders",
+    body: "Her buluşma, aralarında 10 dakika mola olan 40 dakikalık iki dersten oluşur.",
   },
   {
     n: "03",
-    title: "Dört haftada 16 ders",
-    body: "Paketiniz toplam 16 dersten oluşur: haftada 2 gün × 2 ders × 4 hafta. Kesin ders tarihleri grubunuzun başlangıcıyla birlikte paylaşılır.",
+    title: "Normal: 8 ders · Yoğunlaştırılmış (+): 16 ders",
+    body: "Normal kurs: haftada 1 gün, her buluşmada 2 ders, 4 haftada 8 ders. Yoğunlaştırılmış kurs (+): haftada 2 gün, her buluşmada 2 ders, 4 haftada 16 ders.",
   },
 ];
 
@@ -127,44 +120,42 @@ export const CREDENTIALS = [
   "Arap dili ve ilimleri ile İslami ilimler alanında lisans.",
   "Edebiyat araştırmaları alanında, İslam edebiyatı uzmanlığında akademik yüksek lisans ve doktora.",
   "Kur’an-ı Kerim okutma icazeti.",
-  "Ana dili Arapça olmayanlara Arapça öğretimi alanında mesleki yüksek lisans ve mesleki doktora.",
   "Mısır ve Suudi Arabistan’daki üniversiteler ile diğer eğitim ortamlarında yüz yüze öğretim ve çevrim içi eğitim deneyimi.",
   "Shukraan Akademi kurucusu ve yöneticisi.",
 ];
 
 export const FAQ = [
   {
-    q: "Bu program sıfırdan başlayanlar için uygun mu?",
-    a: "Programa katılım için en az A2 düzeyi gerekir. A2, B1 ve B2 düzeyindeki katılımcılar için gruplar oluşturulurken seviye yakınlığı dikkate alınır.",
+    q: "Bu kurs sıfırdan başlayanlar için uygun mu?",
+    a: "Kursa katılım için en az A2 düzeyi gerekir. A2, B1 ve B2 düzeyindeki katılımcılar için gruplar oluşturulurken seviye yakınlığı dikkate alınır.",
   },
   {
     q: "Haftada kaç gün katılacağım?",
-    a: "Yoğunlaştırılmış gruplarda (+) haftada iki güne katılırsınız: bir sabah ve bir akşam buluşması. Her gün 40’ar dakikalık iki ders yapılır; arada 10 dakika mola verilir. Paket dört haftada toplam 16 derstir.",
+    a: "Normal kursta haftada bir gün, yoğunlaştırılmış kursta (+) haftada iki gün buluşulur. Her buluşmada 40 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğunlaştırılmış kurs 4 haftada 16 derstir.",
   },
   {
-    q: "3.600 TL’lik teklif kimler için geçerli?",
-    a: "ضاد (Dâd) topluluğu üyeleri ve Sakarya Üniversitesi öğrencileri için geçerlidir. Kişi başı 225 TL × 16 ders = 3.600 TL. Teklif sınırlı sürelidir.",
+    q: "Ücretler nedir ve kimler için geçerlidir?",
+    a: `ضاد (Dâd) topluluğu üyeleri için: Normal kurs ${REGULAR_PRICE.perLesson} TL × ${REGULAR_PRICE.lessons} ders = ${REGULAR_PRICE.total} TL; Yoğunlaştırılmış kurs (+) ${PRICE.perLesson} TL × ${PRICE.lessons} ders = ${PRICE.total} TL. Ücretler kişi başıdır.`,
   },
   {
     q: "Formu doldurunca yerim kesinleşir mi?",
-    a: "Form bilgilerinizi akademiye iletir. Ödeme yöntemi, form ve WhatsApp topluluğuna katılım sonrasında paylaşılır. Koltuklar, peşin ödemenin doğrulandığı sıraya göre kesinleşir.",
+    a: "Hayır. Form, başvurunuzu akademiye iletir. Ödeme yöntemi WhatsApp grubunda paylaşılır; koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.",
   },
   {
     q: "İstediğim grup doluysa ne yapabilirim?",
-    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi şimdiden ayırtırsınız. Rezervasyon, 16 derslik ücretin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar kurs başlangıç tarihinden önce tamamlanır.",
+    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtırsınız. Yoğunlaştırılmış kursta (+) rezervasyon, 3.600 TL'lik paketin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar kurs başlangıcından önce tamamlanır.",
   },
   {
-    q: "Sonraki kurslar için hangi avantajlarım olacak?",
-    a: "Bu programa katılanlar Shukraan Akademi ailesinin bir parçası olarak sonraki kurslarda kontenjan rezervasyonunda öncelik ve kurs ücretleri üzerinden %20 indirim hakkı kazanır.",
+    q: "Sonraki kurslar için bir avantajım olacak mı?",
+    a: "Bu kursa katılanlar, Shukraan Akademi'nin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.",
   },
 ];
 
 export const PHRASES = [
-  "أهلاً وسهلاً",
-  "كيف حالك؟",
-  "أنا بخير، والحمد لله",
-  "ماذا تفعل في عطلة نهاية الأسبوع؟",
-  "برأيي…",
-  "هل يمكنك أن تعيد من فضلك؟",
-  "شكراً جزيلاً",
+  "كيف تعبّر عن رأيك إذا اختلفت مع صديقك؟",
+  "لو أُتيحت لك فرصة السفر، فأيّ بلد تختار؟ ولماذا؟",
+  "ما أكثر موقف احتجت فيه إلى التحدث بالعربية؟",
+  "ما الذي يجعل يومك ناجحًا في رأيك؟",
+  "لو كنت مسؤولًا عن مدينتك ليوم واحد، فماذا تغيّر أولًا؟",
+  "هل تفضّل العمل وحدك أم ضمن فريق؟ ولماذا؟",
 ];

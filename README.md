@@ -12,14 +12,19 @@ Open your project in the [Lovable editor](https://lovable.dev) and keep building
 
 ## Development
 
-Prefer working locally? You need Bun — [install Bun](https://bun.sh/docs/installation).
+Prefer working locally? You need Node.js 20.9+ and Bun — [install Bun](https://bun.sh/docs/installation).
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
 bun install
-bun run dev
+bun run dev      # http://localhost:3000
+bun run build    # production build (type-checks)
+bun run lint
 ```
+
+The site is a Next.js App Router app: pages and API routes live in `src/app`, and the
+Whop plan IDs for the two courses live in `src/lib/whop-plans.ts`.
 
 ## Self-hosting with Coolify
 
@@ -27,7 +32,7 @@ This project includes a `Dockerfile` and `docker-compose.yml` for self-hosting o
 
 ### Quick start with Docker
 
-The `Dockerfile` already uses `vite.config.coolify.ts`, which switches the build from Cloudflare Workers to a plain Node.js server.
+The `Dockerfile` installs with Bun, builds Next.js in `standalone` mode and runs the result with Node.js.
 
 ```sh
 # Build the image
@@ -54,6 +59,7 @@ Then open `http://localhost:3000`.
 | --- | --- | --- |
 | `NODE_ENV` | `production` | Node environment |
 | `PORT` | `3000` | Server port |
+| `DATABASE_URL` | — | Neon/Postgres connection string used by the `/api/public/*` registration routes |
 
 ### Docker Compose
 
@@ -63,7 +69,8 @@ docker compose up -d --build
 
 ## Built with
 
-- TanStack Start
+- Next.js (App Router)
 - TypeScript
 - React
 - Tailwind CSS
+- Whop Elements (embedded checkout)

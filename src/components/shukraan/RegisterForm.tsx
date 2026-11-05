@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { WHATSAPP, qrFor, groupsFor, priceFor, courseTitle, waitlistFor, type CourseType, type Gender } from "./data";
 import { Button } from "@/components/ui/button";
 
@@ -17,14 +17,12 @@ const STEP_TITLES = [
 
 const ELIGIBLE = [
   { v: "dad", t: "ضاد (Dâd) topluluğu üyesiyim" },
-  { v: "sakarya", t: "Sakarya Üniversitesi öğrencisiyim" },
   { v: "other", t: "Diğer" },
 ];
 
 export function RegisterForm({ preset }: { preset: Preset }) {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
-  const [copyMsg, setCopyMsg] = useState("");
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
   const [f, setF] = useState({
@@ -43,12 +41,16 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const ref = useRef<HTMLDivElement>(null);
   const set = (k: keyof typeof f, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
 
-  useEffect(() => {
-    if (!preset) return;
-    setF((p) => ({ ...p, course: preset.course, gender: preset.gender, group: preset.groupId }));
-    setStep(0);
-    setDone(false);
-  }, [preset]);
+  // A group picked in the list above prefills the form (adjusting state while rendering).
+  const [appliedPreset, setAppliedPreset] = useState<Preset>(null);
+  if (preset !== appliedPreset) {
+    setAppliedPreset(preset);
+    if (preset) {
+      setF((p) => ({ ...p, course: preset.course, gender: preset.gender, group: preset.groupId }));
+      setStep(0);
+      setDone(false);
+    }
+  }
 
   const PRICE = priceFor(f.course);
   const WAITLIST_NOTE = waitlistFor(f.course);
@@ -58,30 +60,25 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   const price =
     f.eligible === "other"
-      ? `Standart grup dersi: kişi başı ${PRICE.standardPerLesson} TL / 40 dakika. ${PRICE.lessons} ders: ${PRICE.standardTotal} TL. Özel teklif bu kategori için geçerli değildir.`
+      ? "Bu fiyat ضاد (Dâd) topluluğu üyeleri için geçerlidir. Size uygulanacak ücret akademi tarafından WhatsApp üzerinden bildirilir."
       : f.eligible
-        ? `Özel teklif: ${PRICE.perLesson} TL × ${PRICE.lessons} ders = ${PRICE.total} TL / kişi. Her ders 40 dakika.`
-        : "Özel teklif için uygunluk seçiminizi yapın.";
+        ? `${PRICE.perLesson} TL/40 dk × ${PRICE.lessons} ders = ${PRICE.total} TL`
+        : "Lütfen uygunluk seçiminizi yapın.";
 
-  const summary = useMemo(
-    () =>
-      [
-        courseTitle(f.course),
-        f.name.trim(),
-        "WhatsApp: " + f.phone.trim(),
-        "E-posta: " + f.email.trim(),
-        group
-          ? `${group.id}${group.full ? " · BEKLEME LİSTESİ" : ""}\n${group.slots.map((s) => `${s.day}: ${s.first} / ${s.second} · 10 dk ara`).join("\n")}`
-          : `${f.gender} · Yeni grup talebi\n${f.availability.trim()}`,
-        "Seviye: " + f.level,
-        "Hedef: " + f.goal.trim(),
-        "Teklif uygunluğu: " + (ELIGIBLE.find((e) => e.v === f.eligible)?.t ?? ""),
-        price,
-        ...(group?.full ? [WAITLIST_NOTE] : []),
-        "Sonraki kurslar: öncelikli rezervasyon + %20 indirim",
-      ].join("\n\n"),
-    [f, group, price, WAITLIST_NOTE],
-  );
+  const summary = [
+    courseTitle(f.course),
+    f.name.trim(),
+    "WhatsApp: " + f.phone.trim(),
+    "E-posta: " + f.email.trim(),
+    group
+      ? `${group.id}${group.full ? " · BEKLEME LİSTESİ" : ""}\n${group.slots.map((s) => `${s.day}: ${s.first} / ${s.second} · 10 dk ara`).join("\n")}`
+      : `${f.gender} · Yeni grup talebi\n${f.availability.trim()}`,
+    "Seviye: " + f.level,
+    "Hedef: " + f.goal.trim(),
+    "Uygunluk: " + (ELIGIBLE.find((e) => e.v === f.eligible)?.t ?? ""),
+    price,
+    ...(group?.full ? [WAITLIST_NOTE] : []),
+  ].join("\n\n");
 
   const validate = (i: number) => {
     const root = ref.current?.querySelector<HTMLElement>(`[data-step="${i}"]`);
@@ -101,6 +98,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const next = async () => {
     if (!validate(step)) return;
     if (step < 3) return setStep(step + 1);
+    if (sending) return;
     setSending(true);
     setErr("");
     try {
@@ -119,9 +117,18 @@ export function RegisterForm({ preset }: { preset: Preset }) {
           eligibility: f.eligible,
         }),
       });
-      if (!res.ok) throw new Error(String(res.status));
-    } catch {
-      setErr("Kaydınız gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.");
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+          data.error === "DATABASE_URL is not configured"
+            ? "Kayıt sistemi şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin."
+            : data.error === "Invalid input"
+              ? "Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol edin."
+              : "Sunucu başvurunuzu kaydedemedi. Bilgileriniz korunuyor; lütfen tekrar deneyin.",
+        );
+      }
+    } catch (e) {
+      setErr(e instanceof TypeError || !(e instanceof Error) ? "Bağlantı kurulamadı. Bilgileriniz korunuyor; lütfen tekrar deneyin." : e.message);
       setSending(false);
       return;
     }
@@ -130,28 +137,17 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopyMsg(
-        "Kopyalandı. WhatsApp grubuna katıldıktan sonra bu özeti grup yöneticisine özel mesajla gönderin.",
-      );
-    } catch {
-      setCopyMsg("Özeti seçip kopyalayın (Ctrl+C veya basılı tutup Kopyala).");
-    }
-  };
-
   if (done && f.gender) {
     const invite = WHATSAPP[f.gender];
     return (
       <div ref={ref} className="glass scroll-mt-28 rounded-3xl p-6 sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
-          WhatsApp ile devam edin
+          Başvurunuz alındı
         </p>
         <h3 className="mt-2 text-3xl font-semibold text-primary">{invite.title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Ödeme yöntemi ve kesin kayıt adımları için size uygun gruba katılın. Formu tamamlamak
-          veya gruba katılmak, tek başına koltuğunuzu kesinleştirmez.
+          Başvurunuz akademiye kaydedildi. Ödeme yöntemi bu WhatsApp grubunda paylaşılır;
+          koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.
         </p>
         <div className="mt-6 grid items-center gap-6 sm:grid-cols-[180px_1fr]">
           <div className="rounded-2xl bg-card p-3 shadow-gold ring-1 ring-gold/40">
@@ -176,17 +172,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             </p>
           </div>
         </div>
-        <pre className="mt-6 max-h-64 overflow-auto whitespace-pre-wrap rounded-2xl bg-secondary p-4 font-sans text-xs leading-relaxed text-foreground">
-          {summary}
-        </pre>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button
-            type="button"
-            onClick={copy}
-            className="h-auto rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            Kayıt bilgilerimi kopyala
-          </Button>
+        <div className="mt-6">
           <Button
             type="button"
             onClick={() => {
@@ -195,14 +181,9 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             }}
             variant="outline" className="h-auto rounded-full border border-primary/30 px-5 py-2.5 text-sm font-medium text-primary"
           >
-            Bilgilerimi düzenle
+            Yeni başvuru / düzenle
           </Button>
         </div>
-        {copyMsg && <p className="mt-3 text-xs text-gold">{copyMsg}</p>}
-        <p className="mt-5 text-[11px] text-muted-foreground">
-          Bilgileriniz akademiye iletildi. Kesin kayıt ve peşin ödeme işlemlerini grup yönetimiyle
-          tamamlayın.
-        </p>
       </div>
     );
   }
@@ -314,23 +295,19 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             </select>
           </div>
           <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">{price}</p>
-          <p className="text-xs text-muted-foreground">
-            Programa katılanlara sonraki kurslarda öncelikli kontenjan rezervasyonu ve %20 indirim.
-          </p>
         </div>
 
         <div data-step="3" hidden={step !== 3} className="space-y-4">
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-2xl bg-secondary p-4 font-sans text-xs leading-relaxed">
+          <pre className="whitespace-pre-wrap rounded-2xl bg-secondary p-4 font-sans text-xs leading-relaxed">
             {summary}
           </pre>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Ödeme peşin yapılır. Yöntem, form ve WhatsApp topluluğuna katılım sonrasında paylaşılır.
-            Kesin kayıt, ödemeniz doğrulandıktan sonra oluşturulur. Form tek başına yerinizi
-            kesinleştirmez.
-          </p>
           <label className="flex items-start gap-3 text-sm text-foreground">
             <input required type="checkbox" checked={f.confirm} onChange={(e) => set("confirm", e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--gold)]" />
-            Bilgilerimi kontrol ettim. Kesin kaydın peşin ödeme doğrulandıktan sonra tamamlandığını anladım.
+            {f.group === "new"
+              ? "Bilgilerimi kontrol ettim. Bu, yeni bir grup için talep başvurusudur; uygun grup oluştuğunda benimle iletişime geçilecektir."
+              : group?.full
+                ? "Bilgilerimi kontrol ettim. Bu, bir sonraki dönem için bekleme listesi başvurusudur; yerim, en az 1.800 TL ön ödemem doğrulandıktan sonra kesinleşir."
+                : "Bilgilerimi kontrol ettim. Bu bir kayıt başvurusudur; koltuğum, ödemem doğrulandıktan sonra kesinleşir."}
           </label>
         </div>
 
@@ -343,7 +320,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <span />
           )}
           <Button type="button" onClick={next} disabled={sending} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
-            {sending ? "Gönderiliyor…" : step === 3 ? "Tamamla ve WhatsApp’a geç →" : "Devam et →"}
+            {sending ? "Gönderiliyor…" : step === 3 ? "Başvuruyu gönder →" : "Devam et →"}
           </Button>
         </div>
         {err && <p className="mt-4 text-sm text-destructive">{err}</p>}

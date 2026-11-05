@@ -6,6 +6,7 @@ node_modules
 dist
 .output
 .vinxi
+.next
 
 # Editor / OS
 .DS_Store
