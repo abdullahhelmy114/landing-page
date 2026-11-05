@@ -1,7 +1,8 @@
+import { isDiscount, type Discount } from "@/lib/discount";
 import { registrationSchema, type RegistrationPayload } from "@/lib/registration-schema";
 import type { CourseType, Gender } from "./data";
 
-/** The form's answers (steps 1–3). */
+/** The form's answers (steps 1–3), and the discount code a paid registration used ("" for none). */
 export type Answers = {
   course: CourseType;
   gender: Gender | "";
@@ -12,7 +13,7 @@ export type Answers = {
   phone: string;
   email: string;
   goal: string;
-  eligible: string;
+  code: string;
 };
 
 export const EMPTY_ANSWERS: Answers = {
@@ -25,7 +26,7 @@ export const EMPTY_ANSWERS: Answers = {
   phone: "",
   email: "",
   goal: "",
-  eligible: "",
+  code: "",
 };
 
 const ENDPOINT = "/api/public/shukraan-register";
@@ -41,7 +42,8 @@ function toPayload(a: Answers): Record<keyof RegistrationPayload, string> {
     whatsapp: a.phone,
     email: a.email,
     goal: a.goal,
-    eligibility: a.eligible,
+    // The column that held the Dâd answer now holds the discount code used ("" without one).
+    eligibility: a.code,
   };
 }
 
@@ -97,8 +99,8 @@ const readPaid = (): Answers[] => {
   return Array.isArray(v) ? v.map(asAnswers).filter((a): a is Answers => a !== null) : [];
 };
 
-export function rememberPayingStep(a: Answers) {
-  write(PAYING_KEY, { answers: a, step: 3 });
+export function rememberPayingStep(a: Answers, discount: Discount | null) {
+  write(PAYING_KEY, { answers: a, step: 3, discount });
 }
 export function forgetPayingStep() {
   remove(PAYING_KEY);
@@ -114,15 +116,19 @@ export function markPaid(a: Answers) {
  * Where this visit resumes the form, if anywhere: a return to returnUrl with status=succeeded
  * (or a reload after paying) opens step 5; any other return during payment reopens step 4.
  */
-export function resumePoint(status: string | null): { answers: Answers; step: 3 | 4 } | null {
-  const paying = asAnswers((read(PAYING_KEY) as { answers?: unknown } | null)?.answers);
+export function resumePoint(
+  status: string | null,
+): { answers: Answers; step: 3 | 4; discount: Discount | null } | null {
+  const kept = read(PAYING_KEY) as { answers?: unknown; discount?: unknown } | null;
+  const paying = asAnswers(kept?.answers);
   if (paying) {
-    if (status !== "succeeded") return { answers: paying, step: 3 };
-    markPaid(paying);
-    return { answers: paying, step: 4 };
+    const discount = isDiscount(kept?.discount) ? kept.discount : null;
+    if (status !== "succeeded") return { answers: paying, step: 3, discount };
+    markPaid({ ...paying, code: discount?.code ?? "" });
+    return { answers: paying, step: 4, discount };
   }
   const paid = readPaid().at(-1);
-  return paid ? { answers: paid, step: 4 } : null;
+  return paid ? { answers: paid, step: 4, discount: null } : null;
 }
 
 // ── Saving ───────────────────────────────────────────────────────────────────────────────────

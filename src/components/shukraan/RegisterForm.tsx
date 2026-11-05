@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { WHATSAPP, qrFor, groupsFor, priceFor, courseTitle, type CourseType, type Gender } from "./data";
+import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
 import {
@@ -30,17 +31,14 @@ const STEPS = [0, 1, 2, 3, 4];
 const PAY_STEP = 3;
 const DONE_STEP = 4;
 
-const ELIGIBLE = [
-  { v: "dad", t: "ضاد (Dâd) topluluğu üyesiyim" },
-  { v: "other", t: "Diğer" },
-];
-
 export function RegisterForm({ preset }: { preset: Preset }) {
   const [step, setStep] = useState(0);
   const [err, setErr] = useState("");
   const [f, setF] = useState<Answers>(EMPTY_ANSWERS);
   const ref = useRef<HTMLDivElement>(null);
   const set = (k: keyof Answers, v: string) => setF((p) => ({ ...p, [k]: v }));
+  // The page's one discount code (also entered in the pricing section).
+  const { discount, draft, status: codeStatus, apply, restore } = useDiscount();
 
   // A group picked in the list above prefills the form (adjusting state while rendering).
   const [appliedPreset, setAppliedPreset] = useState<Preset>(null);
@@ -69,26 +67,21 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     setF(point.answers);
     setStep(point.step);
     /* eslint-enable react-hooks/set-state-in-effect */
+    if (point.discount) restore(point.discount);
     document.getElementById("basvuru")?.scrollIntoView();
-  }, []);
+  }, [restore]);
 
   // While the payment step is open, its answers and step are kept for the return from Whop.
   useEffect(() => {
-    if (step === PAY_STEP) rememberPayingStep(f);
+    if (step === PAY_STEP) rememberPayingStep(f, discount);
     else if (step < PAY_STEP) forgetPayingStep();
-  }, [step, f]);
+  }, [step, f, discount]);
 
   const PRICE = priceFor(f.course);
   const GROUPS = groupsFor(f.course);
   const groups = GROUPS.filter((g) => g.gender === f.gender);
-  const planId = WHOP_PLANS[f.course].planId;
-
-  const price =
-    f.eligible === "other"
-      ? "Bu fiyat ضاد (Dâd) topluluğu üyeleri için geçerlidir. Size uygulanacak ücret akademi tarafından WhatsApp üzerinden bildirilir."
-      : f.eligible
-        ? `${PRICE.perLesson} TL/40 dk × ${PRICE.lessons} ders = ${PRICE.total} TL`
-        : "Lütfen uygunluk seçiminizi yapın.";
+  // A valid code opens its discounted plan; otherwise the regular plan.
+  const planId = discount?.plans[f.course].planId ?? WHOP_PLANS[f.course].planId;
 
   const validate = (i: number) => {
     const root = ref.current?.querySelector<HTMLElement>(`[data-step="${i}"]`);
@@ -105,12 +98,18 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     return true;
   };
 
-  const next = () => {
+  const next = async () => {
     if (!validate(step)) return;
     setErr("");
     if (step < PAY_STEP - 1) return setStep(step + 1);
+    // A code typed but not applied yet is checked first, so nobody pays the regular price by mistake.
+    let used = discount;
+    if (!used && draft.trim()) {
+      used = await apply();
+      if (!used) return;
+    }
     // Nobody pays for a registration the API would refuse: check it with the API's own rules.
-    const refused = refusedStep(f);
+    const refused = refusedStep({ ...f, code: used?.code ?? "" });
     if (refused !== null) {
       setStep(refused);
       setErr("Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol edin.");
@@ -121,7 +120,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   /** Whop reported the payment complete: open step 5 and save the registration (once). */
   const paid = () => {
-    markPaid(f);
+    markPaid({ ...f, code: discount?.code ?? "" });
     setStep(DONE_STEP);
     // Whop usually sends the tab to returnUrl right away; that page then does the saving.
     saveRegistrations(1_500);
@@ -204,7 +203,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
               {(["regular", "intensive"] as CourseType[]).map((course) => (
                 <label key={course} className="flex cursor-pointer items-start gap-2 rounded-lg border border-input bg-card p-3 text-sm text-primary">
                   <input type="radio" name="course" value={course} checked={f.course === course} onChange={() => setF((p) => ({ ...p, course, group: "" }))} className="mt-1 accent-primary" />
-                  <span>{courseTitle(course)}<span className="mt-1 block text-xs text-muted-foreground">{priceFor(course).lessons} ders · {priceFor(course).total} TL</span></span>
+                  <span>{courseTitle(course)}<span className="mt-1 block text-xs text-muted-foreground">{priceFor(course).lessons} ders · <Amount course={course} kind="total" /></span></span>
                 </label>
               ))}
             </div>
@@ -278,23 +277,17 @@ export function RegisterForm({ preset }: { preset: Preset }) {
         </div>
 
         <div data-step="2" hidden={step !== 2} className="space-y-4">
-          <div>
-            <label className={label}>Size uygun seçeneği işaretleyin *</label>
-            <select required className={field} value={f.eligible} onChange={(e) => set("eligible", e.target.value)}>
-              <option value="">Seçiniz</option>
-              {ELIGIBLE.map((e) => (
-                <option key={e.v} value={e.v}>{e.t}</option>
-              ))}
-            </select>
-          </div>
-          <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">{price}</p>
+          <DiscountField />
+          <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">
+            <Amount course={f.course} kind="perLesson" /> TL/40 dk × {PRICE.lessons} ders = <Amount course={f.course} kind="total" />
+          </p>
         </div>
 
         {step === PAY_STEP && (
           <div data-step="3" data-plan-id={planId} className="space-y-4">
             <div className="rounded-2xl bg-secondary p-4 text-sm text-primary">
               <p className="font-semibold">{courseTitle(f.course)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{PRICE.lessons} ders · {PRICE.total} TL</p>
+              <p className="mt-1 text-xs text-muted-foreground">{PRICE.lessons} ders · <Amount course={f.course} kind="total" /></p>
             </div>
             <WhopCheckout key={planId} planId={planId} onPaid={paid} />
           </div>
@@ -309,7 +302,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <span />
           )}
           {step < PAY_STEP && (
-            <Button type="button" onClick={next} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
+            <Button type="button" onClick={() => void next()} disabled={codeStatus === "checking"} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
               Devam et →
             </Button>
           )}

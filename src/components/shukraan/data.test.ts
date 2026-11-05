@@ -1,19 +1,19 @@
 /// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
-import { CREDENTIALS, FAQ, GROUPS, REGULAR_GROUPS, courseTitle, groupsFor, priceFor, qrFor } from "./data";
+import { CREDENTIALS, FAQ, GROUPS, REGULAR_GROUPS, courseTitle, formatTL, groupsFor, priceFor, qrFor } from "./data";
 
 describe("Course booking rules", () => {
-  test("regular course costs 250 TL per lesson and 2.000 TL for eight", () => {
-    expect(priceFor("regular")).toMatchObject({ perLesson: 250, lessons: 8, total: "2.000" });
-    expect(250 * priceFor("regular").lessons).toBe(2000);
+  test("regular course costs 400 TL per lesson and 3.200 TL for eight", () => {
+    expect(priceFor("regular")).toMatchObject({ perLesson: 400, lessons: 8, total: 3200 });
+    expect(400 * priceFor("regular").lessons).toBe(3200);
   });
-  test("intensive course retains 225 TL per lesson and 3.600 TL for sixteen", () => {
-    expect(priceFor("intensive")).toMatchObject({ perLesson: 225, lessons: 16, total: "3.600" });
-    expect(225 * priceFor("intensive").lessons).toBe(3600);
+  test("intensive course costs 375 TL per lesson and 6.000 TL for sixteen", () => {
+    expect(priceFor("intensive")).toMatchObject({ perLesson: 375, lessons: 16, total: 6000 });
+    expect(375 * priceFor("intensive").lessons).toBe(6000);
   });
-  test("standard group hour price shown struck through is 380 TL for both courses", () => {
-    expect(priceFor("regular").standardPerLesson).toBe(380);
-    expect(priceFor("intensive").standardPerLesson).toBe(380);
+  test("amounts are written in Turkish style", () => {
+    expect(formatTL(3200)).toBe("3.200");
+    expect(formatTL(400)).toBe("400");
   });
   test("regular A groups restore Monday slots and remain full", () => {
     expect(REGULAR_GROUPS.find((g) => g.id === "Kadın A")).toMatchObject({ full: true, slots: [{ day: "Pazartesi", first: "17:00–17:40", second: "17:50–18:30" }] });
@@ -41,6 +41,10 @@ describe("Offer eligibility and wording", () => {
   test("no Sakarya offer, 20% discount or limited-time claim in FAQ", () => {
     const text = JSON.stringify(FAQ);
     expect(text).not.toMatch(/Sakarya|%20|Sınırlı süreli|sınırlı sürelidir/);
+  });
+  test("prices are not limited to Dâd members and the 380 TL reference is gone", () => {
+    const text = JSON.stringify(FAQ);
+    expect(text).not.toMatch(/Dâd|ضاد|380/);
   });
   test("regular course is named Normal Konuşma Kursu", () => {
     expect(courseTitle("regular")).toBe("Normal Konuşma Kursu");

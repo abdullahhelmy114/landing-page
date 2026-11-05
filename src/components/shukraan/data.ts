@@ -32,22 +32,18 @@ export const GROUPS: Group[] = [
   { id: "Erkek E+", gender: "Erkek", full: true, slots: [slot("Çarşamba", "09:00–09:40", "09:50–10:30"), slot("Pazar", "16:00–16:40", "16:50–17:30")] },
 ];
 
-export const PRICE = {
-  perLesson: 225,
-  lessons: 16,
-  total: "3.600",
-  deposit: "1.800",
-  standardPerLesson: 380,
-  standardTotal: "6.080",
-};
+export type Price = { perLesson: number; lessons: number; total: number };
 
-export const REGULAR_PRICE = {
-  perLesson: 250,
-  lessons: 8,
-  total: "2.000",
-  standardPerLesson: 380,
-  standardTotal: "3.040",
-};
+/**
+ * Regular prices, charged without a discount code (they match WHOP_PLANS). A valid code's
+ * discounted prices come from the server with its plans (see src/lib/discount.ts).
+ */
+export const PRICE: Price = { perLesson: 375, lessons: 16, total: 6000 };
+
+export const REGULAR_PRICE: Price = { perLesson: 400, lessons: 8, total: 3200 };
+
+/** An amount in Turkish style: 3200 → "3.200". */
+export const formatTL = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
 export const REGULAR_GROUPS: Group[] = [
   { id: "Kadın A", gender: "Kadın", full: true, slots: [slot("Pazartesi", "17:00–17:40", "17:50–18:30")] },
@@ -69,8 +65,13 @@ export const waitlistFor = (course: CourseType) => course === "regular"
   ? "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtabilirsiniz. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır."
   : WAITLIST_NOTE;
 
+/**
+ * Texts that quote prices hold placeholders such as {intensive.total}; <PriceText> fills them with
+ * the current price (struck through beside the discounted one when a code is applied). `deposit`
+ * is half of the package total.
+ */
 export const WAITLIST_NOTE =
-  "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için şimdiden yerinizi ayırtabilirsiniz. (Not: Koltuk rezervasyonu, 3.600 TL'lik yoğunlaştırılmış kurs paketinin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar ise kurs başlangıç tarihinden önce tamamlanır.)";
+  "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için şimdiden yerinizi ayırtabilirsiniz. (Not: Koltuk rezervasyonu, {intensive.total}'lik yoğunlaştırılmış kurs paketinin en az %50'si olan {intensive.deposit} ön ödeme ile kesinleşir; kalan tutar ise kurs başlangıç tarihinden önce tamamlanır.)";
 
 /** QR images live in /public/QR CODE/<Kadın|Erkek> <A–E>.png — replace the files, keep the names. */
 export function qrFor(groupId: string, gender: Gender) {
@@ -135,7 +136,7 @@ export const FAQ = [
   },
   {
     q: "Ücretler nedir ve kimler için geçerlidir?",
-    a: `ضاد (Dâd) topluluğu üyeleri için: Normal kurs ${REGULAR_PRICE.perLesson} TL × ${REGULAR_PRICE.lessons} ders = ${REGULAR_PRICE.total} TL; Yoğunlaştırılmış kurs (+) ${PRICE.perLesson} TL × ${PRICE.lessons} ders = ${PRICE.total} TL. Ücretler kişi başıdır.`,
+    a: `Normal kurs {regular.perLesson} TL × ${REGULAR_PRICE.lessons} ders = {regular.total}; Yoğunlaştırılmış kurs (+) {intensive.perLesson} TL × ${PRICE.lessons} ders = {intensive.total}. Ücretler kişi başıdır.`,
   },
   {
     q: "Formu doldurunca yerim kesinleşir mi?",
@@ -143,7 +144,7 @@ export const FAQ = [
   },
   {
     q: "İstediğim grup doluysa ne yapabilirim?",
-    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtırsınız. Yoğunlaştırılmış kursta (+) rezervasyon, 3.600 TL'lik paketin en az %50'si olan 1.800 TL ön ödeme ile kesinleşir; kalan tutar kurs başlangıcından önce tamamlanır.",
+    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtırsınız. Yoğunlaştırılmış kursta (+) rezervasyon, {intensive.total}'lik paketin en az %50'si olan {intensive.deposit} ön ödeme ile kesinleşir; kalan tutar kurs başlangıcından önce tamamlanır.",
   },
   {
     q: "Sonraki kurslar için bir avantajım olacak mı?",

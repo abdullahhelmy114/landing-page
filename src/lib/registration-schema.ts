@@ -13,7 +13,8 @@ export const registrationSchema = z.object({
   whatsapp: z.string().trim().min(6).max(30),
   email: z.string().trim().email().max(255),
   goal: z.string().trim().min(1).max(2000),
-  eligibility: z.enum(["dad", "sakarya", "other"]),
+  /** The discount code used ("" without one); this column held the Dâd answer before. */
+  eligibility: z.string().trim().max(40),
 });
 
 export type RegistrationPayload = z.input<typeof registrationSchema>;

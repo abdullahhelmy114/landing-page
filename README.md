@@ -24,7 +24,9 @@ bun run lint
 ```
 
 The site is a Next.js App Router app: pages and API routes live in `src/app`, and the
-Whop plan IDs for the two courses live in `src/lib/whop-plans.ts`.
+Whop plan IDs for the two courses live in `src/lib/whop-plans.ts` (regular prices). Discount
+codes and the discounted plans they open live only on the server, in
+`src/lib/discount-codes.server.ts`; `/api/public/discount` checks a code.
 
 ## Self-hosting with Coolify
 

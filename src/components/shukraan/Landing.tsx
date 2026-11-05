@@ -5,7 +5,8 @@ const logoGold = { url: "/images/logo_gold.png" };
 const logoNavy = { url: "/images/logo_navy.png" };
 const classroom = { url: "/images/classroom.jpg" };
 const drJehan = { url: "/images/jehan-cream-office.png" };
-import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, PRICE, STEPS, WAITLIST_NOTE, REGULAR_PRICE, groupsFor, type CourseType, type Gender } from "./data";
+import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, WAITLIST_NOTE, formatTL, groupsFor, type CourseType, type Gender } from "./data";
+import { Amount, DiscountField, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -228,10 +229,45 @@ function CoffeeCard() {
   );
 }
 
+type OfferCardData = { t: string; course: CourseType; meta: string };
+
+function OfferCard({ c, onChooseCourse }: { c: OfferCardData; onChooseCourse: (course: CourseType) => void }) {
+  const { regular, discounted } = useCoursePrice(c.course);
+  const now = discounted ?? regular;
+  return (
+    <div data-course={c.course} className="reveal relative rounded-[2rem] bg-card p-8 text-foreground shadow-elegant sm:p-10">
+      <div className="absolute inset-x-10 -top-px h-px gold-rule" />
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">{c.t}</p>
+      <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-1">
+        <p className="font-serif text-6xl font-semibold text-primary sm:text-7xl">
+          {now.perLesson} <span className="text-xl text-muted-foreground">TL/40 dk</span>
+        </p>
+        {discounted && (
+          <s className="pb-2 text-base text-muted-foreground decoration-2 sm:text-lg">{regular.perLesson} TL</s>
+        )}
+      </div>
+      <p className="mt-3 text-base text-foreground">
+        {now.lessons} derslik paket toplamı:{" "}
+        {discounted && (
+          <>
+            <s className="text-muted-foreground decoration-2">{formatTL(regular.total)} TL</s>{" "}
+          </>
+        )}
+        <b>{formatTL(now.total)} TL</b>
+      </p>
+      <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">{c.meta}</p>
+      <p className="mt-1 text-sm text-muted-foreground">5 kişilik grup · Zoom üzerinden canlı</p>
+      <button type="button" onClick={() => onChooseCourse(c.course)} className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
+        Uygun grubu seçin ↗
+      </button>
+    </div>
+  );
+}
+
 function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => void }) {
-  const cards: { t: string; course: CourseType; p: typeof PRICE | typeof REGULAR_PRICE; meta: string }[] = [
-    { t: "Normal Konuşma Kursu", course: "regular", p: REGULAR_PRICE, meta: "4 hafta · Haftada 1 gün · Her buluşmada 2 ders" },
-    { t: "Yoğunlaştırılmış Konuşma Kursu (+)", course: "intensive", p: PRICE, meta: "4 hafta · Haftada 2 gün (sabah + akşam) · Her buluşmada 2 ders" },
+  const cards: OfferCardData[] = [
+    { t: "Normal Konuşma Kursu", course: "regular", meta: "4 hafta · Haftada 1 gün · Her buluşmada 2 ders" },
+    { t: "Yoğunlaştırılmış Konuşma Kursu (+)", course: "intensive", meta: "4 hafta · Haftada 2 gün (sabah + akşam) · Her buluşmada 2 ders" },
   ];
   return (
     <section id="ucretler" className="relative isolate scroll-mt-20 overflow-hidden gradient-navy py-24 text-on-navy sm:py-32">
@@ -244,32 +280,20 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           </h2>
           <p className="mt-5 text-on-navy/80">Bildiğiniz Arapçayı kullanın, kendinizi ifade edin ve düzenli pratikle ilerleyin.</p>
           <p className="mt-4 text-sm text-on-navy/85">
-            Bu fiyatlar <b className="text-gold-soft">ضاد (Dâd) topluluğu üyeleri</b> için geçerlidir.
+            İndirim kodlarıyla ders başına 150 TL&apos;ye varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
           </p>
+          <div className="mt-4 max-w-md">
+            <DiscountField tone="navy" />
+          </div>
         </div>
         <CoffeeCard />
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           {cards.map((c) => (
-            <div key={c.t} className="reveal relative rounded-[2rem] bg-card p-8 text-foreground shadow-elegant sm:p-10">
-              <div className="absolute inset-x-10 -top-px h-px gold-rule" />
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">{c.t}</p>
-              <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-1">
-                <p className="font-serif text-6xl font-semibold text-primary sm:text-7xl">
-                  {c.p.perLesson} <span className="text-xl text-muted-foreground">TL/40 dk</span>
-                </p>
-                <p className="pb-2 text-base text-muted-foreground line-through decoration-2 sm:text-lg">{c.p.standardPerLesson} TL</p>
-              </div>
-              <p className="mt-3 text-base text-foreground">{c.p.lessons} derslik paket toplamı: <b>{c.p.total} TL</b></p>
-              <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">{c.meta}</p>
-              <p className="mt-1 text-sm text-muted-foreground">5 kişilik grup · Zoom üzerinden canlı</p>
-              <button type="button" onClick={() => onChooseCourse(c.course)} className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
-                Uygun grubu seçin ↗
-              </button>
-            </div>
+            <OfferCard key={c.t} c={c} onChooseCourse={onChooseCourse} />
           ))}
         </div>
         <div className="reveal mt-8 rounded-2xl border-s-2 border-gold bg-on-navy/5 p-6 text-sm leading-relaxed text-on-navy/85">
-          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğunlaştırılmış kursta (+) dolu bir grup için bekleme listesi rezervasyonu, 3.600 TL&apos;lik paketin en az %50&apos;si olan 1.800 TL ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
+          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğunlaştırılmış kursta (+) dolu bir grup için bekleme listesi rezervasyonu, <Amount course="intensive" kind="total" />&apos;lik paketin en az %50&apos;si olan <Amount course="intensive" kind="deposit" /> ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
           <p className="mt-3"><b className="text-gold-soft">Sonraki kurslar:</b> Bu kursa katılanlar, akademinin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.</p>
         </div>
       </div>
@@ -346,7 +370,7 @@ function Groups({
             {g.full && !regular ? (
               <span className="mt-4 block">
                 <span className="inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">Bekleme listesine katıl ↗</span>
-                <span className="mt-2 block text-xs font-normal leading-relaxed text-muted-foreground">{WAITLIST_NOTE}</span>
+                <span className="mt-2 block text-xs font-normal leading-relaxed text-muted-foreground"><PriceText text={WAITLIST_NOTE} /></span>
               </span>
             ) : (
               <span className="mt-4 inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">{g.full ? "Kontenjan dolu" : "Seç ↗"}</span>
@@ -433,7 +457,7 @@ function Faq() {
                 {f.q}
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/50 text-gold transition group-open:rotate-45">+</span>
               </summary>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground"><PriceText text={f.a} /></p>
             </details>
           ))}
         </div>
@@ -445,6 +469,8 @@ function Faq() {
 
 export function Landing() {
   useScrollMotion();
+  // One discount code for the whole page: the pricing section and the form share it.
+  const discount = useDiscountState();
   const [preset, setPreset] = useState<Preset>(null);
   // The course shown in the groups section; a price card's button picks it.
   const [groupsCourse, setGroupsCourse] = useState<CourseType>("regular");
@@ -471,20 +497,22 @@ export function Landing() {
     go("basvuru");
   };
   return (
-    <main className="min-h-screen bg-background pb-20 md:pb-0">
-      <Header />
-      <Hero />
-      <Phrases />
-      <Pinned />
-      <Rhythm />
-      <Offer onChooseCourse={chooseCourse} />
-      <Groups course={groupsCourse} setCourse={setGroupsCourse} onChoose={choose} />
-      <Instructor />
-      <Register preset={preset} />
-      <Faq />
-      <button onClick={() => go("ucretler")} className={`fixed inset-x-4 bottom-4 z-40 rounded-full bg-gold py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition-opacity md:hidden ${ctaHidden ? "pointer-events-none opacity-0" : ""}`}>
-        Kayıt ol · 8 veya 16 ders
-      </button>
-    </main>
+    <DiscountProvider value={discount}>
+      <main className="min-h-screen bg-background pb-20 md:pb-0">
+        <Header />
+        <Hero />
+        <Phrases />
+        <Pinned />
+        <Rhythm />
+        <Offer onChooseCourse={chooseCourse} />
+        <Groups course={groupsCourse} setCourse={setGroupsCourse} onChoose={choose} />
+        <Instructor />
+        <Register preset={preset} />
+        <Faq />
+        <button onClick={() => go("ucretler")} className={`fixed inset-x-4 bottom-4 z-40 rounded-full bg-gold py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition-opacity md:hidden ${ctaHidden ? "pointer-events-none opacity-0" : ""}`}>
+          Kayıt ol · 8 veya 16 ders
+        </button>
+      </main>
+    </DiscountProvider>
   );
 }
