@@ -280,7 +280,7 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           </h2>
           <p className="mt-5 text-on-navy/80">Bildiğiniz Arapçayı kullanın, kendinizi ifade edin ve düzenli pratikle ilerleyin.</p>
           <p className="mt-4 text-sm text-on-navy/85">
-            İndirim kodlarıyla ders başına 150 TL&apos;ye varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
+            İndirim kodlarıyla %40&apos;a varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
           </p>
           <div className="mt-4 max-w-md">
             <DiscountField tone="navy" />
