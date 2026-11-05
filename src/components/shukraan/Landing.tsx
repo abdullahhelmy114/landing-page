@@ -9,12 +9,7 @@ import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, PRICE, STEPS, WAITLIST_NOTE, REG
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
-import { WHOP_PLANS } from "@/lib/whop-plans";
-import { CheckoutDialog } from "./CheckoutDialog";
 import { Eyebrow } from "./Eyebrow";
-
-/** Label of the button that opens a plan's Whop checkout. */
-const SUBSCRIBE_LABEL = "Satın al ↗";
 
 const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
@@ -233,10 +228,10 @@ function CoffeeCard() {
   );
 }
 
-function Offer() {
-  const cards = [
-    { t: "Normal Konuşma Kursu", p: REGULAR_PRICE, plan: WHOP_PLANS.regular, meta: "4 hafta · Haftada 1 gün · Her buluşmada 2 ders" },
-    { t: "Yoğunlaştırılmış Konuşma Kursu (+)", p: PRICE, plan: WHOP_PLANS.intensive, meta: "4 hafta · Haftada 2 gün (sabah + akşam) · Her buluşmada 2 ders" },
+function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => void }) {
+  const cards: { t: string; course: CourseType; p: typeof PRICE | typeof REGULAR_PRICE; meta: string }[] = [
+    { t: "Normal Konuşma Kursu", course: "regular", p: REGULAR_PRICE, meta: "4 hafta · Haftada 1 gün · Her buluşmada 2 ders" },
+    { t: "Yoğunlaştırılmış Konuşma Kursu (+)", course: "intensive", p: PRICE, meta: "4 hafta · Haftada 2 gün (sabah + akşam) · Her buluşmada 2 ders" },
   ];
   return (
     <section id="ucretler" className="relative isolate scroll-mt-20 overflow-hidden gradient-navy py-24 text-on-navy sm:py-32">
@@ -267,16 +262,14 @@ function Offer() {
               <p className="mt-3 text-base text-foreground">{c.p.lessons} derslik paket toplamı: <b>{c.p.total} TL</b></p>
               <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">{c.meta}</p>
               <p className="mt-1 text-sm text-muted-foreground">5 kişilik grup · Zoom üzerinden canlı</p>
-              <CheckoutDialog planId={c.plan.planId} title={c.t} total={`${c.p.lessons} derslik paket toplamı: ${c.p.total} TL`}>
-                <button type="button" className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
-                  {SUBSCRIBE_LABEL}
-                </button>
-              </CheckoutDialog>
+              <button type="button" onClick={() => onChooseCourse(c.course)} className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
+                Uygun grubu seçin ↗
+              </button>
             </div>
           ))}
         </div>
         <div className="reveal mt-8 rounded-2xl border-s-2 border-gold bg-on-navy/5 p-6 text-sm leading-relaxed text-on-navy/85">
-          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme yöntemi WhatsApp grubunda paylaşılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğunlaştırılmış kursta (+) dolu bir grup için bekleme listesi rezervasyonu, 3.600 TL&apos;lik paketin en az %50&apos;si olan 1.800 TL ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
+          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğunlaştırılmış kursta (+) dolu bir grup için bekleme listesi rezervasyonu, 3.600 TL&apos;lik paketin en az %50&apos;si olan 1.800 TL ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
           <p className="mt-3"><b className="text-gold-soft">Sonraki kurslar:</b> Bu kursa katılanlar, akademinin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.</p>
         </div>
       </div>
@@ -284,8 +277,15 @@ function Offer() {
   );
 }
 
-function Groups({ onChoose }: { onChoose: (g: Gender, id: string, course: CourseType) => void }) {
-  const [course, setCourse] = useState<CourseType>("regular");
+function Groups({
+  course,
+  setCourse,
+  onChoose,
+}: {
+  course: CourseType;
+  setCourse: (course: CourseType) => void;
+  onChoose: (g: Gender, id: string, course: CourseType) => void;
+}) {
   const [gender, setGender] = useState<Gender>("Kadın");
   const regular = course === "regular";
   const pill = (on: boolean) =>
@@ -409,7 +409,7 @@ function Register({ preset }: { preset: Preset }) {
             <span className="block italic text-gold">Birlikte başlayalım.</span>
           </h2>
           <p className="mt-6 max-w-md leading-relaxed text-muted-foreground">
-            Bilgilerinizi doldurun. Başvurunuz başarıyla alındıktan sonra size uygun WhatsApp grubunun bağlantısı ve QR kodu gösterilecektir.
+            Bilgilerinizi doldurun. Ödemeniz tamamlandıktan sonra size uygun WhatsApp grubunun bağlantısı ve QR kodu gösterilecektir.
           </p>
         </div>
         <RegisterForm preset={preset} />
@@ -446,6 +446,12 @@ function Faq() {
 export function Landing() {
   useScrollMotion();
   const [preset, setPreset] = useState<Preset>(null);
+  // The course shown in the groups section; a price card's button picks it.
+  const [groupsCourse, setGroupsCourse] = useState<CourseType>("regular");
+  const chooseCourse = (course: CourseType) => {
+    setGroupsCourse(course);
+    go("gruplar");
+  };
   const [ctaHidden, setCtaHidden] = useState(false);
   useEffect(() => {
     // The floating button stays out of the way while the pricing cards or the form are on screen.
@@ -471,8 +477,8 @@ export function Landing() {
       <Phrases />
       <Pinned />
       <Rhythm />
-      <Offer />
-      <Groups onChoose={choose} />
+      <Offer onChooseCourse={chooseCourse} />
+      <Groups course={groupsCourse} setCourse={setGroupsCourse} onChoose={choose} />
       <Instructor />
       <Register preset={preset} />
       <Faq />

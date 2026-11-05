@@ -66,7 +66,7 @@ export const groupsFor = (course: CourseType) => course === "regular" ? REGULAR_
 export const priceFor = (course: CourseType) => course === "regular" ? REGULAR_PRICE : PRICE;
 export const courseTitle = (course: CourseType) => course === "regular" ? "Normal Konuşma Kursu" : "Yoğunlaştırılmış Konuşma Kursu (+)";
 export const waitlistFor = (course: CourseType) => course === "regular"
-  ? "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtabilirsiniz. Kesin kayıt ve ödeme adımları WhatsApp topluluğunda paylaşılır."
+  ? "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtabilirsiniz. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır."
   : WAITLIST_NOTE;
 
 export const WAITLIST_NOTE =
@@ -139,7 +139,7 @@ export const FAQ = [
   },
   {
     q: "Formu doldurunca yerim kesinleşir mi?",
-    a: "Hayır. Form, başvurunuzu akademiye iletir. Ödeme yöntemi WhatsApp grubunda paylaşılır; koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.",
+    a: "Hayır. Form, başvurunuzu akademiye iletir. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır; koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.",
   },
   {
     q: "İstediğim grup doluysa ne yapabilirim?",
