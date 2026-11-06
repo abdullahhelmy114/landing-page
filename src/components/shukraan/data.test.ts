@@ -1,6 +1,6 @@
 /// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
-import { CREDENTIALS, FAQ, GROUPS, REGULAR_GROUPS, courseTitle, formatTL, groupsFor, priceFor, qrFor } from "./data";
+import { CREDENTIALS, FAQ, GROUPS, LEVELS, REGULAR_GROUPS, courseTitle, formatTL, groupsFor, priceFor } from "./data";
 
 describe("Course booking rules", () => {
   test("regular course costs 400 TL per lesson and 3.200 TL for eight", () => {
@@ -15,26 +15,37 @@ describe("Course booking rules", () => {
     expect(formatTL(3200)).toBe("3.200");
     expect(formatTL(400)).toBe("400");
   });
-  test("regular A groups restore Monday slots and remain full", () => {
-    expect(REGULAR_GROUPS.find((g) => g.id === "Kadın A")).toMatchObject({ full: true, slots: [{ day: "Pazartesi", first: "17:00–17:40", second: "17:50–18:30" }] });
-    expect(REGULAR_GROUPS.find((g) => g.id === "Erkek A")).toMatchObject({ full: true, slots: [{ day: "Pazartesi", first: "15:00–15:40", second: "15:50–16:30" }] });
-  });
-  test("regular B through E restore Tuesday through Friday evening slots", () => {
-    for (const [i, letter] of ["B", "C", "D", "E"].entries()) {
-      const day = ["Salı", "Çarşamba", "Perşembe", "Cuma"][i];
-      if (!day) throw new Error("Missing expected weekday");
-      expect(REGULAR_GROUPS.find((g) => g.id === `Kadın ${letter}`)?.slots).toEqual([{ day, first: "18:00–18:40", pause: "10 dk ara", second: "18:50–19:30" }]);
-      expect(REGULAR_GROUPS.find((g) => g.id === `Erkek ${letter}`)?.slots).toEqual([{ day, first: "20:00–20:40", pause: "10 dk ara", second: "20:50–21:30" }]);
+  test("each course has two Kadın and two Erkek groups per level, all open", () => {
+    for (const course of ["regular", "intensive"] as const) {
+      expect(groupsFor(course)).toHaveLength(12);
+      for (const level of LEVELS)
+        for (const gender of ["Kadın", "Erkek"] as const) {
+          const names = groupsFor(course).filter((g) => g.level === level && g.gender === gender).map((g) => g.name);
+          expect(names).toEqual([`${level} · ${gender} 1`, `${level} · ${gender} 2`]);
+        }
+      expect(groupsFor(course).every((g) => !g.full)).toBe(true);
     }
+    expect(GROUPS.every((g) => g.id === `${g.name}+`)).toBe(true);
+    expect(REGULAR_GROUPS.every((g) => g.id === g.name)).toBe(true);
   });
-  test("both courses retain ten separate groups and correct QR paths", () => {
-    expect(groupsFor("regular")).toHaveLength(10);
-    expect(groupsFor("intensive")).toBe(GROUPS);
-    expect(GROUPS).toHaveLength(10);
-    expect(groupsFor("regular").every((g) => g.slots.length === 1)).toBe(true);
-    expect(groupsFor("intensive").every((g) => g.slots.length === 2)).toBe(true);
-    expect(qrFor("Kadın E", "Kadın")).toBe(encodeURI("/QR CODE/Kadın E.png"));
-    expect(qrFor("Erkek E+", "Erkek")).toBe(encodeURI("/QR CODE/Erkek E.png"));
+  test("one level per day, nothing on Cuma, 50-minute lessons with a 10-minute break", () => {
+    const levelOfDay = new Map<string, string>();
+    for (const g of [...GROUPS, ...REGULAR_GROUPS])
+      for (const s of g.slots) {
+        expect(s.day).not.toBe("Cuma");
+        expect(levelOfDay.get(s.day) ?? g.level).toBe(g.level);
+        levelOfDay.set(s.day, g.level);
+        const [a, b] = s.first.split("–").map((t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3)));
+        const [c] = s.second.split("–").map((t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3)));
+        expect([b! - a!, c! - b!]).toEqual([50, 10]);
+      }
+    expect(levelOfDay.size).toBe(6);
+  });
+  test("Yoğun groups meet twice at the same hour; Normal groups once in the evening", () => {
+    expect(GROUPS.every((g) => g.slots.length === 2 && g.slots[0]!.first === g.slots[1]!.first)).toBe(true);
+    expect(REGULAR_GROUPS.every((g) => g.slots.length === 1 && ["18:00", "20:00"].includes(g.slots[0]!.first.slice(0, 5)))).toBe(true);
+    expect(GROUPS.find((g) => g.name === "A2 · Kadın 1")?.slots[0]?.first).toBe("10:00–10:50");
+    expect(GROUPS.find((g) => g.name === "A2 · Kadın 1")?.slots[0]?.second).toBe("11:00–11:50");
   });
 });
 describe("Offer eligibility and wording", () => {

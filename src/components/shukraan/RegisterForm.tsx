@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { WHATSAPP, qrFor, groupsFor, priceFor, courseTitle, type CourseType, type Gender } from "./data";
+import { GROUP_TITLE, LEVELS, groupsFor, priceFor, courseTitle, type CourseType, type Gender, type Level } from "./data";
 import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
@@ -17,7 +17,7 @@ import {
 } from "./registration";
 import { WhopCheckout } from "./WhopCheckout";
 
-export type Preset = { gender: Gender; groupId: string; course: CourseType; nonce: number } | null;
+export type Preset = { gender: Gender; groupId: string; course: CourseType; level: Level; nonce: number } | null;
 
 const field =
   "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-foreground outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30";
@@ -44,7 +44,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   if (preset !== appliedPreset) {
     setAppliedPreset(preset);
     if (preset) {
-      setF((p) => ({ ...p, course: preset.course, gender: preset.gender, group: preset.groupId }));
+      setF((p) => ({ ...p, course: preset.course, gender: preset.gender, level: preset.level, group: preset.groupId }));
       setStep(0);
     }
   }
@@ -78,7 +78,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   const PRICE = priceFor(f.course);
   const GROUPS = groupsFor(f.course);
-  const groups = GROUPS.filter((g) => g.gender === f.gender);
+  const groups = GROUPS.filter((g) => g.gender === f.gender && g.level === f.level);
   // A valid code opens its discounted plan; otherwise the regular plan.
   const planId = discount?.plans[f.course].planId ?? WHOP_PLANS[f.course].planId;
 
@@ -132,23 +132,26 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   );
 
   if (step === DONE_STEP && f.gender) {
-    const invite = WHATSAPP[f.gender];
+    const title = GROUP_TITLE[f.gender];
+    // A group without its own WhatsApp invite yet (or a new group) gets a message instead.
+    const invite = groupsFor(f.course).find((g) => g.id === f.group)?.whatsapp;
     return (
       <div ref={ref} className="glass scroll-mt-28 rounded-3xl p-6 sm:p-8">
         {progress}
         <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
           {STEPS.length} / {STEPS.length} · Başvurunuz alındı
         </p>
-        <h3 className="mt-2 text-3xl font-semibold text-primary">{invite.title}</h3>
+        <h3 className="mt-2 text-3xl font-semibold text-primary">{title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Başvurunuz akademiye kaydedildi. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır;
           koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.
         </p>
+        {invite ? (
         <div className="mt-6 grid items-center gap-6 sm:grid-cols-[180px_1fr]">
           <div className="rounded-2xl bg-card p-3 shadow-gold ring-1 ring-gold/40">
             <img
-              src={qrFor(f.group, f.gender)}
-              alt={`${invite.title} — WhatsApp QR kodu`}
+              src={encodeURI(invite.qr)}
+              alt={`${title} — WhatsApp QR kodu`}
               className="aspect-square w-full rounded-lg object-contain"
             />
           </div>
@@ -167,6 +170,11 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             </p>
           </div>
         </div>
+        ) : (
+          <p data-no-invite className="mt-6 rounded-2xl bg-secondary p-4 text-sm text-primary">
+            Ödemeniz alındı. Grubunuzun WhatsApp bağlantısı en kısa sürede size iletilecek.
+          </p>
+        )}
         <div className="mt-6">
           <Button
             type="button"
@@ -215,24 +223,24 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             </select>
           </div>
           <div>
+            <label className={label}>Arapça seviyeniz *</label>
+            <select required className={field} value={f.level} onChange={(e) => setF((p) => ({ ...p, level: e.target.value, group: "" }))}>
+              <option value="">Seçiniz</option>
+              {LEVELS.map((l) => (
+                <option key={l}>{l}</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className={label}>Tercih ettiğiniz grup *</label>
             <select required className={field} value={f.group} onChange={(e) => set("group", e.target.value)}>
               <option value="">Grup seçiniz</option>
               {groups.map((g) => (
                 <option key={g.id} value={g.id} disabled={f.course === "regular" && g.full}>
-                  {g.id} · {g.slots.map((s) => `${s.day} ${s.first.slice(0, 5)}`).join(" + ")}{g.full ? f.course === "intensive" ? " · Dolu — Bekleme listesi" : " · Dolu" : ""}
+                  {g.name} · {g.slots.map((s) => `${s.day} ${s.first.slice(0, 5)}`).join(" + ")}{g.full ? f.course === "intensive" ? " · Dolu — Bekleme listesi" : " · Dolu" : ""}
                 </option>
               ))}
               {f.gender && <option value="new">Yeni bir gruba katılmak istiyorum</option>}
-            </select>
-          </div>
-          <div>
-            <label className={label}>Arapça seviyeniz *</label>
-            <select required className={field} value={f.level} onChange={(e) => set("level", e.target.value)}>
-              <option value="">Seçiniz</option>
-              <option>A2</option>
-              <option>B1</option>
-              <option>B2</option>
             </select>
           </div>
           {f.group === "new" && (
@@ -268,7 +276,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <textarea required rows={3} className={field} value={f.goal} onChange={(e) => set("goal", e.target.value)} placeholder="Arapçayı hangi durumlarda daha rahat konuşmak istiyorsunuz?" />
           </div>
           <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">
-            <Amount course={f.course} kind="perLesson" /> TL/40 dk × {PRICE.lessons} ders = <Amount course={f.course} kind="total" />
+            <Amount course={f.course} kind="perLesson" /> TL/50 dk × {PRICE.lessons} ders = <Amount course={f.course} kind="total" />
           </p>
         </div>
 

@@ -5,8 +5,8 @@ const logoGold = { url: "/images/logo_gold.png" };
 const logoNavy = { url: "/images/logo_navy.png" };
 const classroom = { url: "/images/classroom.jpg" };
 const drJehan = { url: "/images/jehan-cream-office.png" };
-import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, WAITLIST_NOTE, formatTL, groupsFor, type CourseType, type Gender } from "./data";
-import { Amount, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
+import { ACTIVITIES, CREDENTIALS, FAQ, LEVELS, PHRASES, STEPS, WAITLIST_NOTE, formatTL, groupsFor, type CourseType, type Gender, type Level } from "./data";
+import { Amount, DiscountField, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -225,7 +225,7 @@ function CoffeeCard() {
         <div>
           <h3 className="font-serif text-3xl font-semibold text-primary sm:text-4xl">Bir kahve molası kadar keyifli.</h3>
           <p className="mt-2 text-muted-foreground">Bu kez sohbet Arapça. Bildiklerinizi konuşmaya taşıyın.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Arapça konuşmaya ayrılmış 40 dakika.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Arapça konuşmaya ayrılmış 50 dakika.</p>
           <p className="coffee-sip mt-4 font-serif text-lg italic text-gold">Bir yudum kahve, bir adım Arapça.</p>
         </div>
       </div>
@@ -244,7 +244,7 @@ function OfferCard({ c, onChooseCourse }: { c: OfferCardData; onChooseCourse: (c
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">{c.t}</p>
       <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-1">
         <p className="font-serif text-6xl font-semibold text-primary sm:text-7xl">
-          {now.perLesson} <span className="text-xl text-muted-foreground">TL/40 dk</span>
+          {now.perLesson} <span className="text-xl text-muted-foreground">TL/50 dk</span>
         </p>
         {discounted && (
           <s className="pb-2 text-base text-muted-foreground decoration-2 sm:text-lg">{regular.perLesson} TL</s>
@@ -284,6 +284,12 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           </h2>
           <p className="mt-5 text-on-navy/80">Bildiğiniz Arapçayı kullanın, kendinizi ifade edin ve düzenli pratikle ilerleyin.</p>
           <p className="mt-4 text-sm font-semibold text-gold-soft">Sınırlı kontenjan · Her grupta en fazla 5 kişi</p>
+          <p className="mt-2 text-sm text-on-navy/85">
+            İndirim kodlarıyla %40&apos;a varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
+          </p>
+          <div className="mt-4 max-w-md">
+            <DiscountField tone="navy" />
+          </div>
         </div>
         <CoffeeCard />
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -307,9 +313,10 @@ function Groups({
 }: {
   course: CourseType;
   setCourse: (course: CourseType) => void;
-  onChoose: (g: Gender, id: string, course: CourseType) => void;
+  onChoose: (g: Gender, id: string, course: CourseType, level: Level) => void;
 }) {
   const [gender, setGender] = useState<Gender>("Kadın");
+  const [level, setLevel] = useState<Level>(LEVELS[0]!);
   const regular = course === "regular";
   const pill = (on: boolean) =>
     `rounded-full px-5 py-2.5 text-sm font-semibold transition ${on ? "bg-primary text-primary-foreground shadow-elegant" : "bg-card text-primary ring-1 ring-gold/30 hover:ring-gold"}`;
@@ -330,23 +337,28 @@ function Groups({
             <button key={g} className={pill(gender === g)} aria-pressed={gender === g} onClick={() => setGender(g)}>{g}</button>
           ))}
         </div>
+        <div role="group" aria-label="Seviye" className="flex flex-wrap gap-2">
+          {LEVELS.map((l) => (
+            <button key={l} className={pill(level === l)} aria-pressed={level === l} onClick={() => setLevel(l)}>{l}</button>
+          ))}
+        </div>
       </div>
       <p className="mt-5 text-sm text-muted-foreground">
         {regular
-          ? "Haftada 1 gün · 40 dk ders + 10 dk ara + 40 dk ders · 4 haftada 8 ders"
-          : "Haftada 2 gün · 40 dk ders + 10 dk ara + 40 dk ders · 4 haftada 16 ders"}
+          ? "Haftada 1 gün · 50 dk ders + 10 dk ara + 50 dk ders · 4 haftada 8 ders"
+          : "Haftada 2 gün · 50 dk ders + 10 dk ara + 50 dk ders · 4 haftada 16 ders"}
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {groupsFor(course).filter((g) => g.gender === gender).map((g) => (
+        {groupsFor(course).filter((g) => g.gender === gender && g.level === level).map((g) => (
           <Button
             variant="ghost"
             disabled={regular && g.full}
             key={g.id}
-            onClick={() => onChoose(gender, g.id, course)}
+            onClick={() => onChoose(gender, g.id, course, level)}
             className="group flex h-auto flex-col items-stretch justify-start whitespace-normal rounded-lg bg-card p-5 text-start shadow-elegant ring-1 ring-gold/20 transition duration-300 hover:-translate-y-1 hover:ring-gold"
           >
             <div className="flex items-baseline justify-between">
-              <span className="font-serif text-2xl font-semibold text-primary">{g.id}</span>
+              <span className="font-serif text-2xl font-semibold text-primary">{g.name}</span>
               {g.full ? (
                 <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">Dolu</span>
               ) : (
@@ -506,8 +518,8 @@ export function Landing() {
     });
     return () => io.disconnect();
   }, []);
-  const choose = (gender: Gender, groupId: string, course: CourseType) => {
-    setPreset({ gender, groupId, course, nonce: Date.now() });
+  const choose = (gender: Gender, groupId: string, course: CourseType, level: Level) => {
+    setPreset({ gender, groupId, course, level, nonce: Date.now() });
     go("basvuru");
   };
   return (

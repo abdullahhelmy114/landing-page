@@ -1,35 +1,65 @@
 export type Gender = "Kadın" | "Erkek";
 export type CourseType = "regular" | "intensive";
 
+export type Level = "A2" | "B1" | "B2";
+/** The levels the form offers; the groups section starts on the first. */
+export const LEVELS: Level[] = ["A2", "B1", "B2"];
+
 export type Slot = { day: string; first: string; pause: string; second: string };
 
+export type WhatsAppInvite = { url: string; qr: string };
+
 export type Group = {
+  /** Saved with the registration; Yoğun (+) groups end in "+". */
   id: string;
+  /** Shown on the page, e.g. "A2 · Kadın 1". */
+  name: string;
+  level: Level;
   gender: Gender;
-  /** Two weekly slots: one morning, one evening. */
+  /** Normal: one weekly meeting. Yoğun (+): two, at the same hour. */
   slots: Slot[];
   full: boolean;
+  /** The group's WhatsApp invite (link, and its QR image in /public). Absent until it has one. */
+  whatsapp?: WhatsAppInvite;
 };
 
-const slot = (day: string, first: string, second: string): Slot => ({
+const hh = (hour: number) => String(hour).padStart(2, "0");
+
+/** A meeting starting at `hour`, Türkiye saati: two 50-minute lessons with a 10-minute break. */
+const meeting = (day: string, hour: number): Slot => ({
   day,
-  first,
+  first: `${hh(hour)}:00–${hh(hour)}:50`,
   pause: "10 dk ara",
-  second,
+  second: `${hh(hour + 1)}:00–${hh(hour + 1)}:50`,
 });
 
-/** Yoğun Konuşma Kursu (+): her grup haftada 2 gün, günde 2 ders, toplam 16 ders. */
+/** To give a group its WhatsApp invite, add it as the last argument: { url, qr }. */
+const group = (course: CourseType, level: Level, gender: Gender, n: 1 | 2, slots: Slot[], whatsapp?: WhatsAppInvite): Group => ({
+  id: `${level} · ${gender} ${n}${course === "intensive" ? "+" : ""}`,
+  name: `${level} · ${gender} ${n}`,
+  level,
+  gender,
+  slots,
+  full: false,
+  ...(whatsapp ? { whatsapp } : {}),
+});
+
+// One level per day: A2 Pazartesi + Perşembe, B1 Salı + Cumartesi, B2 Çarşamba + Pazar. No Cuma.
+
+/** Yoğun Konuşma Kursu (+): each group meets on its level's two days at the same hour (16 ders). */
 export const GROUPS: Group[] = [
-  { id: "Kadın A+", gender: "Kadın", full: true, slots: [slot("Cumartesi", "09:00–09:40", "09:50–10:30"), slot("Pazartesi", "16:00–16:40", "16:50–17:30")] },
-  { id: "Kadın B+", gender: "Kadın", full: false, slots: [slot("Pazar", "09:00–09:40", "09:50–10:30"), slot("Perşembe", "16:00–16:40", "16:50–17:30")] },
-  { id: "Kadın C+", gender: "Kadın", full: false, slots: [slot("Pazartesi", "09:00–09:40", "09:50–10:30"), slot("Cuma", "10:00–10:40", "10:50–11:30")] },
-  { id: "Kadın D+", gender: "Kadın", full: true, slots: [slot("Salı", "09:00–09:40", "09:50–10:30"), slot("Cuma", "16:00–16:40", "16:50–17:30")] },
-  { id: "Kadın E+", gender: "Kadın", full: true, slots: [slot("Çarşamba", "09:00–09:40", "09:50–10:30"), slot("Salı", "16:00–16:40", "16:50–17:30")] },
-  { id: "Erkek A+", gender: "Erkek", full: false, slots: [slot("Cumartesi", "12:00–12:40", "12:50–13:30"), slot("Çarşamba", "18:00–18:40", "18:50–19:30")] },
-  { id: "Erkek B+", gender: "Erkek", full: true, slots: [slot("Pazar", "09:00–09:40", "09:50–10:30"), slot("Cumartesi", "16:00–16:40", "16:50–17:30")] },
-  { id: "Erkek C+", gender: "Erkek", full: false, slots: [slot("Pazartesi", "09:00–09:40", "09:50–10:30"), slot("Perşembe", "16:00–16:40", "16:50–17:30")] },
-  { id: "Erkek D+", gender: "Erkek", full: false, slots: [slot("Salı", "09:00–09:40", "09:50–10:30"), slot("Pazartesi", "16:00–16:40", "16:50–17:30")] },
-  { id: "Erkek E+", gender: "Erkek", full: true, slots: [slot("Çarşamba", "09:00–09:40", "09:50–10:30"), slot("Pazar", "16:00–16:40", "16:50–17:30")] },
+  group("intensive", "A2", "Kadın", 1, [meeting("Pazartesi", 10), meeting("Perşembe", 10)]),
+  group("intensive", "A2", "Erkek", 1, [meeting("Pazartesi", 12), meeting("Perşembe", 12)]),
+  group("intensive", "A2", "Kadın", 2, [meeting("Pazartesi", 14), meeting("Perşembe", 14)]),
+  group("intensive", "A2", "Erkek", 2, [meeting("Pazartesi", 16), meeting("Perşembe", 16)]),
+  group("intensive", "B1", "Kadın", 1, [meeting("Salı", 10), meeting("Cumartesi", 10)]),
+  group("intensive", "B1", "Erkek", 1, [meeting("Salı", 12), meeting("Cumartesi", 12)]),
+  group("intensive", "B1", "Kadın", 2, [meeting("Salı", 14), meeting("Cumartesi", 14)]),
+  group("intensive", "B1", "Erkek", 2, [meeting("Salı", 16), meeting("Cumartesi", 16)]),
+  group("intensive", "B2", "Kadın", 1, [meeting("Çarşamba", 10), meeting("Pazar", 10)]),
+  group("intensive", "B2", "Erkek", 1, [meeting("Çarşamba", 12), meeting("Pazar", 12)]),
+  group("intensive", "B2", "Kadın", 2, [meeting("Çarşamba", 14), meeting("Pazar", 14)]),
+  group("intensive", "B2", "Erkek", 2, [meeting("Çarşamba", 16), meeting("Pazar", 16)]),
 ];
 
 export type Price = { perLesson: number; lessons: number; total: number };
@@ -45,17 +75,20 @@ export const REGULAR_PRICE: Price = { perLesson: 400, lessons: 8, total: 3200 };
 /** An amount in Turkish style: 3200 → "3.200". */
 export const formatTL = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
+/** Normal Konuşma Kursu: one evening a week; group 1 on the level's first day, group 2 on its second. */
 export const REGULAR_GROUPS: Group[] = [
-  { id: "Kadın A", gender: "Kadın", full: true, slots: [slot("Pazartesi", "17:00–17:40", "17:50–18:30")] },
-  { id: "Kadın B", gender: "Kadın", full: false, slots: [slot("Salı", "18:00–18:40", "18:50–19:30")] },
-  { id: "Kadın C", gender: "Kadın", full: false, slots: [slot("Çarşamba", "18:00–18:40", "18:50–19:30")] },
-  { id: "Kadın D", gender: "Kadın", full: false, slots: [slot("Perşembe", "18:00–18:40", "18:50–19:30")] },
-  { id: "Kadın E", gender: "Kadın", full: false, slots: [slot("Cuma", "18:00–18:40", "18:50–19:30")] },
-  { id: "Erkek A", gender: "Erkek", full: true, slots: [slot("Pazartesi", "15:00–15:40", "15:50–16:30")] },
-  { id: "Erkek B", gender: "Erkek", full: false, slots: [slot("Salı", "20:00–20:40", "20:50–21:30")] },
-  { id: "Erkek C", gender: "Erkek", full: false, slots: [slot("Çarşamba", "20:00–20:40", "20:50–21:30")] },
-  { id: "Erkek D", gender: "Erkek", full: false, slots: [slot("Perşembe", "20:00–20:40", "20:50–21:30")] },
-  { id: "Erkek E", gender: "Erkek", full: false, slots: [slot("Cuma", "20:00–20:40", "20:50–21:30")] },
+  group("regular", "A2", "Kadın", 1, [meeting("Pazartesi", 18)]),
+  group("regular", "A2", "Kadın", 2, [meeting("Perşembe", 18)]),
+  group("regular", "A2", "Erkek", 1, [meeting("Pazartesi", 20)]),
+  group("regular", "A2", "Erkek", 2, [meeting("Perşembe", 20)]),
+  group("regular", "B1", "Kadın", 1, [meeting("Salı", 18)]),
+  group("regular", "B1", "Kadın", 2, [meeting("Cumartesi", 18)]),
+  group("regular", "B1", "Erkek", 1, [meeting("Salı", 20)]),
+  group("regular", "B1", "Erkek", 2, [meeting("Cumartesi", 20)]),
+  group("regular", "B2", "Kadın", 1, [meeting("Çarşamba", 18)]),
+  group("regular", "B2", "Kadın", 2, [meeting("Pazar", 18)]),
+  group("regular", "B2", "Erkek", 1, [meeting("Çarşamba", 20)]),
+  group("regular", "B2", "Erkek", 2, [meeting("Pazar", 20)]),
 ];
 
 export const groupsFor = (course: CourseType) => course === "regular" ? REGULAR_GROUPS : GROUPS;
@@ -68,22 +101,19 @@ export const waitlistFor = (course: CourseType) => course === "regular"
 export const WAITLIST_NOTE =
   "Size uygun grup yoksa bekleme listesine katılın; yeni grup açıldığında size haber verelim.";
 
-/** QR images live in /public/QR CODE/<Kadın|Erkek> <A–E>.png — replace the files, keep the names. */
-export function qrFor(groupId: string, gender: Gender) {
-  const g = [...GROUPS, ...REGULAR_GROUPS].find((x) => x.id === groupId);
-  const letter = g ? g.id.replace("+", "").split(" ")[1] : "A";
-  return encodeURI(`/QR CODE/${gender} ${letter}.png`);
-}
+/** The WhatsApp step's heading for each group type. */
+export const GROUP_TITLE: Record<Gender, string> = {
+  Kadın: "Kadınlar için Arapça Konuşma Grubu",
+  Erkek: "Erkekler için Arapça Konuşma Grubu",
+};
 
-export const WHATSAPP: Record<Gender, { url: string; title: string }> = {
-  Kadın: {
-    url: "https://chat.whatsapp.com/FwfLiQe9DFw53CKHGrLsRN",
-    title: "Kadınlar için Arapça Konuşma Grubu",
-  },
-  Erkek: {
-    url: "https://chat.whatsapp.com/KiPAJLXpwag3WIKBg3UYQ8",
-    title: "Erkekler için Arapça Konuşma Grubu",
-  },
+/**
+ * The academy's earlier WhatsApp groups, one per group type, which all the former groups shared.
+ * No group uses them now; to send a group's buyers to one, pass it as that group's invite.
+ */
+export const COMMUNITY_WHATSAPP: Record<Gender, WhatsAppInvite> = {
+  Kadın: { url: "https://chat.whatsapp.com/FwfLiQe9DFw53CKHGrLsRN", qr: "/QR CODE/Kadın A.png" },
+  Erkek: { url: "https://chat.whatsapp.com/KiPAJLXpwag3WIKBg3UYQ8", qr: "/QR CODE/Erkek A.png" },
 };
 
 export const ACTIVITIES = [
@@ -102,8 +132,8 @@ export const STEPS = [
   },
   {
     n: "02",
-    title: "40 dakika ders + 10 dakika ara + 40 dakika ders",
-    body: "Her buluşma, aralarında 10 dakika mola olan 40 dakikalık iki dersten oluşur.",
+    title: "50 dakika ders + 10 dakika ara + 50 dakika ders",
+    body: "Her buluşma, aralarında 10 dakika mola olan 50 dakikalık iki dersten oluşur.",
   },
   {
     n: "03",
@@ -132,7 +162,7 @@ export const FAQ = [
   },
   {
     q: "Haftada kaç gün katılacağım?",
-    a: "Normal kursta haftada bir gün, yoğun kursta (+) haftada iki gün buluşulur. Her buluşmada 40 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğun kurs 4 haftada 16 derstir.",
+    a: "Normal kursta haftada bir gün, yoğun kursta (+) haftada iki gün buluşulur. Her buluşmada 50 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğun kurs 4 haftada 16 derstir.",
   },
   {
     q: "Yerim ne zaman kesinleşir?",
