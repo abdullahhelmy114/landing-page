@@ -1,6 +1,6 @@
 import { isDiscount, type Discount } from "@/lib/discount";
 import { registrationSchema, type RegistrationPayload } from "@/lib/registration-schema";
-import type { CourseType, Gender } from "./data";
+import type { CourseType, Gender, WhatsAppInvite } from "./data";
 
 /** The form's steps: group, details, payment, WhatsApp. */
 export const PAY_STEP = 2;
@@ -138,6 +138,26 @@ export function resumePoint(
 }
 
 // ── Saving ───────────────────────────────────────────────────────────────────────────────────
+/** One save attempt's outcome; a saved registration comes with its group's invite (or null). */
+export type SaveEvent = { answers: Answers; saved: boolean; invite: WhatsAppInvite | null };
+const listeners = new Set<(event: SaveEvent) => void>();
+
+/** Calls `listener` after every save attempt; returns the unsubscribe function. */
+export function onSave(listener: (event: SaveEvent) => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/** The invite in the save API's answer, if it is well formed. */
+function inviteFrom(body: unknown): WhatsAppInvite | null {
+  const w = (body as { whatsapp?: Partial<WhatsAppInvite> | null } | null)?.whatsapp;
+  return typeof w?.url === "string" && w.url.startsWith("https://") && typeof w.qr === "string" && w.qr.startsWith("data:image/")
+    ? { url: w.url, qr: w.qr }
+    : null;
+}
+
 let timer: ReturnType<typeof setTimeout> | undefined;
 let inFlight = false;
 let attempt = 0;
@@ -158,6 +178,7 @@ async function run() {
   if (!next) return;
   inFlight = true;
   let saved = false;
+  let invite: WhatsAppInvite | null = null;
   try {
     const res = await fetch(ENDPOINT, {
       method: "POST",
@@ -166,10 +187,12 @@ async function run() {
       keepalive: true,
     });
     saved = res.ok;
+    if (saved) invite = inviteFrom(await res.json().catch(() => null));
   } catch {
     // Network error: retried below.
   }
   inFlight = false;
+  listeners.forEach((listener) => listener({ answers: next, saved, invite }));
   if (saved) {
     const rest = readPaid().slice(1);
     if (rest.length) write(PAID_KEY, rest);

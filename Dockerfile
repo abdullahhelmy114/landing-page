@@ -46,6 +46,8 @@ ENV HOSTNAME=0.0.0.0
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+# Each group's WhatsApp link and QR code, read by the server next to server.js (never served by URL).
+COPY --from=builder /app/whatsapp-gruplari ./whatsapp-gruplari
 
 EXPOSE 3000
 

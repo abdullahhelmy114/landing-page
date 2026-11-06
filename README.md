@@ -26,7 +26,9 @@ bun run lint
 The site is a Next.js App Router app: pages and API routes live in `src/app`, and the
 Whop plan IDs for the two courses live in `src/lib/whop-plans.ts` (regular prices). Discount
 codes and the discounted plans they open live only on the server, in
-`src/lib/discount-codes.server.ts`; `/api/public/discount` checks a code.
+`src/lib/discount-codes.server.ts`; `/api/public/discount` checks a code. Each group's
+WhatsApp link and QR code are files in `whatsapp-gruplari/` (see its README.txt); the server
+reads them and returns them with the saved registration, so they never have a URL.
 
 ## Self-hosting with Coolify
 

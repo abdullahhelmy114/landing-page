@@ -7,6 +7,7 @@ export const LEVELS: Level[] = ["A2", "B1", "B2"];
 
 export type Slot = { day: string; first: string; pause: string; second: string };
 
+/** A group's WhatsApp invite as the save API returns it: the link and its QR image as a data URL. */
 export type WhatsAppInvite = { url: string; qr: string };
 
 export type Group = {
@@ -14,13 +15,13 @@ export type Group = {
   id: string;
   /** Shown on the page, e.g. "A2 · Kadın 1". */
   name: string;
+  /** Its files in whatsapp-gruplari/ (link and QR code), e.g. "yogun-a2-kadin-1". */
+  file: string;
   level: Level;
   gender: Gender;
   /** Normal: one weekly meeting. Yoğun (+): two, at the same hour. */
   slots: Slot[];
   full: boolean;
-  /** The group's WhatsApp invite (link, and its QR image in /public). Absent until it has one. */
-  whatsapp?: WhatsAppInvite;
 };
 
 const hh = (hour: number) => String(hour).padStart(2, "0");
@@ -33,15 +34,15 @@ const meeting = (day: string, hour: number): Slot => ({
   second: `${hh(hour + 1)}:00–${hh(hour + 1)}:50`,
 });
 
-/** To give a group its WhatsApp invite, add it as the last argument: { url, qr }. */
-const group = (course: CourseType, level: Level, gender: Gender, n: 1 | 2, slots: Slot[], whatsapp?: WhatsAppInvite): Group => ({
+/** Each group's WhatsApp link and QR code are files in whatsapp-gruplari/, named by `file`. */
+const group = (course: CourseType, level: Level, gender: Gender, n: 1 | 2, slots: Slot[]): Group => ({
   id: `${level} · ${gender} ${n}${course === "intensive" ? "+" : ""}`,
   name: `${level} · ${gender} ${n}`,
+  file: `${course === "intensive" ? "yogun" : "normal"}-${level.toLowerCase()}-${gender === "Kadın" ? "kadin" : "erkek"}-${n}`,
   level,
   gender,
   slots,
   full: false,
-  ...(whatsapp ? { whatsapp } : {}),
 });
 
 // One level per day: A2 Pazartesi + Perşembe, B1 Salı + Cumartesi, B2 Çarşamba + Pazar. No Cuma.
@@ -105,15 +106,6 @@ export const WAITLIST_NOTE =
 export const GROUP_TITLE: Record<Gender, string> = {
   Kadın: "Kadınlar için Arapça Konuşma Grubu",
   Erkek: "Erkekler için Arapça Konuşma Grubu",
-};
-
-/**
- * The academy's earlier WhatsApp groups, one per group type, which all the former groups shared.
- * No group uses them now; to send a group's buyers to one, pass it as that group's invite.
- */
-export const COMMUNITY_WHATSAPP: Record<Gender, WhatsAppInvite> = {
-  Kadın: { url: "https://chat.whatsapp.com/FwfLiQe9DFw53CKHGrLsRN", qr: "/QR CODE/Kadın A.png" },
-  Erkek: { url: "https://chat.whatsapp.com/KiPAJLXpwag3WIKBg3UYQ8", qr: "/QR CODE/Erkek A.png" },
 };
 
 export const ACTIVITIES = [

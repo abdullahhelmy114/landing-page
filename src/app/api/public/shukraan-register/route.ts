@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { registrationSchema as schema } from "@/lib/registration-schema";
+import { inviteForGroup } from "@/lib/whatsapp-invites";
 
 export async function POST(request: Request) {
   const url = process.env["DATABASE_URL"];
@@ -37,7 +38,12 @@ export async function POST(request: Request) {
       VALUES (${d.gender}, ${d.group_id}, ${d.level}, ${d.availability}, ${d.full_name},
               ${d.whatsapp}, ${d.email}, ${d.goal}, ${d.eligibility})
       RETURNING id`;
-    return Response.json({ ok: true, id: rows[0]?.["id"] ?? null });
+    // The saved group's WhatsApp link and QR code, read from whatsapp-gruplari/ (null while it has none).
+    const whatsapp = await inviteForGroup(d.group_id).catch((error) => {
+      console.error("shukraan whatsapp invite read failed", error);
+      return null;
+    });
+    return Response.json({ ok: true, id: rows[0]?.["id"] ?? null, whatsapp });
   } catch (error) {
     console.error("shukraan register insert failed", error);
     return Response.json({ error: "Database error" }, { status: 500 });

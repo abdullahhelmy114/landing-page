@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { GROUP_TITLE, LEVELS, groupsFor, priceFor, courseTitle, type CourseType, type Gender, type Level } from "./data";
+import { GROUP_TITLE, LEVELS, groupsFor, priceFor, courseTitle, type CourseType, type Gender, type Level, type WhatsAppInvite } from "./data";
 import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
@@ -9,6 +9,7 @@ import {
   PAY_STEP,
   forgetPayingStep,
   markPaid,
+  onSave,
   refusedStep,
   rememberPayingStep,
   resumePoint,
@@ -34,6 +35,8 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const [step, setStep] = useState(0);
   const [err, setErr] = useState("");
   const [f, setF] = useState<Answers>(EMPTY_ANSWERS);
+  // The WhatsApp step's invite, from the save's answer: undefined while waiting, null if none.
+  const [invite, setInvite] = useState<WhatsAppInvite | null | undefined>(undefined);
   const ref = useRef<HTMLDivElement>(null);
   const set = (k: keyof Answers, v: string) => setF((p) => ({ ...p, [k]: v }));
   // The page's one discount code, entered in the payment step.
@@ -48,6 +51,17 @@ export function RegisterForm({ preset }: { preset: Preset }) {
       setStep(0);
     }
   }
+
+  // The save that follows payment answers with the group's WhatsApp link and QR code.
+  useEffect(
+    () =>
+      onSave((e) => {
+        if (e.answers.group !== f.group || e.answers.course !== f.course || e.answers.email !== f.email) return;
+        if (e.saved) setInvite(e.invite);
+        else setInvite((prev) => (prev === undefined ? null : prev));
+      }),
+    [f.group, f.course, f.email],
+  );
 
   // Back from Whop's returnUrl, or reloaded mid-payment: resume from session storage.
   useEffect(() => {
@@ -133,8 +147,6 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   if (step === DONE_STEP && f.gender) {
     const title = GROUP_TITLE[f.gender];
-    // A group without its own WhatsApp invite yet (or a new group) gets a message instead.
-    const invite = groupsFor(f.course).find((g) => g.id === f.group)?.whatsapp;
     return (
       <div ref={ref} className="glass scroll-mt-28 rounded-3xl p-6 sm:p-8">
         {progress}
@@ -146,11 +158,13 @@ export function RegisterForm({ preset }: { preset: Preset }) {
           Başvurunuz akademiye kaydedildi. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır;
           koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.
         </p>
-        {invite ? (
+        {invite === undefined ? (
+          <div aria-busy="true" className="mt-6 h-24 animate-pulse rounded-2xl bg-secondary" />
+        ) : invite ? (
         <div className="mt-6 grid items-center gap-6 sm:grid-cols-[180px_1fr]">
           <div className="rounded-2xl bg-card p-3 shadow-gold ring-1 ring-gold/40">
             <img
-              src={encodeURI(invite.qr)}
+              src={invite.qr}
               alt={`${title} — WhatsApp QR kodu`}
               className="aspect-square w-full rounded-lg object-contain"
             />
@@ -178,7 +192,10 @@ export function RegisterForm({ preset }: { preset: Preset }) {
         <div className="mt-6">
           <Button
             type="button"
-            onClick={() => setStep(0)}
+            onClick={() => {
+              setInvite(undefined);
+              setStep(0);
+            }}
             variant="outline" className="h-auto rounded-full border border-primary/30 px-5 py-2.5 text-sm font-medium text-primary"
           >
             Yeni başvuru / düzenle
