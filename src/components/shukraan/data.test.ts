@@ -48,7 +48,7 @@ describe("Offer eligibility and wording", () => {
   });
   test("regular course is named Normal Konuşma Kursu", () => {
     expect(courseTitle("regular")).toBe("Normal Konuşma Kursu");
-    expect(courseTitle("intensive")).toBe("Yoğunlaştırılmış Konuşma Kursu (+)");
+    expect(courseTitle("intensive")).toBe("Yoğun Konuşma Kursu (+)");
   });
   test("disputed credential is not shown", () => {
     expect(CREDENTIALS.join(" ")).not.toMatch(/mesleki doktora/);

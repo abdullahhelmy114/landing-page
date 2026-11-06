@@ -18,7 +18,7 @@ const slot = (day: string, first: string, second: string): Slot => ({
   second,
 });
 
-/** Yoğunlaştırılmış Konuşma Kursu (+): her grup haftada 2 gün, günde 2 ders, toplam 16 ders. */
+/** Yoğun Konuşma Kursu (+): her grup haftada 2 gün, günde 2 ders, toplam 16 ders. */
 export const GROUPS: Group[] = [
   { id: "Kadın A+", gender: "Kadın", full: true, slots: [slot("Cumartesi", "09:00–09:40", "09:50–10:30"), slot("Pazartesi", "16:00–16:40", "16:50–17:30")] },
   { id: "Kadın B+", gender: "Kadın", full: false, slots: [slot("Pazar", "09:00–09:40", "09:50–10:30"), slot("Perşembe", "16:00–16:40", "16:50–17:30")] },
@@ -60,18 +60,13 @@ export const REGULAR_GROUPS: Group[] = [
 
 export const groupsFor = (course: CourseType) => course === "regular" ? REGULAR_GROUPS : GROUPS;
 export const priceFor = (course: CourseType) => course === "regular" ? REGULAR_PRICE : PRICE;
-export const courseTitle = (course: CourseType) => course === "regular" ? "Normal Konuşma Kursu" : "Yoğunlaştırılmış Konuşma Kursu (+)";
+export const courseTitle = (course: CourseType) => course === "regular" ? "Normal Konuşma Kursu" : "Yoğun Konuşma Kursu (+)";
 export const waitlistFor = (course: CourseType) => course === "regular"
   ? "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtabilirsiniz. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır."
   : WAITLIST_NOTE;
 
-/**
- * Texts that quote prices hold placeholders such as {intensive.total}; <PriceText> fills them with
- * the current price (struck through beside the discounted one when a code is applied). `deposit`
- * is half of the package total.
- */
 export const WAITLIST_NOTE =
-  "Yedek / Bekleme Listesi: Bu saat size uygunsa, mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için şimdiden yerinizi ayırtabilirsiniz. (Not: Koltuk rezervasyonu, {intensive.total}'lik yoğunlaştırılmış kurs paketinin en az %50'si olan {intensive.deposit} ön ödeme ile kesinleşir; kalan tutar ise kurs başlangıç tarihinden önce tamamlanır.)";
+  "Size uygun grup yoksa bekleme listesine katılın; yeni grup açıldığında size haber verelim.";
 
 /** QR images live in /public/QR CODE/<Kadın|Erkek> <A–E>.png — replace the files, keep the names. */
 export function qrFor(groupId: string, gender: Gender) {
@@ -103,7 +98,7 @@ export const STEPS = [
   {
     n: "01",
     title: "Kurs türünü ve grubunuzu seçin",
-    body: "Normal veya Yoğunlaştırılmış (+) kurstan birini, ardından size uygun Kadın ya da Erkek grubunu seçin. Her grupta en fazla 5 kişi bulunur.",
+    body: "Normal veya Yoğun (+) kurstan birini, ardından size uygun Kadın ya da Erkek grubunu seçin. Her grupta en fazla 5 kişi bulunur.",
   },
   {
     n: "02",
@@ -112,8 +107,8 @@ export const STEPS = [
   },
   {
     n: "03",
-    title: "Normal: 8 ders · Yoğunlaştırılmış (+): 16 ders",
-    body: "Normal kurs: haftada 1 gün, her buluşmada 2 ders, 4 haftada 8 ders. Yoğunlaştırılmış kurs (+): haftada 2 gün, her buluşmada 2 ders, 4 haftada 16 ders.",
+    title: "Normal: 8 ders · Yoğun (+): 16 ders",
+    body: "Normal kurs: haftada 1 gün, her buluşmada 2 ders, 4 haftada 8 ders. Yoğun kurs (+): haftada 2 gün, her buluşmada 2 ders, 4 haftada 16 ders.",
   },
 ];
 
@@ -125,6 +120,11 @@ export const CREDENTIALS = [
   "Shukraan Akademi kurucusu ve yöneticisi.",
 ];
 
+/**
+ * Answers that quote prices hold placeholders such as {intensive.total}; <PriceText> fills them
+ * with the current price (struck through beside the discounted one when a code is applied).
+ * `deposit` is half of the package total.
+ */
 export const FAQ = [
   {
     q: "Bu kurs sıfırdan başlayanlar için uygun mu?",
@@ -132,19 +132,15 @@ export const FAQ = [
   },
   {
     q: "Haftada kaç gün katılacağım?",
-    a: "Normal kursta haftada bir gün, yoğunlaştırılmış kursta (+) haftada iki gün buluşulur. Her buluşmada 40 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğunlaştırılmış kurs 4 haftada 16 derstir.",
+    a: "Normal kursta haftada bir gün, yoğun kursta (+) haftada iki gün buluşulur. Her buluşmada 40 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğun kurs 4 haftada 16 derstir.",
   },
   {
-    q: "Ücretler nedir ve kimler için geçerlidir?",
-    a: `Normal kurs {regular.perLesson} TL × ${REGULAR_PRICE.lessons} ders = {regular.total}; Yoğunlaştırılmış kurs (+) {intensive.perLesson} TL × ${PRICE.lessons} ders = {intensive.total}. Ücretler kişi başıdır.`,
-  },
-  {
-    q: "Formu doldurunca yerim kesinleşir mi?",
-    a: "Hayır. Form, başvurunuzu akademiye iletir. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır; koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.",
+    q: "Yerim ne zaman kesinleşir?",
+    a: "Ödemenizi tamamladığınızda. Ödeme, kayıt formunun ödeme adımında bu sayfadan yapılır; hemen ardından grubunuzun WhatsApp bağlantısı ve QR kodu gösterilir.",
   },
   {
     q: "İstediğim grup doluysa ne yapabilirim?",
-    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtırsınız. Yoğunlaştırılmış kursta (+) rezervasyon, {intensive.total}'lik paketin en az %50'si olan {intensive.deposit} ön ödeme ile kesinleşir; kalan tutar kurs başlangıcından önce tamamlanır.",
+    a: "Aynı saat size uygunsa bekleme listesine kaydolabilirsiniz: mevcut grup tamamlandıktan sonra başlayacak bir sonraki dönem için yerinizi ayırtırsınız. Yoğun kursta (+) rezervasyon, {intensive.total}'lik paketin en az %50'si olan {intensive.deposit} ön ödeme ile kesinleşir; kalan tutar kurs başlangıcından önce tamamlanır.",
   },
   {
     q: "Sonraki kurslar için bir avantajım olacak mı?",
@@ -152,11 +148,12 @@ export const FAQ = [
   },
 ];
 
-export const PHRASES = [
-  "كيف تعبّر عن رأيك إذا اختلفت مع صديقك؟",
-  "لو أُتيحت لك فرصة السفر، فأيّ بلد تختار؟ ولماذا؟",
-  "ما أكثر موقف احتجت فيه إلى التحدث بالعربية؟",
-  "ما الذي يجعل يومك ناجحًا في رأيك؟",
-  "لو كنت مسؤولًا عن مدينتك ليوم واحد، فماذا تغيّر أولًا؟",
-  "هل تفضّل العمل وحدك أم ضمن فريق؟ ولماذا؟",
+/** Sample conversation questions, each tagged with one of the levels the form offers. */
+export const PHRASES: { ar: string; level: "A2" | "B1" | "B2" }[] = [
+  { ar: "كيف تعبّر عن رأيك؟", level: "B1" },
+  { ar: "أيّ بلد تحبّ أن تزور؟", level: "A2" },
+  { ar: "متى تتحدّث بالعربية؟", level: "A2" },
+  { ar: "ما الذي يجعل يومك ناجحًا؟", level: "B1" },
+  { ar: "ماذا تغيّر لو أدرتَ مدينتك يومًا؟", level: "B2" },
+  { ar: "أتفضّل العمل وحدك أم ضمن فريق؟", level: "B2" },
 ];

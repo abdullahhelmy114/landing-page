@@ -2,7 +2,11 @@ import { isDiscount, type Discount } from "@/lib/discount";
 import { registrationSchema, type RegistrationPayload } from "@/lib/registration-schema";
 import type { CourseType, Gender } from "./data";
 
-/** The form's answers (steps 1–3), and the discount code a paid registration used ("" for none). */
+/** The form's steps: group, details, payment, WhatsApp. */
+export const PAY_STEP = 2;
+export const DONE_STEP = 3;
+
+/** The form's answers (steps 1–2), and the discount code a paid registration used ("" for none). */
 export type Answers = {
   course: CourseType;
   gender: Gender | "";
@@ -56,7 +60,8 @@ const FIELD_STEP: Record<keyof RegistrationPayload, number> = {
   whatsapp: 1,
   email: 1,
   goal: 1,
-  eligibility: 2,
+  // The discount code is entered in the payment step.
+  eligibility: PAY_STEP,
 };
 
 /** The first step holding an answer the API would refuse, or null if the API would accept them all. */
@@ -100,7 +105,7 @@ const readPaid = (): Answers[] => {
 };
 
 export function rememberPayingStep(a: Answers, discount: Discount | null) {
-  write(PAYING_KEY, { answers: a, step: 3, discount });
+  write(PAYING_KEY, { answers: a, step: PAY_STEP, discount });
 }
 export function forgetPayingStep() {
   remove(PAYING_KEY);
@@ -114,21 +119,22 @@ export function markPaid(a: Answers) {
 
 /**
  * Where this visit resumes the form, if anywhere: a return to returnUrl with status=succeeded
- * (or a reload after paying) opens step 5; any other return during payment reopens step 4.
+ * (or a reload after paying) opens the WhatsApp step; any other return during payment reopens the
+ * payment step.
  */
 export function resumePoint(
   status: string | null,
-): { answers: Answers; step: 3 | 4; discount: Discount | null } | null {
+): { answers: Answers; step: typeof PAY_STEP | typeof DONE_STEP; discount: Discount | null } | null {
   const kept = read(PAYING_KEY) as { answers?: unknown; discount?: unknown } | null;
   const paying = asAnswers(kept?.answers);
   if (paying) {
     const discount = isDiscount(kept?.discount) ? kept.discount : null;
-    if (status !== "succeeded") return { answers: paying, step: 3, discount };
+    if (status !== "succeeded") return { answers: paying, step: PAY_STEP, discount };
     markPaid({ ...paying, code: discount?.code ?? "" });
-    return { answers: paying, step: 4, discount };
+    return { answers: paying, step: DONE_STEP, discount };
   }
   const paid = readPaid().at(-1);
-  return paid ? { answers: paid, step: 4, discount: null } : null;
+  return paid ? { answers: paid, step: DONE_STEP, discount: null } : null;
 }
 
 // ── Saving ───────────────────────────────────────────────────────────────────────────────────

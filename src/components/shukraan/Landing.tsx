@@ -6,7 +6,7 @@ const logoNavy = { url: "/images/logo_navy.png" };
 const classroom = { url: "/images/classroom.jpg" };
 const drJehan = { url: "/images/jehan-cream-office.png" };
 import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, WAITLIST_NOTE, formatTL, groupsFor, type CourseType, type Gender } from "./data";
-import { Amount, DiscountField, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
+import { Amount, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -55,14 +55,17 @@ function Hero() {
     <section id="top" className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-navy-deep pt-28 text-on-navy">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-20 pt-6 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:pt-10">
         <div className="reveal">
-          <span className="inline-flex rounded-full border border-gold/40 px-4 py-1.5 text-xs tracking-[0.2em] text-gold-soft">A2 · B1 · B2 seviyeleri için</span>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex rounded-full border border-gold/40 px-4 py-1.5 text-xs tracking-[0.2em] text-gold-soft">A2 · B1 · B2 seviyeleri için</span>
+            <span className="inline-flex rounded-full bg-gold/15 px-4 py-1.5 text-xs font-semibold tracking-wide text-gold ring-1 ring-gold/50">Sınırlı kontenjan · Her grupta en fazla 5 kişi</span>
+          </div>
           <p className="mt-6 font-arabic text-2xl text-gold sm:text-3xl" dir="rtl">ممارسة المحادثة في اللغة العربية</p>
           <h1 className="mt-4 text-5xl font-semibold leading-[1.02] sm:text-7xl">
             Arapça biliyorsunuz.
             <span className="mt-2 block italic text-gold">Peki, konuşmaya ne kadar fırsatınız var?</span>
           </h1>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-on-navy/75 sm:text-lg">
-            <b className="text-gold-soft">Bildiğiniz Arapçayı konuşmaya taşıyın.</b> Dr. Jehan Ziad ile Arapça Konuşma Kursu: beş kişilik canlı gruplarda öğrendiklerinizi kullanın ve Arapçanızı canlı tutun.
+            <b className="text-gold-soft">Bildiğiniz Arapçayı konuşmaya taşıyın.</b> Dr. Jehan Ziyad ile Arapça Konuşma Kursu: beş kişilik canlı gruplarda öğrendiklerinizi kullanın ve Arapçanızı canlı tutun.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <button onClick={() => go("gruplar")} className="rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground transition hover:scale-[1.04]">
@@ -92,10 +95,11 @@ function Phrases() {
         <Eyebrow light>Kursun tadına bakın · Birkaç örnek</Eyebrow>
         <div className="relative mt-10 grid min-h-48 w-full max-w-3xl items-center">
         {PHRASES.map((p, i) => (
-          <div key={p} className="phrase-card glass-navy col-start-1 row-start-1 rounded-2xl px-6 py-8 text-center shadow-elegant sm:px-10 sm:py-12"
+          <div key={p.ar} className="phrase-card glass-navy col-start-1 row-start-1 rounded-2xl px-6 py-8 text-center shadow-elegant sm:px-10 sm:py-12"
             style={{ ["--phrase" as string]: i, ["--count" as string]: PHRASES.length }}>
-            <p className="font-arabic text-3xl leading-loose text-gold sm:text-5xl" dir="rtl">
-              {p.split(" ").map((word, wi, words) => (
+            <span className="inline-flex rounded-full border border-gold/40 px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-gold-soft">{p.level}</span>
+            <p className="mt-3 font-arabic text-3xl leading-loose text-gold sm:text-5xl" dir="rtl">
+              {p.ar.split(" ").map((word, wi, words) => (
                 <span key={wi} className="phrase-word inline-block" style={{ ["--word" as string]: wi, ["--words" as string]: words.length }}>{word}{"\u00a0"}</span>
               ))}
             </p>
@@ -169,7 +173,7 @@ function Rhythm() {
         <div className="lg:sticky lg:top-32 lg:self-start">
           <Eyebrow>Haftanıza sığan bir düzen</Eyebrow>
           <h2 className="mt-5 text-4xl font-semibold leading-tight text-primary sm:text-6xl">Planınıza uygun programı seçin.</h2>
-          <p className="mt-5 max-w-md text-lg italic text-primary/80">Normal veya yoğunlaştırılmış seçeneklerle Arapça konuşma pratiği yapın.</p>
+          <p className="mt-5 max-w-md text-lg italic text-primary/80">Normal veya yoğun seçeneklerle Arapça konuşma pratiği yapın.</p>
         </div>
         <div className="space-y-8">
           {STEPS.map((s, i) => (
@@ -267,7 +271,7 @@ function OfferCard({ c, onChooseCourse }: { c: OfferCardData; onChooseCourse: (c
 function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => void }) {
   const cards: OfferCardData[] = [
     { t: "Normal Konuşma Kursu", course: "regular", meta: "4 hafta · Haftada 1 gün · Her buluşmada 2 ders" },
-    { t: "Yoğunlaştırılmış Konuşma Kursu (+)", course: "intensive", meta: "4 hafta · Haftada 2 gün (sabah + akşam) · Her buluşmada 2 ders" },
+    { t: "Yoğun Konuşma Kursu (+)", course: "intensive", meta: "4 hafta · Haftada 2 gün · Her buluşmada 2 ders" },
   ];
   return (
     <section id="ucretler" className="relative isolate scroll-mt-20 overflow-hidden gradient-navy py-24 text-on-navy sm:py-32">
@@ -279,12 +283,7 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
             Bir kahve molası. <span className="italic text-gold">Bir Arapça pratiği.</span>
           </h2>
           <p className="mt-5 text-on-navy/80">Bildiğiniz Arapçayı kullanın, kendinizi ifade edin ve düzenli pratikle ilerleyin.</p>
-          <p className="mt-4 text-sm text-on-navy/85">
-            İndirim kodlarıyla %40&apos;a varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
-          </p>
-          <div className="mt-4 max-w-md">
-            <DiscountField tone="navy" />
-          </div>
+          <p className="mt-4 text-sm font-semibold text-gold-soft">Sınırlı kontenjan · Her grupta en fazla 5 kişi</p>
         </div>
         <CoffeeCard />
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -293,7 +292,7 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           ))}
         </div>
         <div className="reveal mt-8 rounded-2xl border-s-2 border-gold bg-on-navy/5 p-6 text-sm leading-relaxed text-on-navy/85">
-          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğunlaştırılmış kursta (+) dolu bir grup için bekleme listesi rezervasyonu, <Amount course="intensive" kind="total" />&apos;lik paketin en az %50&apos;si olan <Amount course="intensive" kind="deposit" /> ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
+          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğun kursta (+) dolu bir grup için bekleme listesi rezervasyonu, <Amount course="intensive" kind="total" />&apos;lik paketin en az %50&apos;si olan <Amount course="intensive" kind="deposit" /> ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
           <p className="mt-3"><b className="text-gold-soft">Sonraki kurslar:</b> Bu kursa katılanlar, akademinin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.</p>
         </div>
       </div>
@@ -319,13 +318,12 @@ function Groups({
       <div className="reveal max-w-3xl">
         <Eyebrow>Gruplar · Her grupta en fazla 5 kişi</Eyebrow>
         <h2 className="mt-5 text-4xl font-semibold text-primary sm:text-6xl">Size uygun grubu seçin</h2>
-        <p className="mt-4 text-lg italic text-primary/80">Tek hedef: Bildiğiniz Arapçayı konuşabilmek.</p>
         <p className="mt-3 text-sm text-muted-foreground">Tüm saatler Türkiye saatine göredir (Europe/Istanbul).</p>
       </div>
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
         <div role="group" aria-label="Kurs türü" className="flex flex-wrap gap-2">
           <button className={pill(regular)} aria-pressed={regular} onClick={() => setCourse("regular")}>Normal</button>
-          <button className={pill(!regular)} aria-pressed={!regular} onClick={() => setCourse("intensive")}>Yoğunlaştırılmış (+)</button>
+          <button className={pill(!regular)} aria-pressed={!regular} onClick={() => setCourse("intensive")}>Yoğun (+)</button>
         </div>
         <div role="group" aria-label="Grup türü" className="flex flex-wrap gap-2">
           {(["Kadın", "Erkek"] as Gender[]).map((g) => (
@@ -336,7 +334,7 @@ function Groups({
       <p className="mt-5 text-sm text-muted-foreground">
         {regular
           ? "Haftada 1 gün · 40 dk ders + 10 dk ara + 40 dk ders · 4 haftada 8 ders"
-          : "Haftada 2 gün: bir sabah ve bir akşam buluşması · 40 dk ders + 10 dk ara + 40 dk ders · 4 haftada 16 ders"}
+          : "Haftada 2 gün · 40 dk ders + 10 dk ara + 40 dk ders · 4 haftada 16 ders"}
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {groupsFor(course).filter((g) => g.gender === gender).map((g) => (
@@ -370,7 +368,7 @@ function Groups({
             {g.full && !regular ? (
               <span className="mt-4 block">
                 <span className="inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">Bekleme listesine katıl ↗</span>
-                <span className="mt-2 block text-xs font-normal leading-relaxed text-muted-foreground"><PriceText text={WAITLIST_NOTE} /></span>
+                <span className="mt-2 block text-xs font-normal leading-relaxed text-muted-foreground">{WAITLIST_NOTE}</span>
               </span>
             ) : (
               <span className="mt-4 inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">{g.full ? "Kontenjan dolu" : "Seç ↗"}</span>
@@ -379,7 +377,7 @@ function Groups({
         ))}
       </div>
       <p className="mt-10 max-w-3xl text-sm text-muted-foreground">
-        Planlanan başlangıç: <b className="text-primary">12 Kasım 2026</b> veya grubun 5 kişilik kontenjanı tamamlandığında. Her grubun kesin başlangıcı WhatsApp grubunda paylaşılır.
+        Gruplar <b className="text-primary">20 Kasım 2026</b>&apos;dan itibaren başlar. Kayıt, kontenjan dolunca kapanır. Her grubun ilk ders tarihi WhatsApp grubunda paylaşılır.
       </p>
     </section>
   );
@@ -389,19 +387,19 @@ function Instructor() {
   return (
     <section id="egitmen" className="relative scroll-mt-20 overflow-hidden bg-navy-deep text-on-navy">
       <div className="relative h-[60vh] min-h-[380px] overflow-hidden sm:h-[80vh]">
-        <img data-speed="0.25" src={drJehan.url} alt="Dr. Jehan Ziad" className="absolute inset-0 h-[130%] w-full -translate-y-[10%] object-cover object-[65%_center]" />
+        <img data-speed="0.25" src={drJehan.url} alt="Dr. Jehan Ziyad" className="absolute inset-0 h-[130%] w-full -translate-y-[10%] object-cover object-[65%_center]" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/30 to-transparent" />
       </div>
       <div className="relative mx-auto -mt-32 max-w-7xl px-4 pb-24 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
           <div className="reveal">
             <Eyebrow light>Eğitmeniniz</Eyebrow>
-            <h2 className="mt-4 text-5xl font-semibold sm:text-7xl text-gold-shine">Dr. Jehan Ziad</h2>
+            <h2 className="mt-4 text-5xl font-semibold sm:text-7xl text-gold-shine">Dr. Jehan Ziyad</h2>
             <p className="mt-3 text-lg">Kurucu ve Direktör, Shukraan Akademi</p>
             <p className="font-serif text-xl italic text-gold-soft">Kıdemli Eğitimci ve Dilbilim Uzmanı</p>
             <p className="mt-4 text-xs tracking-wide text-on-navy/60">Arap Dilbilimi · Müfredat Geliştirme · Akademik Liderlik · İslami İlimler</p>
           <p className="mt-6 max-w-md leading-relaxed text-on-navy/75">
-              Arapça, Arap edebiyatı ve İslami ilimler alanlarındaki birikimiyle; yüz yüze ve çevrim içi eğitimde <b className="text-gold">30 yılı aşkın</b> deneyim.
+              Ana dili Arapça; Arapça, Arap edebiyatı ve İslami ilimler alanlarındaki birikimiyle; yüz yüze ve çevrim içi eğitimde <b className="text-gold">30 yılı aşkın</b> deneyim.
           </p>
           </div>
           <div className="glass-navy reveal rounded-3xl p-6 sm:p-8">
@@ -432,9 +430,6 @@ function Register({ preset }: { preset: Preset }) {
             Grubunuzu seçin.
             <span className="block italic text-gold">Birlikte başlayalım.</span>
           </h2>
-          <p className="mt-6 max-w-md leading-relaxed text-muted-foreground">
-            Bilgilerinizi doldurun. Ödemeniz tamamlandıktan sonra size uygun WhatsApp grubunun bağlantısı ve QR kodu gösterilecektir.
-          </p>
         </div>
         <RegisterForm preset={preset} />
       </div>
@@ -461,7 +456,25 @@ function Faq() {
             </details>
           ))}
         </div>
-        <p className="mt-10 text-center text-sm text-muted-foreground">Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçin.</p>
+        <p className="mt-10 text-center text-sm text-muted-foreground">Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçebilirsiniz.</p>
+      </div>
+    </section>
+  );
+}
+
+/** The closing band at the end of the page. */
+function Closing() {
+  return (
+    <section id="kapanis" className="relative isolate overflow-hidden gradient-navy py-24 text-center text-on-navy sm:py-32">
+      <div data-speed="0.2" className="absolute inset-[-20%] -z-10 geo-pattern opacity-25" />
+      <div className="reveal mx-auto max-w-4xl px-4 sm:px-8">
+        <h2 className="text-5xl font-semibold leading-tight sm:text-7xl">
+          Az kişi, <span className="italic text-gold">çok sohbet.</span>
+        </h2>
+        <p className="mt-6 text-lg italic text-on-navy/80">Tek hedef: Bildiğiniz Arapçayı konuşabilmek.</p>
+        <button onClick={() => go("ucretler")} className="mt-10 rounded-full bg-gold px-8 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
+          Kayıt ol
+        </button>
       </div>
     </section>
   );
@@ -469,7 +482,7 @@ function Faq() {
 
 export function Landing() {
   useScrollMotion();
-  // One discount code for the whole page: the pricing section and the form share it.
+  // One discount code for the whole page: entered in the payment step, shown in every price.
   const discount = useDiscountState();
   const [preset, setPreset] = useState<Preset>(null);
   // The course shown in the groups section; a price card's button picks it.
@@ -480,13 +493,14 @@ export function Landing() {
   };
   const [ctaHidden, setCtaHidden] = useState(false);
   useEffect(() => {
-    // The floating button stays out of the way while the pricing cards or the form are on screen.
+    // The floating button stays out of the way while the pricing cards, the form or the closing
+    // band (which has its own button) are on screen.
     const visible = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
       setCtaHidden(visible.size > 0);
     });
-    ["ucretler", "basvuru"].forEach((id) => {
+    ["ucretler", "basvuru", "kapanis"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) io.observe(el);
     });
@@ -509,6 +523,7 @@ export function Landing() {
         <Instructor />
         <Register preset={preset} />
         <Faq />
+        <Closing />
         <button onClick={() => go("ucretler")} className={`fixed inset-x-4 bottom-4 z-40 rounded-full bg-gold py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition-opacity md:hidden ${ctaHidden ? "pointer-events-none opacity-0" : ""}`}>
           Kayıt ol · 8 veya 16 ders
         </button>

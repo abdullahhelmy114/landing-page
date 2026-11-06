@@ -191,11 +191,9 @@
   .program-col-b { transform: translateY(calc((1 - var(--p, 0)) * 28px)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .phrase-scroll { height: auto; }
-  .phrase-stage { position: relative; height: auto; }
-  .phrase-stage > div { gap: 1.5rem; }
-  .phrase-card { grid-row: auto; opacity: 1; transform: none; }
-  .phrase-word { opacity: 1; transform: none; }
+  /* The phrases still take turns as the page scrolls; they fade in place instead of sliding. */
+  .phrase-card,
+  .phrase-word { transform: none; }
   [data-speed] {
     transform: none !important;
   }

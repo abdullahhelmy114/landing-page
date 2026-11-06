@@ -4,7 +4,9 @@ import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
 import {
+  DONE_STEP,
   EMPTY_ANSWERS,
+  PAY_STEP,
   forgetPayingStep,
   markPaid,
   refusedStep,
@@ -24,12 +26,9 @@ const label = "mb-1.5 block text-xs font-medium text-foreground";
 const STEP_TITLES = [
   ["Grup tercihi", "Size uygun grubu seçin"],
   ["İletişim", "Size nasıl ulaşalım?"],
-  ["Özel teklif", "Teklif uygunluğunuz"],
   ["Ödeme", "Ödemenizi tamamlayın"],
 ];
-const STEPS = [0, 1, 2, 3, 4];
-const PAY_STEP = 3;
-const DONE_STEP = 4;
+const STEPS = [0, 1, 2, 3];
 
 export function RegisterForm({ preset }: { preset: Preset }) {
   const [step, setStep] = useState(0);
@@ -37,8 +36,8 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const [f, setF] = useState<Answers>(EMPTY_ANSWERS);
   const ref = useRef<HTMLDivElement>(null);
   const set = (k: keyof Answers, v: string) => setF((p) => ({ ...p, [k]: v }));
-  // The page's one discount code (also entered in the pricing section).
-  const { discount, draft, status: codeStatus, apply, restore } = useDiscount();
+  // The page's one discount code, entered in the payment step.
+  const { discount, restore } = useDiscount();
 
   // A group picked in the list above prefills the form (adjusting state while rendering).
   const [appliedPreset, setAppliedPreset] = useState<Preset>(null);
@@ -98,18 +97,12 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     return true;
   };
 
-  const next = async () => {
+  const next = () => {
     if (!validate(step)) return;
     setErr("");
     if (step < PAY_STEP - 1) return setStep(step + 1);
-    // A code typed but not applied yet is checked first, so nobody pays the regular price by mistake.
-    let used = discount;
-    if (!used && draft.trim()) {
-      used = await apply();
-      if (!used) return;
-    }
     // Nobody pays for a registration the API would refuse: check it with the API's own rules.
-    const refused = refusedStep({ ...f, code: used?.code ?? "" });
+    const refused = refusedStep({ ...f, code: discount?.code ?? "" });
     if (refused !== null) {
       setStep(refused);
       setErr("Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol edin.");
@@ -118,7 +111,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     setStep(PAY_STEP);
   };
 
-  /** Whop reported the payment complete: open step 5 and save the registration (once). */
+  /** Whop reported the payment complete: open the WhatsApp step and save the registration (once). */
   const paid = () => {
     markPaid({ ...f, code: discount?.code ?? "" });
     setStep(DONE_STEP);
@@ -274,21 +267,18 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <label className={label}>Arapça konuşma hedefiniz *</label>
             <textarea required rows={3} className={field} value={f.goal} onChange={(e) => set("goal", e.target.value)} placeholder="Arapçayı hangi durumlarda daha rahat konuşmak istiyorsunuz?" />
           </div>
-        </div>
-
-        <div data-step="2" hidden={step !== 2} className="space-y-4">
-          <DiscountField />
           <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">
             <Amount course={f.course} kind="perLesson" /> TL/40 dk × {PRICE.lessons} ders = <Amount course={f.course} kind="total" />
           </p>
         </div>
 
         {step === PAY_STEP && (
-          <div data-step="3" data-plan-id={planId} className="space-y-4">
+          <div data-step="2" data-plan-id={planId} className="space-y-4">
             <div className="rounded-2xl bg-secondary p-4 text-sm text-primary">
               <p className="font-semibold">{courseTitle(f.course)}</p>
               <p className="mt-1 text-xs text-muted-foreground">{PRICE.lessons} ders · <Amount course={f.course} kind="total" /></p>
             </div>
+            <DiscountField />
             <WhopCheckout key={planId} planId={planId} onPaid={paid} />
           </div>
         )}
@@ -302,7 +292,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <span />
           )}
           {step < PAY_STEP && (
-            <Button type="button" onClick={() => void next()} disabled={codeStatus === "checking"} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
+            <Button type="button" onClick={next} className="h-auto whitespace-normal disabled:opacity-60 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition hover:scale-[1.03]">
               Devam et →
             </Button>
           )}

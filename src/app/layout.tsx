@@ -5,8 +5,8 @@ import "../styles.css";
 
 export const metadata: Metadata = {
   title: "Shukraan Akademi",
-  description: "Dr. Jehan Ali Ziad ile Arapça konuşma pratiği.",
-  authors: [{ name: "Dr. Jehan Ziad" }],
+  description: "Dr. Jehan Ali Ziyad ile Arapça konuşma pratiği.",
+  authors: [{ name: "Dr. Jehan Ziyad" }],
   openGraph: {
     title: "Shukraan Akademi",
     description: "Arapça konuşma pratiği · Shukraan Akademi",
