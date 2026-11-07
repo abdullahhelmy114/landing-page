@@ -63,6 +63,14 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     [f.gender, f.course, f.email],
   );
 
+  // With a real link, the buyer is taken on to the WhatsApp community automatically; the step
+  // (link and QR code) stays behind as a fallback.
+  useEffect(() => {
+    if (step !== DONE_STEP || !invite) return;
+    const timer = setTimeout(() => window.location.assign(invite.url), 1_500);
+    return () => clearTimeout(timer);
+  }, [step, invite]);
+
   // Back from Whop's returnUrl, or reloaded mid-payment: resume from session storage.
   useEffect(() => {
     const url = new URL(window.location.href);
