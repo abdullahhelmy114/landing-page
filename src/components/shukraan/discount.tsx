@@ -14,6 +14,8 @@ export type DiscountState = {
   setDraft: (value: string) => void;
   /** Checks the draft with the server and applies it when valid; resolves to the applied discount. */
   apply: () => Promise<Discount | null>;
+  /** Applies the code of a referral link's path (/konusma40 …), checked by the server. */
+  applyReferral: (path: string) => Promise<Discount | null>;
   remove: () => void;
   /** Restores a code kept in session storage (a return from Whop). */
   restore: (discount: Discount | null) => void;
@@ -27,10 +29,10 @@ export function useDiscountState(): DiscountState {
   const [status, setStatus] = useState<Status>("idle");
   const request = useRef(0);
 
-  const apply = async () => {
+  const check = useCallback(async (input: { code: string } | { ref: string }) => {
     const id = ++request.current;
     setStatus("checking");
-    const result = await checkDiscountCode(draft);
+    const result = await checkDiscountCode(input);
     if (id !== request.current) return null;
     if (result === "error" || result === null) {
       setStatus(result === null ? "invalid" : "error");
@@ -40,7 +42,9 @@ export function useDiscountState(): DiscountState {
     setDraft(result.code);
     setStatus("applied");
     return result;
-  };
+  }, []);
+  const apply = () => check({ code: draft });
+  const applyReferral = useCallback((path: string) => check({ ref: path }), [check]);
   const remove = () => {
     request.current += 1;
     setDiscount(null);
@@ -62,6 +66,7 @@ export function useDiscountState(): DiscountState {
       if (status === "invalid" || status === "error") setStatus("idle");
     },
     apply,
+    applyReferral,
     remove,
     restore,
   };

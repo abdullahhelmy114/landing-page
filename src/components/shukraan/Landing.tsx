@@ -402,10 +402,15 @@ function Closing() {
   );
 }
 
-export function Landing() {
+/** The landing page; `referral` (a referral link's path, e.g. "dad40") applies its code on arrival. */
+export function Landing({ referral }: { referral?: string }) {
   useScrollMotion();
-  // One discount code for the whole page: entered in the payment step, shown in every price.
+  // One discount code for the whole page: entered in Ücretler or the payment step, shown in every price.
   const discount = useDiscountState();
+  const { applyReferral } = discount;
+  useEffect(() => {
+    if (referral) void applyReferral(referral);
+  }, [referral, applyReferral]);
   const [preset, setPreset] = useState<Preset>(null);
   // A price card's button opens the form with its course chosen.
   const chooseCourse = (course: CourseType) => {

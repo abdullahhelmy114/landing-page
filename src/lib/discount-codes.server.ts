@@ -4,8 +4,8 @@ import type { Discount, DiscountPlans } from "@/lib/discount";
 
 /**
  * Accepted discount codes and the discounted Whop plans each one opens. Change or add codes here;
- * a code is matched in any letter case, ignoring surrounding spaces. This file is imported only by
- * /api/public/discount, so neither the codes nor these plan ids reach the page's JavaScript.
+ * a code is matched in any letter case, ignoring surrounding spaces. This file is imported only on
+ * the server, so neither the codes nor these plan ids reach the page's JavaScript.
  */
 const CODES: Record<string, DiscountPlans> = {
   DAD40: {
@@ -19,6 +19,14 @@ const CODES: Record<string, DiscountPlans> = {
   },
 };
 
+/**
+ * Referral links: opening /<path> shows the page with that path's code already applied (it stays
+ * applied through payment). Paths are matched in any letter case.
+ */
+const REFERRAL_PATHS: Record<string, string> = {
+  konusma40: "KONUSMA40",
+  dad40: "DAD40",
+};
 
 const normalize = (code: string) => code.trim().toUpperCase();
 
@@ -30,4 +38,11 @@ export function findDiscount(input: unknown): Discount | null {
   const code = normalize(input);
   const plans = BY_CODE.get(code);
   return plans ? { code, plans } : null;
+}
+
+/** The discount a referral path opens, or null if the path is not a referral link. */
+export function findReferral(path: unknown): Discount | null {
+  if (typeof path !== "string") return null;
+  const code = REFERRAL_PATHS[path.trim().toLowerCase()];
+  return code ? findDiscount(code) : null;
 }

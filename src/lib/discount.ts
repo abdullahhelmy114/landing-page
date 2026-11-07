@@ -33,16 +33,16 @@ export const isDiscount = (v: unknown): v is Discount => {
 };
 
 /**
- * Asks the server whether a code is accepted. Resolves to the Discount when it is, `null` when it
- * is not, and `"error"` when the server could not be reached.
+ * Asks the server whether a code (or a referral link's path) is accepted. Resolves to the Discount
+ * when it is, `null` when it is not, and `"error"` when the server could not be reached.
  */
-export async function checkDiscountCode(code: string): Promise<Discount | null | "error"> {
-  if (!code.trim()) return null;
+export async function checkDiscountCode(input: { code: string } | { ref: string }): Promise<Discount | null | "error"> {
+  if (!("code" in input ? input.code : input.ref).trim()) return null;
   try {
     const res = await fetch(DISCOUNT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify(input),
       cache: "no-store",
     });
     if (!res.ok) return "error";

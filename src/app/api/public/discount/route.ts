@@ -1,14 +1,17 @@
-import { findDiscount } from "@/lib/discount-codes.server";
+import { findDiscount, findReferral } from "@/lib/discount-codes.server";
 
-/** Checks a discount code; returns the discounted plans only when the code is accepted. */
+/**
+ * Checks a discount code (`code`) or a referral link's path (`ref`); returns the discounted plans
+ * only when it is accepted.
+ */
 export async function POST(request: Request) {
-  let code: unknown;
+  let body: { code?: unknown; ref?: unknown } | null = null;
   try {
-    code = ((await request.json()) as { code?: unknown } | null)?.code;
+    body = (await request.json()) as { code?: unknown; ref?: unknown } | null;
   } catch {
-    code = undefined;
+    body = null;
   }
-  const discount = findDiscount(code);
+  const discount = body?.ref !== undefined ? findReferral(body.ref) : findDiscount(body?.code);
   return Response.json(discount ? { ok: true, discount } : { ok: false }, {
     headers: { "Cache-Control": "no-store" },
   });
