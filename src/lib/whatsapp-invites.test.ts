@@ -1,15 +1,15 @@
 /// <reference types="bun" />
 import { afterAll, describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { GROUPS, REGULAR_GROUPS } from "@/components/shukraan/data";
+import { WHATSAPP_GROUPS } from "@/components/shukraan/data";
 import { INVITES_DIR, describeInvites, inviteForGroup, parseLink, readInvite } from "./whatsapp-invites";
 
 const PLACEHOLDER_LINK = "https://chat.whatsapp.com/PLACEHOLDER";
 const REAL_LINK = "https://chat.whatsapp.com/TestOnlyGroup123";
-const placeholderImage = readFileSync(path.join(INVITES_DIR, "normal-a2-kadin-1.png"));
+const placeholderImage = readFileSync(path.join(INVITES_DIR, "normal-kadin.png"));
 // Any bytes other than the placeholder's stand in for a group's own image.
 const ownImage = Buffer.concat([placeholderImage.subarray(0, 8), Buffer.from("a group's own QR image")]);
 
@@ -24,21 +24,21 @@ afterAll(() => tmp.forEach((d) => rmSync(d, { recursive: true, force: true })));
 const decoded = (dataUrl: string) => Buffer.from(dataUrl.split(",")[1] ?? "", "base64");
 
 describe("whatsapp-gruplari folder", () => {
-  test("holds a link and the placeholder image for each of the 24 groups, plus a README", () => {
-    const all = [...REGULAR_GROUPS, ...GROUPS];
-    expect(all).toHaveLength(24);
-    expect(new Set(all.map((g) => g.file)).size).toBe(24);
+  test("holds a link and the placeholder image for each of the 4 groups, plus a README, and nothing else", () => {
+    const all = WHATSAPP_GROUPS;
+    expect(all).toHaveLength(4);
+    expect(new Set(all.map((g) => g.file)).size).toBe(4);
+    expect(readdirSync(INVITES_DIR).sort()).toEqual([...all.flatMap((g) => [`${g.file}.png`, `${g.file}.txt`]), "README.txt"].sort());
     for (const g of all) {
-      expect(g.file).toMatch(/^(normal|yogun)-(a2|b1|b2)-(kadin|erkek)-[12]$/);
+      expect(g.file).toMatch(/^(normal|yogun)-(kadin|erkek)$/);
       expect(readFileSync(path.join(INVITES_DIR, `${g.file}.txt`), "utf8").trim()).toBe(PLACEHOLDER_LINK);
       expect(readFileSync(path.join(INVITES_DIR, `${g.file}.png`)).equals(placeholderImage)).toBe(true);
     }
     expect(existsSync(path.join(INVITES_DIR, "README.txt"))).toBe(true);
   });
   test("every group still has the placeholder, so no group has a link yet", async () => {
-    expect(await describeInvites()).toEqual({ groups: 24, found: 24, linked: 0 });
-    expect(await inviteForGroup("A2 · Kadın 1")).toBeNull();
-    expect(await inviteForGroup("B2 · Erkek 2+")).toBeNull();
+    expect(await describeInvites()).toEqual({ groups: 4, found: 4, linked: 0 });
+    for (const g of WHATSAPP_GROUPS) expect(await inviteForGroup(g.id)).toBeNull();
   });
   test("the placeholder image is not a QR code look-alike: one neutral PNG", () => {
     expect(placeholderImage.subarray(1, 4).toString()).toBe("PNG");
@@ -91,10 +91,11 @@ describe("a group's invite", () => {
     const invite = await readInvite(folder({ "g.txt": REAL_LINK }), "g");
     expect(invite?.qr.startsWith("data:image/png;base64,")).toBe(true);
   });
-  test("a saved group id finds its group's files; a new-group request has none", async () => {
-    const dir = folder({ "yogun-b2-erkek-2.txt": REAL_LINK, "normal-a2-kadin-1.txt": PLACEHOLDER_LINK });
-    expect((await inviteForGroup("B2 · Erkek 2+", dir))?.url).toBe(REAL_LINK);
+  test("a saved group id (course and type) finds its group's files; an unknown id has none", async () => {
+    const dir = folder({ "yogun-erkek.txt": REAL_LINK, "normal-kadin.txt": PLACEHOLDER_LINK });
+    expect((await inviteForGroup("Erkek+", dir))?.url).toBe(REAL_LINK);
+    expect(await inviteForGroup("Erkek", dir)).toBeNull();
+    expect(await inviteForGroup("Kadın", dir)).toBeNull();
     expect(await inviteForGroup("A2 · Kadın 1", dir)).toBeNull();
-    expect(await inviteForGroup("Erkek new+", dir)).toBeNull();
   });
 });

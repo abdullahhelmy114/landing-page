@@ -7,7 +7,8 @@ import { z } from "zod";
 export const registrationSchema = z.object({
   gender: z.enum(["Kadın", "Erkek"]),
   group_id: z.string().trim().min(1).max(40),
-  level: z.enum(["A2", "B1", "B2"]),
+  /** Set by the academy after payment; the form sends "". */
+  level: z.enum(["", "A2", "B1", "B2"]),
   availability: z.string().trim().max(1000).optional().default(""),
   full_name: z.string().trim().min(2).max(120),
   whatsapp: z.string().trim().min(6).max(30),

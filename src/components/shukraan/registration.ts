@@ -1,8 +1,8 @@
 import { isDiscount, type Discount } from "@/lib/discount";
 import { registrationSchema, type RegistrationPayload } from "@/lib/registration-schema";
-import type { CourseType, Gender, WhatsAppInvite } from "./data";
+import { groupIdFor, type CourseType, type Gender, type WhatsAppInvite } from "./data";
 
-/** The form's steps: group, details, payment, WhatsApp. */
+/** The form's steps: course and group type, details, payment, WhatsApp. */
 export const PAY_STEP = 2;
 export const DONE_STEP = 3;
 
@@ -10,9 +10,6 @@ export const DONE_STEP = 3;
 export type Answers = {
   course: CourseType;
   gender: Gender | "";
-  group: string;
-  level: string;
-  availability: string;
   name: string;
   phone: string;
   email: string;
@@ -23,9 +20,6 @@ export type Answers = {
 export const EMPTY_ANSWERS: Answers = {
   course: "intensive",
   gender: "",
-  group: "",
-  level: "",
-  availability: "",
   name: "",
   phone: "",
   email: "",
@@ -35,13 +29,13 @@ export const EMPTY_ANSWERS: Answers = {
 
 const ENDPOINT = "/api/public/shukraan-register";
 
-/** The registration exactly as the form has always sent it to the API. */
+/** The registration as the API stores it: the WhatsApp group, no level (set after payment). */
 function toPayload(a: Answers): Record<keyof RegistrationPayload, string> {
   return {
     gender: a.gender,
-    group_id: a.group === "new" ? `${a.gender} new${a.course === "intensive" ? "+" : ""}` : a.group,
-    level: a.level,
-    availability: a.availability,
+    group_id: groupIdFor(a.course, a.gender),
+    level: "",
+    availability: "",
     full_name: a.name,
     whatsapp: a.phone,
     email: a.email,

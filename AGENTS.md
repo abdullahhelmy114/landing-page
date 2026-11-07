@@ -10,5 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep scroll choreography in the shared motion hook and CSS; pinned program layouts must fall back to natural document flow on narrow or short screens so content remains readable.
-- Regular and intensive course schedules and prices live in shared course data; registration derives its groups, pricing and summary from the selected course to prevent cross-course mismatches. Persist selected group IDs with their existing plus suffix (or course-qualified new-group IDs) through the existing registration endpoint.
+- Regular and intensive course prices live in shared course data; registration derives its pricing and summary from the selected course to prevent cross-course mismatches. There is no timetable or level choice: the form asks only course and group type (Kadın/Erkek), and the academy sets the level after payment. Persist the WhatsApp group ID (gender, with a plus suffix for the intensive course) through the existing registration endpoint.
 - Images used on the standalone Coolify deployment retain intentional public/images copies because host-relative Lovable asset URLs are unavailable on that external server.

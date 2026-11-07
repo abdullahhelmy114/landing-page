@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import QRCode from "qrcode";
-import { GROUPS, REGULAR_GROUPS, type WhatsAppInvite } from "@/components/shukraan/data";
+import { WHATSAPP_GROUPS, type WhatsAppInvite } from "@/components/shukraan/data";
 
 /**
  * Each group's WhatsApp invite lives in whatsapp-gruplari/ at the project root (outside public/,
@@ -56,15 +56,15 @@ export async function readInvite(dir: string, file: string): Promise<WhatsAppInv
   return { url, qr: await QRCode.toDataURL(url, { margin: 2, width: 360 }) };
 }
 
-/** The invite for a saved group id (a new-group request has none). */
+/** The invite for a saved group id ("Kadın", "Erkek+" …); an unknown id has none. */
 export async function inviteForGroup(groupId: string, dir = INVITES_DIR): Promise<WhatsAppInvite | null> {
-  const group = [...REGULAR_GROUPS, ...GROUPS].find((g) => g.id === groupId);
+  const group = WHATSAPP_GROUPS.find((g) => g.id === groupId);
   return group ? readInvite(dir, group.file) : null;
 }
 
 /** How many groups the folder has files for, and how many of them have a real link (for the log). */
 export async function describeInvites(dir = INVITES_DIR): Promise<{ groups: number; found: number; linked: number }> {
-  const all = [...REGULAR_GROUPS, ...GROUPS];
+  const all = WHATSAPP_GROUPS;
   let found = 0;
   let linked = 0;
   for (const g of all) {

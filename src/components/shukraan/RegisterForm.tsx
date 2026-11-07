@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { GROUP_TITLE, LEVELS, groupsFor, priceFor, courseTitle, type CourseType, type Gender, type Level, type WhatsAppInvite } from "./data";
+import { GROUP_TITLE, priceFor, courseTitle, type CourseType, type Gender, type WhatsAppInvite } from "./data";
 import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
@@ -18,7 +18,7 @@ import {
 } from "./registration";
 import { WhopCheckout } from "./WhopCheckout";
 
-export type Preset = { gender: Gender; groupId: string; course: CourseType; level: Level; nonce: number } | null;
+export type Preset = { course: CourseType; nonce: number } | null;
 
 const field =
   "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-foreground outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30";
@@ -42,12 +42,12 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   // The page's one discount code, entered in the payment step.
   const { discount, restore } = useDiscount();
 
-  // A group picked in the list above prefills the form (adjusting state while rendering).
+  // A price card's course prefills the form (adjusting state while rendering).
   const [appliedPreset, setAppliedPreset] = useState<Preset>(null);
   if (preset !== appliedPreset) {
     setAppliedPreset(preset);
     if (preset) {
-      setF((p) => ({ ...p, course: preset.course, gender: preset.gender, level: preset.level, group: preset.groupId }));
+      setF((p) => ({ ...p, course: preset.course }));
       setStep(0);
     }
   }
@@ -56,11 +56,11 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   useEffect(
     () =>
       onSave((e) => {
-        if (e.answers.group !== f.group || e.answers.course !== f.course || e.answers.email !== f.email) return;
+        if (e.answers.gender !== f.gender || e.answers.course !== f.course || e.answers.email !== f.email) return;
         if (e.saved) setInvite(e.invite);
         else setInvite((prev) => (prev === undefined ? null : prev));
       }),
-    [f.group, f.course, f.email],
+    [f.gender, f.course, f.email],
   );
 
   // Back from Whop's returnUrl, or reloaded mid-payment: resume from session storage.
@@ -91,8 +91,6 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   }, [step, f, discount]);
 
   const PRICE = priceFor(f.course);
-  const GROUPS = groupsFor(f.course);
-  const groups = GROUPS.filter((g) => g.gender === f.gender && g.level === f.level);
   // A valid code opens its discounted plan; otherwise the regular plan.
   const planId = discount?.plans[f.course].planId ?? WHOP_PLANS[f.course].planId;
 
@@ -220,7 +218,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
             <div className="grid grid-cols-2 gap-2">
               {(["regular", "intensive"] as CourseType[]).map((course) => (
                 <label key={course} className="flex cursor-pointer items-start gap-2 rounded-lg border border-input bg-card p-3 text-sm text-primary">
-                  <input type="radio" name="course" value={course} checked={f.course === course} onChange={() => setF((p) => ({ ...p, course, group: "" }))} className="mt-1 accent-primary" />
+                  <input type="radio" name="course" value={course} checked={f.course === course} onChange={() => setF((p) => ({ ...p, course }))} className="mt-1 accent-primary" />
                   <span>{courseTitle(course)}<span className="mt-1 block text-xs text-muted-foreground">{priceFor(course).lessons} ders · <Amount course={course} kind="total" /></span></span>
                 </label>
               ))}
@@ -232,47 +230,13 @@ export function RegisterForm({ preset }: { preset: Preset }) {
               required
               className={field}
               value={f.gender}
-              onChange={(e) => setF((p) => ({ ...p, gender: e.target.value as Gender, group: "" }))}
+              onChange={(e) => setF((p) => ({ ...p, gender: e.target.value as Gender }))}
             >
               <option value="">Kadın / Erkek seçiniz</option>
               <option value="Kadın">Kadın grubu</option>
               <option value="Erkek">Erkek grubu</option>
             </select>
           </div>
-          <div>
-            <label className={label}>Arapça seviyeniz *</label>
-            <select required className={field} value={f.level} onChange={(e) => setF((p) => ({ ...p, level: e.target.value, group: "" }))}>
-              <option value="">Seçiniz</option>
-              {LEVELS.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={label}>Tercih ettiğiniz grup *</label>
-            <select required className={field} value={f.group} onChange={(e) => set("group", e.target.value)}>
-              <option value="">Grup seçiniz</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id} disabled={f.course === "regular" && g.full}>
-                  {g.name} · {g.slots.map((s) => `${s.day} ${s.first.slice(0, 5)}`).join(" + ")}{g.full ? f.course === "intensive" ? " · Dolu — Bekleme listesi" : " · Dolu" : ""}
-                </option>
-              ))}
-              {f.gender && <option value="new">Yeni bir gruba katılmak istiyorum</option>}
-            </select>
-          </div>
-          {f.group === "new" && (
-            <div>
-              <label className={label}>Uygun olduğunuz gün ve saatler *</label>
-              <textarea
-                required
-                rows={3}
-                className={field}
-                value={f.availability}
-                onChange={(e) => set("availability", e.target.value)}
-                placeholder="Örn. Pazartesi ve çarşamba akşamları 19:00 sonrası"
-              />
-            </div>
-          )}
         </div>
 
         <div data-step="1" hidden={step !== 1} className="space-y-4">

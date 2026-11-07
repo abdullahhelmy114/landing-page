@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, createContext, use, useCallback, useRef, useState, type ReactNode } from "react";
+import { createContext, use, useCallback, useRef, useState, type ReactNode } from "react";
 import { checkDiscountCode, type Discount } from "@/lib/discount";
 import { formatTL, priceFor, type CourseType, type Price } from "./data";
 
@@ -89,13 +89,13 @@ export function useCoursePrice(course: CourseType): { regular: Price; discounted
   };
 }
 
-type Kind = "perLesson" | "total" | "deposit";
+type Kind = "perLesson" | "total";
 
 const amount = (p: Price, kind: Kind) =>
-  kind === "perLesson" ? p.perLesson : kind === "total" ? p.total : Math.ceil(p.total / 2);
+  kind === "perLesson" ? p.perLesson : p.total;
 
 /**
- * A price as the page shows it: "400" per lesson and "3.200 TL" for a total or deposit, or with a
+ * A price as the page shows it: "400" per lesson and "3.200 TL" for a total, or with a
  * code the regular one struck through beside the discounted one ("~~400~~ 250").
  */
 export function Amount({ course, kind }: { course: CourseType; kind: Kind }) {
@@ -107,20 +107,6 @@ export function Amount({ course, kind }: { course: CourseType; kind: Kind }) {
       <s className="opacity-60 decoration-2">{show(regular)}</s> {show(discounted)}
     </>
   );
-}
-
-const TOKEN = /(\{(?:regular|intensive)\.(?:perLesson|total|deposit)\})/;
-
-/** Text from data.ts with its price placeholders ({intensive.total} …) filled in. */
-export function PriceText({ text }: { text: string }) {
-  return text.split(TOKEN).map((part, i) => {
-    const m = /^\{(regular|intensive)\.(perLesson|total|deposit)\}$/.exec(part);
-    return m ? (
-      <Amount key={i} course={m[1] as CourseType} kind={m[2] as Kind} />
-    ) : (
-      <Fragment key={i}>{part}</Fragment>
-    );
-  });
 }
 
 // ── The code field ───────────────────────────────────────────────────────────────────────────

@@ -5,8 +5,8 @@ const logoGold = { url: "/images/logo_gold.png" };
 const logoNavy = { url: "/images/logo_navy.png" };
 const classroom = { url: "/images/classroom.jpg" };
 const drJehan = { url: "/images/jehan-cream-office.png" };
-import { ACTIVITIES, CREDENTIALS, FAQ, LEVELS, PHRASES, STEPS, WAITLIST_NOTE, formatTL, groupsFor, type CourseType, type Gender, type Level } from "./data";
-import { Amount, DiscountField, DiscountProvider, PriceText, useCoursePrice, useDiscountState } from "./discount";
+import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, formatTL, type CourseType } from "./data";
+import { DiscountField, DiscountProvider, useCoursePrice, useDiscountState } from "./discount";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@ function Header() {
             {[
               ["program", "Kurs"],
               ["egitmen", "Eğitmen"],
-              ["gruplar", "Gruplar"],
               ["sss", "SSS"],
             ].map(([id, t]) => (
               <button key={id} onClick={() => go(id!)} className="rounded-full px-4 py-2 text-sm text-on-navy/75 transition hover:text-gold">
@@ -68,7 +67,7 @@ function Hero() {
             <b className="text-gold-soft">Bildiğiniz Arapçayı konuşmaya taşıyın.</b> Dr. Jehan Ziyad ile Arapça Konuşma Kursu: beş kişilik canlı gruplarda öğrendiklerinizi kullanın ve Arapçanızı canlı tutun.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <button onClick={() => go("gruplar")} className="rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground transition hover:scale-[1.04]">
+            <button onClick={() => go("basvuru")} className="rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground transition hover:scale-[1.04]">
               Bana uygun grubu bul ↗
             </button>
             <button onClick={() => go("program")} className="rounded-full border border-on-navy/30 px-7 py-3.5 text-sm font-medium text-on-navy transition hover:border-gold hover:text-gold">
@@ -298,99 +297,10 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           ))}
         </div>
         <div className="reveal mt-8 rounded-2xl border-s-2 border-gold bg-on-navy/5 p-6 text-sm leading-relaxed text-on-navy/85">
-          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir. Yoğun kursta (+) dolu bir grup için bekleme listesi rezervasyonu, <Amount course="intensive" kind="total" />&apos;lik paketin en az %50&apos;si olan <Amount course="intensive" kind="deposit" /> ön ödemeyle yapılır; kalan tutar kurs başlangıcından önce tamamlanır.</p>
+          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.</p>
           <p className="mt-3"><b className="text-gold-soft">Sonraki kurslar:</b> Bu kursa katılanlar, akademinin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.</p>
         </div>
       </div>
-    </section>
-  );
-}
-
-function Groups({
-  course,
-  setCourse,
-  onChoose,
-}: {
-  course: CourseType;
-  setCourse: (course: CourseType) => void;
-  onChoose: (g: Gender, id: string, course: CourseType, level: Level) => void;
-}) {
-  const [gender, setGender] = useState<Gender>("Kadın");
-  const [level, setLevel] = useState<Level>(LEVELS[0]!);
-  const regular = course === "regular";
-  const pill = (on: boolean) =>
-    `rounded-full px-5 py-2.5 text-sm font-semibold transition ${on ? "bg-primary text-primary-foreground shadow-elegant" : "bg-card text-primary ring-1 ring-gold/30 hover:ring-gold"}`;
-  return (
-    <section id="gruplar" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 sm:px-8 sm:py-32">
-      <div className="reveal max-w-3xl">
-        <Eyebrow>Gruplar · Her grupta en fazla 5 kişi</Eyebrow>
-        <h2 className="mt-5 text-4xl font-semibold text-primary sm:text-6xl">Size uygun grubu seçin</h2>
-        <p className="mt-3 text-sm text-muted-foreground">Tüm saatler Türkiye saatine göredir (Europe/Istanbul).</p>
-      </div>
-      <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
-        <div role="group" aria-label="Kurs türü" className="flex flex-wrap gap-2">
-          <button className={pill(regular)} aria-pressed={regular} onClick={() => setCourse("regular")}>Normal</button>
-          <button className={pill(!regular)} aria-pressed={!regular} onClick={() => setCourse("intensive")}>Yoğun (+)</button>
-        </div>
-        <div role="group" aria-label="Grup türü" className="flex flex-wrap gap-2">
-          {(["Kadın", "Erkek"] as Gender[]).map((g) => (
-            <button key={g} className={pill(gender === g)} aria-pressed={gender === g} onClick={() => setGender(g)}>{g}</button>
-          ))}
-        </div>
-        <div role="group" aria-label="Seviye" className="flex flex-wrap gap-2">
-          {LEVELS.map((l) => (
-            <button key={l} className={pill(level === l)} aria-pressed={level === l} onClick={() => setLevel(l)}>{l}</button>
-          ))}
-        </div>
-      </div>
-      <p className="mt-5 text-sm text-muted-foreground">
-        {regular
-          ? "Haftada 1 gün · 50 dk ders + 10 dk ara + 50 dk ders · 4 haftada 8 ders"
-          : "Haftada 2 gün · 50 dk ders + 10 dk ara + 50 dk ders · 4 haftada 16 ders"}
-      </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {groupsFor(course).filter((g) => g.gender === gender && g.level === level).map((g) => (
-          <Button
-            variant="ghost"
-            disabled={regular && g.full}
-            key={g.id}
-            onClick={() => onChoose(gender, g.id, course, level)}
-            className="group flex h-auto flex-col items-stretch justify-start whitespace-normal rounded-lg bg-card p-5 text-start shadow-elegant ring-1 ring-gold/20 transition duration-300 hover:-translate-y-1 hover:ring-gold"
-          >
-            <div className="flex items-baseline justify-between">
-              <span className="font-serif text-2xl font-semibold text-primary">{g.name}</span>
-              {g.full ? (
-                <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">Dolu</span>
-              ) : (
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs text-primary">5 kişilik</span>
-              )}
-            </div>
-            <div className="mt-4 space-y-2">
-              {g.slots.map((s) => (
-                <div key={s.day} className="rounded-xl bg-muted/60 p-2.5">
-                  <p className="mb-1.5 text-xs font-semibold text-primary">{s.day}</p>
-                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 text-center text-xs text-muted-foreground">
-                    <span className="rounded-lg bg-muted p-1.5"><b className="block text-foreground">{s.first}</b>1. ders</span>
-                    <span className="px-1 text-[11px] text-primary">10 dk</span>
-                    <span className="rounded-lg bg-muted p-1.5"><b className="block text-foreground">{s.second}</b>2. ders</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {g.full && !regular ? (
-              <span className="mt-4 block">
-                <span className="inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">Bekleme listesine katıl ↗</span>
-                <span className="mt-2 block text-xs font-normal leading-relaxed text-muted-foreground">{WAITLIST_NOTE}</span>
-              </span>
-            ) : (
-              <span className="mt-4 inline-flex text-sm font-semibold text-primary transition group-hover:translate-x-1">{g.full ? "Kontenjan dolu" : "Seç ↗"}</span>
-            )}
-          </Button>
-        ))}
-      </div>
-      <p className="mt-10 max-w-3xl text-sm text-muted-foreground">
-        Gruplar <b className="text-primary">20 Kasım 2026</b>&apos;dan itibaren başlar. Kayıt, kontenjan dolunca kapanır. Her grubun ilk ders tarihi WhatsApp grubunda paylaşılır.
-      </p>
     </section>
   );
 }
@@ -464,7 +374,7 @@ function Faq() {
                 {f.q}
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/50 text-gold transition group-open:rotate-45">+</span>
               </summary>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground"><PriceText text={f.a} /></p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
             </details>
           ))}
         </div>
@@ -497,11 +407,10 @@ export function Landing() {
   // One discount code for the whole page: entered in the payment step, shown in every price.
   const discount = useDiscountState();
   const [preset, setPreset] = useState<Preset>(null);
-  // The course shown in the groups section; a price card's button picks it.
-  const [groupsCourse, setGroupsCourse] = useState<CourseType>("regular");
+  // A price card's button opens the form with its course chosen.
   const chooseCourse = (course: CourseType) => {
-    setGroupsCourse(course);
-    go("gruplar");
+    setPreset({ course, nonce: Date.now() });
+    go("basvuru");
   };
   const [ctaHidden, setCtaHidden] = useState(false);
   useEffect(() => {
@@ -518,10 +427,6 @@ export function Landing() {
     });
     return () => io.disconnect();
   }, []);
-  const choose = (gender: Gender, groupId: string, course: CourseType, level: Level) => {
-    setPreset({ gender, groupId, course, level, nonce: Date.now() });
-    go("basvuru");
-  };
   return (
     <DiscountProvider value={discount}>
       <main className="min-h-screen bg-background pb-20 md:pb-0">
@@ -531,7 +436,6 @@ export function Landing() {
         <Pinned />
         <Rhythm />
         <Offer onChooseCourse={chooseCourse} />
-        <Groups course={groupsCourse} setCourse={setGroupsCourse} onChoose={choose} />
         <Instructor />
         <Register preset={preset} />
         <Faq />
