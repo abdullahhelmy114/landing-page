@@ -7,6 +7,7 @@ const classroom = { url: "/images/classroom.jpg" };
 const drJehan = { url: "/images/jehan-cream-office.png" };
 import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, formatTL, type CourseType } from "./data";
 import { DiscountField, DiscountProvider, useCoursePrice, useDiscountState } from "./discount";
+import { SOCIAL_GLYPHS } from "./social-icons";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -60,11 +61,11 @@ function Hero() {
           </div>
           <p className="mt-6 font-arabic text-2xl text-gold sm:text-3xl" dir="rtl">ممارسة المحادثة في اللغة العربية</p>
           <h1 className="mt-4 text-5xl font-semibold leading-[1.02] sm:text-7xl">
-            Arapça biliyorsunuz.
-            <span className="mt-2 block italic text-gold">Peki, konuşmaya ne kadar fırsatınız var?</span>
+            Arapça biliyorsun.
+            <span className="mt-2 block italic text-gold">Peki, konuşmaya ne kadar fırsatın var?</span>
           </h1>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-on-navy/75 sm:text-lg">
-            <b className="text-gold-soft">Bildiğiniz Arapçayı konuşmaya taşıyın.</b> Dr. Jehan Ziyad ile Arapça Konuşma Kursu: beş kişilik canlı gruplarda öğrendiklerinizi kullanın ve Arapçanızı canlı tutun.
+            <b className="text-gold-soft">Bildiğin Arapçayı konuşmaya taşı.</b> Dr. Jehan Ziyad ile Arapça Konuşma Kursu: beş kişilik canlı gruplarda öğrendiklerini kullan ve Arapçanı canlı tut.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <button onClick={() => go("basvuru")} className="rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground transition hover:scale-[1.04]">
@@ -91,7 +92,7 @@ function Phrases() {
   return (
     <section data-pin className="phrase-scroll relative bg-navy-deep text-on-navy">
       <div className="phrase-stage sticky top-0 flex h-[100svh] flex-col items-center justify-center overflow-hidden px-5 pb-24 pt-28 sm:px-8">
-        <Eyebrow light>Kursun tadına bakın · Birkaç örnek</Eyebrow>
+        <Eyebrow light>Kursun tadına bak · Birkaç örnek</Eyebrow>
         <div className="relative mt-10 grid min-h-48 w-full max-w-3xl items-center">
         {PHRASES.map((p, i) => (
           <div key={p.ar} className="phrase-card glass-navy col-start-1 row-start-1 rounded-2xl px-6 py-8 text-center shadow-elegant sm:px-10 sm:py-12"
@@ -118,11 +119,11 @@ function Pinned() {
           className="pointer-events-none absolute top-24 hidden whitespace-nowrap font-serif text-9xl font-semibold italic leading-none text-primary/[0.05] lg:block"
           style={{ transform: "translateX(calc(20% - var(--p) * 70%))" }}
         >
-          Söz sırası sizde · Söz sırası sizde
+          Söz sırası sende · Söz sırası sende
         </p>
         <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-4 sm:px-8 lg:grid-cols-2 lg:gap-12">
           <div className="program-col-a">
-            <Eyebrow>Söz sırası sizde</Eyebrow>
+            <Eyebrow>Söz sırası sende</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold leading-tight text-primary sm:text-6xl">
               {"“Anlıyorum ama konuşurken duraksıyorum.”".split(" ").map((w, i, a) => (
                 <span
@@ -135,7 +136,7 @@ function Pinned() {
               ))}
             </h2>
             <p className="mt-6 max-w-lg leading-relaxed text-muted-foreground">
-              Tanıdık geliyor mu? Konuşma pratiği için her şeyi kusursuz bilmeniz gerekmez. Bildiklerinizi kullanabileceğiniz, soru sorabileceğiniz ve geri bildirim alabileceğiniz düzenli bir ortam iyi bir başlangıçtır.
+              Tanıdık geliyor mu? Konuşma pratiği için her şeyi kusursuz bilmen gerekmez. Bildiklerini kullanabileceğin, soru sorabileceğin ve geri bildirim alabileceğin düzenli bir ortam iyi bir başlangıçtır.
             </p>
             <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
               Bu kurs, kuralları ve kelimeleri bilen ama bunları konuşmada kullanma fırsatı arayan, en az A2 düzeyinde Arapça bilen ve A2–B2 aralığında konuşma pratiği yapmak isteyen katılımcılar içindir. Gruplar oluşturulurken seviye yakınlığı dikkate alınır.
@@ -170,9 +171,9 @@ function Rhythm() {
     <section className="relative bg-secondary/60 py-24 sm:py-32">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_1.2fr]">
         <div className="lg:sticky lg:top-32 lg:self-start">
-          <Eyebrow>Haftanıza sığan bir düzen</Eyebrow>
-          <h2 className="mt-5 text-4xl font-semibold leading-tight text-primary sm:text-6xl">Planınıza uygun programı seçin.</h2>
-          <p className="mt-5 max-w-md text-lg italic text-primary/80">Normal veya yoğun seçeneklerle Arapça konuşma pratiği yapın.</p>
+          <Eyebrow>Haftana sığan bir düzen</Eyebrow>
+          <h2 className="mt-5 text-4xl font-semibold leading-tight text-primary sm:text-6xl">Planına uygun programı seç.</h2>
+          <p className="mt-5 max-w-md text-lg italic text-primary/80">Normal veya yoğun seçeneklerle Arapça konuşma pratiği yap.</p>
         </div>
         <div className="space-y-8">
           {STEPS.map((s, i) => (
@@ -223,7 +224,7 @@ function CoffeeCard() {
         </div>
         <div>
           <h3 className="font-serif text-3xl font-semibold text-primary sm:text-4xl">Bir kahve molası kadar keyifli.</h3>
-          <p className="mt-2 text-muted-foreground">Bu kez sohbet Arapça. Bildiklerinizi konuşmaya taşıyın.</p>
+          <p className="mt-2 text-muted-foreground">Bu kez sohbet Arapça. Bildiklerini konuşmaya taşı.</p>
           <p className="mt-1 text-sm text-muted-foreground">Arapça konuşmaya ayrılmış 50 dakika.</p>
           <p className="coffee-sip mt-4 font-serif text-lg italic text-gold">Bir yudum kahve, bir adım Arapça.</p>
         </div>
@@ -261,7 +262,7 @@ function OfferCard({ c, onChooseCourse }: { c: OfferCardData; onChooseCourse: (c
       <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">{c.meta}</p>
       <p className="mt-1 text-sm text-muted-foreground">5 kişilik grup · Zoom üzerinden canlı</p>
       <button type="button" onClick={() => onChooseCourse(c.course)} className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
-        Uygun grubu seçin ↗
+        Uygun grubu seç ↗
       </button>
     </div>
   );
@@ -281,11 +282,9 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           <h2 className="mt-5 text-4xl font-semibold leading-tight sm:text-6xl">
             Bir kahve molası. <span className="italic text-gold">Bir Arapça pratiği.</span>
           </h2>
-          <p className="mt-5 text-on-navy/80">Bildiğiniz Arapçayı kullanın, kendinizi ifade edin ve düzenli pratikle ilerleyin.</p>
+          <p className="mt-5 text-on-navy/80">Bildiğin Arapçayı kullan, kendini ifade et ve düzenli pratikle ilerle.</p>
           <p className="mt-4 text-sm font-semibold text-gold-soft">Sınırlı kontenjan · Her grupta en fazla 5 kişi</p>
-          <p className="mt-2 text-sm text-on-navy/85">
-            İndirim kodlarıyla %40&apos;a varan indirim: 8 derslik pakette 1.200 TL&apos;ye, 16 derslik pakette 2.400 TL&apos;ye kadar.
-          </p>
+          <p className="mt-2 text-sm text-on-navy/85">İndirim kodlarıyla %40&apos;a varan indirim.</p>
           <div className="mt-4 max-w-md">
             <DiscountField tone="navy" />
           </div>
@@ -295,10 +294,6 @@ function Offer({ onChooseCourse }: { onChooseCourse: (course: CourseType) => voi
           {cards.map((c) => (
             <OfferCard key={c.t} c={c} onChooseCourse={onChooseCourse} />
           ))}
-        </div>
-        <div className="reveal mt-8 rounded-2xl border-s-2 border-gold bg-on-navy/5 p-6 text-sm leading-relaxed text-on-navy/85">
-          <p><b className="text-gold-soft">Ödeme ve rezervasyon:</b> Ödeme, kayıt sırasında bu sayfa üzerinden yapılır. Koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.</p>
-          <p className="mt-3"><b className="text-gold-soft">Sonraki kurslar:</b> Bu kursa katılanlar, akademinin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.</p>
         </div>
       </div>
     </section>
@@ -315,7 +310,7 @@ function Instructor() {
       <div className="relative mx-auto -mt-32 max-w-7xl px-4 pb-24 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
           <div className="reveal">
-            <Eyebrow light>Eğitmeniniz</Eyebrow>
+            <Eyebrow light>Eğitmenin</Eyebrow>
             <h2 className="mt-4 text-5xl font-semibold sm:text-7xl text-gold-shine">Dr. Jehan Ziyad</h2>
             <p className="mt-3 text-lg">Kurucu ve Direktör, Shukraan Akademi</p>
             <p className="font-serif text-xl italic text-gold-soft">Kıdemli Eğitimci ve Dilbilim Uzmanı</p>
@@ -347,9 +342,9 @@ function Register({ preset }: { preset: Preset }) {
       <img data-speed="-0.2" src={logoNavy.url} alt="" className="pointer-events-none absolute -left-24 top-10 h-[34rem] w-auto opacity-[0.04]" />
       <div className="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_1.15fr]">
         <div className="reveal lg:sticky lg:top-32 lg:self-start">
-          <Eyebrow>İlk adımınız</Eyebrow>
+          <Eyebrow>İlk adımın</Eyebrow>
           <h2 className="mt-5 text-4xl font-semibold leading-tight text-primary sm:text-6xl">
-            Grubunuzu seçin.
+            Grubunu seç.
             <span className="block italic text-gold">Birlikte başlayalım.</span>
           </h2>
         </div>
@@ -364,7 +359,7 @@ function Faq() {
     <section id="sss" className="scroll-mt-24 bg-secondary/60 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl px-4 sm:px-8">
         <div className="reveal text-center">
-          <Eyebrow>Aklınızdaki sorular</Eyebrow>
+          <Eyebrow>Aklındaki sorular</Eyebrow>
           <h2 className="mt-5 text-4xl font-semibold text-primary sm:text-6xl">Başlamadan önce</h2>
         </div>
         <div className="mt-12 space-y-3">
@@ -378,7 +373,6 @@ function Faq() {
             </details>
           ))}
         </div>
-        <p className="mt-10 text-center text-sm text-muted-foreground">Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçebilirsiniz.</p>
       </div>
     </section>
   );
@@ -393,7 +387,7 @@ function Closing() {
         <h2 className="text-5xl font-semibold leading-tight sm:text-7xl">
           Az kişi, <span className="italic text-gold">çok sohbet.</span>
         </h2>
-        <p className="mt-6 text-lg italic text-on-navy/80">Tek hedef: Bildiğiniz Arapçayı konuşabilmek.</p>
+        <p className="mt-6 text-lg italic text-on-navy/80">Tek hedef: Bildiğin Arapçayı konuşabilmen.</p>
         <button onClick={() => go("ucretler")} className="mt-10 rounded-full bg-gold px-8 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
           Kayıt ol
         </button>
@@ -403,6 +397,41 @@ function Closing() {
 }
 
 /** The landing page; `referral` (a referral link's path, e.g. "dad40") applies its code on arrival. */
+const SOCIAL = [
+  { key: "facebook", label: "Facebook", href: "https://www.facebook.com/profile.php?id=61596203246080" },
+  { key: "instagram", label: "Instagram", href: "https://www.instagram.com/shukraanedu/" },
+  { key: "whatsapp", label: "WhatsApp", href: "https://wa.me/905518550135" },
+  { key: "threads", label: "Threads", href: "https://www.threads.com/@shukraanacademy" },
+] as const;
+
+/** The footer: the contact sentence and the academy's accounts as icon links. */
+function Footer() {
+  return (
+    <footer id="iletisim" className="border-t border-gold/20 bg-navy-deep px-4 py-10 text-center text-on-navy sm:px-8">
+      <p className="mx-auto max-w-xl text-sm leading-relaxed text-on-navy/75">
+        Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçebilirsin.
+      </p>
+      <ul className="mt-5 flex justify-center gap-2">
+        {SOCIAL.map((s) => (
+          <li key={s.key}>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.label}
+              className="grid h-11 w-11 place-items-center rounded-full text-on-navy/70 transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-5 w-5 fill-current">
+                <path d={SOCIAL_GLYPHS[s.key]} />
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  );
+}
+
 export function Landing({ referral }: { referral?: string }) {
   useScrollMotion();
   // One discount code for the whole page: entered in Ücretler or the payment step, shown in every price.
@@ -419,14 +448,14 @@ export function Landing({ referral }: { referral?: string }) {
   };
   const [ctaHidden, setCtaHidden] = useState(false);
   useEffect(() => {
-    // The floating button stays out of the way while the pricing cards, the form or the closing
-    // band (which has its own button) are on screen.
+    // The floating button stays out of the way while the pricing cards, the form, the closing band
+    // (which has its own button) or the footer are on screen.
     const visible = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
       setCtaHidden(visible.size > 0);
     });
-    ["ucretler", "basvuru", "kapanis"].forEach((id) => {
+    ["ucretler", "basvuru", "kapanis", "iletisim"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) io.observe(el);
     });
@@ -434,7 +463,7 @@ export function Landing({ referral }: { referral?: string }) {
   }, []);
   return (
     <DiscountProvider value={discount}>
-      <main className="min-h-screen bg-background pb-20 md:pb-0">
+      <main className="min-h-screen bg-background">
         <Header />
         <Hero />
         <Phrases />
@@ -449,6 +478,7 @@ export function Landing({ referral }: { referral?: string }) {
           Kayıt ol · 8 veya 16 ders
         </button>
       </main>
+      <Footer />
     </DiscountProvider>
   );
 }

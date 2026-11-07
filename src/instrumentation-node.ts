@@ -2,7 +2,7 @@ import { INVITES_DIR, describeInvites } from "@/lib/whatsapp-invites";
 
 /** Logs how many groups the WhatsApp folder covers (counts only, never a link). */
 export async function logInvitesFolder() {
-  const { groups, found, linked } = await describeInvites();
+  const { groups, found, linked, logos, verified } = await describeInvites();
   const where = found ? `found at ${INVITES_DIR}` : `NOT FOUND at ${INVITES_DIR}`;
-  console.log(`[whatsapp-gruplari] ${where}: ${found}/${groups} groups, ${linked} with a WhatsApp link`);
+  console.log(`[whatsapp-gruplari] ${where}: ${found}/${groups} groups, ${linked} with a WhatsApp link, ${logos} with a logo, ${verified} QR codes read back`);
 }

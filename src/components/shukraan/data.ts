@@ -1,26 +1,32 @@
 export type Gender = "Kadın" | "Erkek";
 export type CourseType = "regular" | "intensive";
 
-/** A group's WhatsApp invite as the save API returns it: the link and its QR image as a data URL. */
-export type WhatsAppInvite = { url: string; qr: string };
+/**
+ * A group's WhatsApp invite as the save API returns it: the link, its QR code (with the group's
+ * logo) as a PNG data URL drawn at 2x, and the width in CSS pixels to show it at.
+ */
+export type WhatsAppInvite = { url: string; qr: string; width: number };
 
 /**
  * The WhatsApp group a buyer joins after payment: one per course and group type (the academy sets
  * each person's level after payment). `id` is saved with the registration, Yoğun (+) ending in
  * "+"; `file` names the group's link and QR files in whatsapp-gruplari/.
  */
-export type WhatsAppGroup = { id: string; file: string; course: CourseType; gender: Gender };
+export type WhatsAppGroup = { id: string; file: string; name: string; course: CourseType; gender: Gender };
 
 export const WHATSAPP_GROUPS: WhatsAppGroup[] = [
-  { id: "Kadın", file: "normal-kadin", course: "regular", gender: "Kadın" },
-  { id: "Erkek", file: "normal-erkek", course: "regular", gender: "Erkek" },
-  { id: "Kadın+", file: "yogun-kadin", course: "intensive", gender: "Kadın" },
-  { id: "Erkek+", file: "yogun-erkek", course: "intensive", gender: "Erkek" },
+  { id: "Kadın", file: "normal-kadin", name: "Normal · Kadın", course: "regular", gender: "Kadın" },
+  { id: "Erkek", file: "normal-erkek", name: "Normal · Erkek", course: "regular", gender: "Erkek" },
+  { id: "Kadın+", file: "yogun-kadin", name: "Yoğun (+) · Kadın", course: "intensive", gender: "Kadın" },
+  { id: "Erkek+", file: "yogun-erkek", name: "Yoğun (+) · Erkek", course: "intensive", gender: "Erkek" },
 ];
 
+/** The WhatsApp group for a course and group type. */
+export const whatsappGroupFor = (course: CourseType, gender: Gender | "") =>
+  WHATSAPP_GROUPS.find((g) => g.course === course && g.gender === gender);
+
 /** The saved group id for a course and group type ("" until the type is chosen). */
-export const groupIdFor = (course: CourseType, gender: Gender | "") =>
-  WHATSAPP_GROUPS.find((g) => g.course === course && g.gender === gender)?.id ?? "";
+export const groupIdFor = (course: CourseType, gender: Gender | "") => whatsappGroupFor(course, gender)?.id ?? "";
 
 export type Price = { perLesson: number; lessons: number; total: number };
 
@@ -54,8 +60,8 @@ export const ACTIVITIES = [
 export const STEPS = [
   {
     n: "01",
-    title: "Kurs türünü ve grubunuzu seçin",
-    body: "Normal veya Yoğun (+) kurstan birini, ardından size uygun Kadın ya da Erkek grubunu seçin. Her grupta en fazla 5 kişi bulunur.",
+    title: "Kurs türünü ve grubunu seç",
+    body: "Normal veya Yoğun (+) kurstan birini, ardından sana uygun Kadın ya da Erkek grubunu seç. Her grupta en fazla 5 kişi bulunur.",
   },
   {
     n: "02",
@@ -88,11 +94,7 @@ export const FAQ = [
   },
   {
     q: "Yerim ne zaman kesinleşir?",
-    a: "Ödemenizi tamamladığınızda. Ödeme, kayıt formunun ödeme adımında bu sayfadan yapılır; hemen ardından grubunuzun WhatsApp bağlantısı ve QR kodu gösterilir.",
-  },
-  {
-    q: "Sonraki kurslar için bir avantajım olacak mı?",
-    a: "Bu kursa katılanlar, Shukraan Akademi'nin sonraki kurslarının kayıt dönemlerinde kontenjan rezervasyonunda öncelik kazanır.",
+    a: "Ödemeni tamamladığında. Ödeme, kayıt formunun ödeme adımında bu sayfadan yapılır; hemen ardından grubunun WhatsApp bağlantısı ve QR kodu gösterilir.",
   },
 ];
 

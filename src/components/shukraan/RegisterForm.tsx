@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { GROUP_TITLE, priceFor, courseTitle, type CourseType, type Gender, type WhatsAppInvite } from "./data";
+import { GROUP_TITLE, priceFor, courseTitle, whatsappGroupFor, type CourseType, type Gender, type WhatsAppInvite } from "./data";
 import { Amount, DiscountField, useDiscount } from "./discount";
 import { Button } from "@/components/ui/button";
 import { WHOP_PLANS } from "@/lib/whop-plans";
@@ -25,9 +25,9 @@ const field =
 const label = "mb-1.5 block text-xs font-medium text-foreground";
 
 const STEP_TITLES = [
-  ["Grup tercihi", "Size uygun grubu seçin"],
-  ["İletişim", "Size nasıl ulaşalım?"],
-  ["Ödeme", "Ödemenizi tamamlayın"],
+  ["Grup tercihi", "Sana uygun grubu seç"],
+  ["İletişim", "Sana nasıl ulaşalım?"],
+  ["Ödeme", "Ödemeni tamamla"],
 ];
 const STEPS = [0, 1, 2, 3];
 
@@ -107,7 +107,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     if (!root) return true;
     for (const c of root.querySelectorAll<HTMLInputElement>("input,select,textarea")) {
       if (c.required && c.type !== "checkbox" && c.tagName !== "SELECT")
-        c.setCustomValidity(c.value.trim() ? "" : "Lütfen bu alanı doldurun.");
+        c.setCustomValidity(c.value.trim() ? "" : "Lütfen bu alanı doldur.");
       if (!c.checkValidity()) {
         c.reportValidity();
         c.focus();
@@ -125,7 +125,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     const refused = refusedStep({ ...f, code: discount?.code ?? "" });
     if (refused !== null) {
       setStep(refused);
-      setErr("Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol edin.");
+      setErr("Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol et.");
       return;
     }
     setStep(PAY_STEP);
@@ -153,46 +153,45 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
   if (step === DONE_STEP && f.gender) {
     const title = GROUP_TITLE[f.gender];
+    const groupName = whatsappGroupFor(f.course, f.gender)?.name ?? title;
     return (
       <div ref={ref} className="glass scroll-mt-28 rounded-3xl p-6 sm:p-8">
         {progress}
         <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
-          {STEPS.length} / {STEPS.length} · Başvurunuz alındı
+          {STEPS.length} / {STEPS.length} · Başvurun alındı
         </p>
         <h3 className="mt-2 text-3xl font-semibold text-primary">{title}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Başvurunuz akademiye kaydedildi. Ödeme, kayıt sırasında bu sayfa üzerinden yapılır;
-          koltuğunuz ödemeniz doğrulandıktan sonra kesinleşir.
-        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Başvurun akademiye kaydedildi.</p>
         {invite === undefined ? (
           <div aria-busy="true" className="mt-6 h-24 animate-pulse rounded-2xl bg-secondary" />
         ) : invite ? (
-        <div className="mt-6 grid items-center gap-6 sm:grid-cols-[180px_1fr]">
-          <div className="rounded-2xl bg-card p-3 shadow-gold ring-1 ring-gold/40">
-            <img
-              src={invite.qr}
-              alt={`${title} — WhatsApp QR kodu`}
-              className="aspect-square w-full rounded-lg object-contain"
-            />
-          </div>
-          <div>
-            <a
-              href={invite.url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex rounded-full bg-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.03]"
-            >
-              WhatsApp grubuna katıl ↗
-            </a>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Telefondaysanız düğmeyi kullanın. Başka bir cihazdaysanız QR kodunu telefonunuzla
-              okutun.
+          <div data-invite className="mt-6">
+            <div className="mx-auto w-fit max-w-full rounded-2xl bg-white p-5 text-center shadow-gold ring-1 ring-gold/40 sm:p-6">
+              <p className="text-base font-semibold text-primary">{groupName}</p>
+              <img
+                src={invite.qr}
+                width={invite.width}
+                height={invite.width}
+                alt={`${groupName} — WhatsApp QR kodu`}
+                className="mx-auto mt-4 h-auto max-w-full"
+                style={{ width: invite.width }}
+              />
+              <a
+                href={invite.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex w-full justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.03] sm:w-auto"
+              >
+                WhatsApp grubuna katıl ↗
+              </a>
+            </div>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Telefondaysan düğmeyi kullan. Başka bir cihazdaysan QR kodunu telefonunla okut.
             </p>
           </div>
-        </div>
         ) : (
           <p data-no-invite className="mt-6 rounded-2xl bg-secondary p-4 text-sm text-primary">
-            Ödemeniz alındı. Grubunuzun WhatsApp bağlantısı en kısa sürede size iletilecek.
+            Ödemen alındı. Grubunun WhatsApp bağlantısı en kısa sürede sana iletilecek.
           </p>
         )}
         <div className="mt-6">
@@ -240,7 +239,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
               value={f.gender}
               onChange={(e) => setF((p) => ({ ...p, gender: e.target.value as Gender }))}
             >
-              <option value="">Kadın / Erkek seçiniz</option>
+              <option value="">Kadın / Erkek seç</option>
               <option value="Kadın">Kadın grubu</option>
               <option value="Erkek">Erkek grubu</option>
             </select>
@@ -249,20 +248,20 @@ export function RegisterForm({ preset }: { preset: Preset }) {
 
         <div data-step="1" hidden={step !== 1} className="space-y-4">
           <div>
-            <label className={label}>Adınız ve soyadınız *</label>
-            <input required className={field} value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Adınız ve soyadınız" />
+            <label className={label}>Adın ve soyadın *</label>
+            <input required className={field} value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Adın ve soyadın" />
           </div>
           <div>
-            <label className={label}>WhatsApp numaranız (ülke koduyla) *</label>
+            <label className={label}>WhatsApp numaran (ülke koduyla) *</label>
             <input required type="tel" pattern="\+?[0-9 ]{8,}" className={field} value={f.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+90 5..." />
           </div>
           <div>
-            <label className={label}>E-posta adresiniz *</label>
+            <label className={label}>E-posta adresin *</label>
             <input required type="email" className={field} value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="ad@ornek.com" />
           </div>
           <div>
-            <label className={label}>Arapça konuşma hedefiniz *</label>
-            <textarea required rows={3} className={field} value={f.goal} onChange={(e) => set("goal", e.target.value)} placeholder="Arapçayı hangi durumlarda daha rahat konuşmak istiyorsunuz?" />
+            <label className={label}>Arapça konuşma hedefin *</label>
+            <textarea required rows={3} className={field} value={f.goal} onChange={(e) => set("goal", e.target.value)} placeholder="Arapçayı hangi durumlarda daha rahat konuşmak istiyorsun?" />
           </div>
           <p className="rounded-2xl bg-secondary p-4 text-sm text-primary">
             <Amount course={f.course} kind="perLesson" /> TL/50 dk × {PRICE.lessons} ders = <Amount course={f.course} kind="total" />

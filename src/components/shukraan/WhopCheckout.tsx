@@ -39,7 +39,7 @@ export function WhopCheckout({ planId, onPaid }: { planId: string; onPaid: () =>
     <WhopElements elements={elements} onLoadError={(_error, again) => setRetry(() => again)}>
       {retry ? (
         <div className="rounded-2xl bg-secondary p-4 text-sm text-primary">
-          <p>Ödeme formu yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.</p>
+          <p>Ödeme formu yüklenemedi. Bağlantını kontrol edip tekrar dene.</p>
           <button
             type="button"
             onClick={() => {

@@ -125,7 +125,7 @@ export function DiscountField({ tone = "light" }: { tone?: "light" | "navy" }) {
       : status === "invalid"
         ? "Bu kod geçerli değil."
         : status === "error"
-          ? "Kod kontrol edilemedi. Lütfen tekrar deneyin."
+          ? "Kod kontrol edilemedi. Lütfen tekrar dene."
           : "";
   return (
     <div data-discount-field>

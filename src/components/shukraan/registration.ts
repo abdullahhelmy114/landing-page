@@ -147,8 +147,8 @@ export function onSave(listener: (event: SaveEvent) => void) {
 /** The invite in the save API's answer, if it is well formed. */
 function inviteFrom(body: unknown): WhatsAppInvite | null {
   const w = (body as { whatsapp?: Partial<WhatsAppInvite> | null } | null)?.whatsapp;
-  return typeof w?.url === "string" && w.url.startsWith("https://") && typeof w.qr === "string" && w.qr.startsWith("data:image/")
-    ? { url: w.url, qr: w.qr }
+  return typeof w?.url === "string" && w.url.startsWith("https://") && typeof w.qr === "string" && w.qr.startsWith("data:image/") && typeof w.width === "number" && w.width > 0
+    ? { url: w.url, qr: w.qr, width: w.width }
     : null;
 }
 
