@@ -246,3 +246,74 @@
   .coffee-cup, .coffee-glow { transform: none; transition: none; }
   .coffee-sip { opacity: 1 !important; transform: none !important; transition: none; }
 }
+
+/* Floating WhatsApp button (src/components/shukraan/WhatsAppFloat.tsx). */
+.wa-float {
+  position: fixed;
+  right: calc(16px + env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  /* Above the page and its mobile «Kayıt ol» bar (z-40); below the header and any dialog (z-50). */
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 10px 24px -8px rgb(7 16 39 / 0.45), 0 2px 6px rgb(7 16 39 / 0.18);
+  transition: bottom 0.25s ease, opacity 0.2s ease, visibility 0s linear 0s, transform 0.2s ease;
+  animation: wa-float-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+@media (min-width: 768px) {
+  .wa-float { width: 56px; height: 56px; }
+}
+/* On phones it sits above the «Kayıt ol» bar while that bar shows. */
+@media (max-width: 767px) {
+  html[data-cta-bar="on"] .wa-float { bottom: calc(76px + env(safe-area-inset-bottom)); }
+}
+.wa-float:hover { transform: translateY(-2px); }
+.wa-float:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+/* Stepping aside: over something pressable, or (phones) while the checkout is on screen. */
+.wa-float[data-aside] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: bottom 0.25s ease, opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+.wa-float-glyph { width: 28px; height: 28px; fill: currentColor; }
+.wa-float-label { display: none; }
+@media (min-width: 1024px) {
+  .wa-float-label {
+    display: block;
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translate(6px, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: var(--shadow-elegant);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .wa-float:hover .wa-float-label,
+  .wa-float:focus-visible .wa-float-label,
+  .wa-float[data-nudge] .wa-float-label { opacity: 1; transform: translate(0, -50%); }
+}
+@keyframes wa-float-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.92); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-float, .wa-float-label, .wa-float[data-aside] { animation: none; transition: none; }
+  .wa-float:hover { transform: none; }
+}
+@media print {
+  .wa-float { display: none !important; }
+}

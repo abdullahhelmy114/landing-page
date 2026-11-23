@@ -2,6 +2,7 @@
 
 import { createContext, use, useCallback, useRef, useState, type ReactNode } from "react";
 import { checkDiscountCode, type Discount } from "@/lib/discount";
+import { track } from "@/lib/analytics";
 import { formatTL, priceFor, type CourseType, type Price } from "./data";
 
 // ── One discount code for the whole page ─────────────────────────────────────────────────────
@@ -34,6 +35,8 @@ export function useDiscountState(): DiscountState {
     setStatus("checking");
     const result = await checkDiscountCode(input);
     if (id !== request.current) return null;
+    // A code the visitor applied (not a referral link) is counted, without the code itself.
+    if ("code" in input && result !== "error") track("discount_code_result", { valid: result !== null });
     if (result === "error" || result === null) {
       setStatus(result === null ? "invalid" : "error");
       return null;

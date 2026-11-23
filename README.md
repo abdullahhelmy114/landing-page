@@ -64,6 +64,18 @@ Then open `http://localhost:3000`.
 | `NODE_ENV` | `production` | Node environment |
 | `PORT` | `3000` | Server port |
 | `DATABASE_URL` | — | Neon/Postgres connection string used by the `/api/public/*` registration routes |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | — | Umami website id. Set it to turn on visitor analytics; empty loads no script |
+| `NEXT_PUBLIC_UMAMI_SRC` | `https://cloud.umami.is/script.js` | Umami script URL (change it for a self-hosted Umami) |
+
+#### Visitor analytics (Umami)
+
+Umami is cookieless, so the site shows no cookie banner. The script loads only in a production
+build with `NEXT_PUBLIC_UMAMI_WEBSITE_ID` set (see `.env.example`); both variables are inlined at
+build time, so on Coolify mark them as build variables. Query strings are not sent. Besides
+pageviews, the site sends only these events, none with personal data, a discount code or a payment
+id: `whatsapp_float_click`, `whatsapp_footer_click`, `price_card_click` (`course`), `group_select`
+(`course`, `type`), `payment_step_open` (`course`), `discount_code_result` (`valid`),
+`payment_complete` (`course`, once per payment) and `whatsapp_group_join_click`.
 
 ### Docker Compose
 

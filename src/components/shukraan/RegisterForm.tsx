@@ -17,6 +17,7 @@ import {
   type Answers,
 } from "./registration";
 import { WhopCheckout } from "./WhopCheckout";
+import { courseKey, trackOnce, track, typeKey } from "@/lib/analytics";
 
 export type Preset = { course: CourseType; nonce: number } | null;
 
@@ -30,6 +31,13 @@ const STEP_TITLES = [
   ["Ödeme", "Ödemeni tamamla"],
 ];
 const STEPS = [0, 1, 2, 3];
+
+/** Counts a completed payment once per payment attempt, whether Whop reports it or the return does. */
+function completePayment(course: CourseType, attempt: string | null) {
+  const data = { course: courseKey(course) };
+  if (attempt) trackOnce(`payment_complete:${attempt}`, "payment_complete", data);
+  else track("payment_complete", data);
+}
 
 export function RegisterForm({ preset }: { preset: Preset }) {
   const [step, setStep] = useState(0);
@@ -88,6 +96,8 @@ export function RegisterForm({ preset }: { preset: Preset }) {
     setF(point.answers);
     setStep(point.step);
     /* eslint-enable react-hooks/set-state-in-effect */
+    // Back from Whop with status=succeeded: this is where the WhatsApp step opens.
+    if (point.step === DONE_STEP && point.completed !== undefined) completePayment(point.answers.course, point.completed);
     if (point.discount) restore(point.discount);
     document.getElementById("basvuru")?.scrollIntoView();
   }, [restore]);
@@ -120,7 +130,10 @@ export function RegisterForm({ preset }: { preset: Preset }) {
   const next = () => {
     if (!validate(step)) return;
     setErr("");
-    if (step < PAY_STEP - 1) return setStep(step + 1);
+    if (step < PAY_STEP - 1) {
+      if (step === 0 && f.gender) track("group_select", { course: courseKey(f.course), type: typeKey(f.gender) });
+      return setStep(step + 1);
+    }
     // Nobody pays for a registration the API would refuse: check it with the API's own rules.
     const refused = refusedStep({ ...f, code: discount?.code ?? "" });
     if (refused !== null) {
@@ -128,12 +141,13 @@ export function RegisterForm({ preset }: { preset: Preset }) {
       setErr("Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol et.");
       return;
     }
+    track("payment_step_open", { course: courseKey(f.course) });
     setStep(PAY_STEP);
   };
 
   /** Whop reported the payment complete: open the WhatsApp step and save the registration (once). */
   const paid = () => {
-    markPaid({ ...f, code: discount?.code ?? "" });
+    completePayment(f.course, markPaid({ ...f, code: discount?.code ?? "" }));
     setStep(DONE_STEP);
     // Whop usually sends the tab to returnUrl right away; that page then does the saving.
     saveRegistrations(1_500);
@@ -180,6 +194,7 @@ export function RegisterForm({ preset }: { preset: Preset }) {
                 href={invite.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => track("whatsapp_group_join_click")}
                 className="mt-5 inline-flex w-full justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.03] sm:w-auto"
               >
                 WhatsApp grubuna katıl ↗
@@ -275,7 +290,9 @@ export function RegisterForm({ preset }: { preset: Preset }) {
               <p className="mt-1 text-xs text-muted-foreground">{PRICE.lessons} ders · <Amount course={f.course} kind="total" /></p>
             </div>
             <DiscountField />
-            <WhopCheckout key={planId} planId={planId} onPaid={paid} />
+            <div data-checkout-area>
+              <WhopCheckout key={planId} planId={planId} onPaid={paid} />
+            </div>
           </div>
         )}
 

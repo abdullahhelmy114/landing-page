@@ -98,17 +98,27 @@ const readPaid = (): Answers[] => {
   return Array.isArray(v) ? v.map(asAnswers).filter((a): a is Answers => a !== null) : [];
 };
 
+/** A new id for one payment attempt (kept while the payment step is open). */
+const newAttempt = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
 export function rememberPayingStep(a: Answers, discount: Discount | null) {
-  write(PAYING_KEY, { answers: a, step: PAY_STEP, discount });
+  const kept = read(PAYING_KEY) as { attempt?: unknown } | null;
+  const attempt = typeof kept?.attempt === "string" ? kept.attempt : newAttempt();
+  write(PAYING_KEY, { answers: a, step: PAY_STEP, discount, attempt });
 }
 export function forgetPayingStep() {
   remove(PAYING_KEY);
 }
 
-/** Whop reported the payment complete: queue the registration for saving. */
-export function markPaid(a: Answers) {
+/**
+ * Whop reported the payment complete: queue the registration for saving. Returns the payment
+ * attempt's id (null if the payment step's record is gone), so the completion is counted once.
+ */
+export function markPaid(a: Answers): string | null {
+  const kept = read(PAYING_KEY) as { attempt?: unknown } | null;
   write(PAID_KEY, [...readPaid(), a]);
   remove(PAYING_KEY);
+  return typeof kept?.attempt === "string" ? kept.attempt : null;
 }
 
 /**
@@ -118,14 +128,14 @@ export function markPaid(a: Answers) {
  */
 export function resumePoint(
   status: string | null,
-): { answers: Answers; step: typeof PAY_STEP | typeof DONE_STEP; discount: Discount | null } | null {
+): { answers: Answers; step: typeof PAY_STEP | typeof DONE_STEP; discount: Discount | null; completed?: string | null } | null {
   const kept = read(PAYING_KEY) as { answers?: unknown; discount?: unknown } | null;
   const paying = asAnswers(kept?.answers);
   if (paying) {
     const discount = isDiscount(kept?.discount) ? kept.discount : null;
     if (status !== "succeeded") return { answers: paying, step: PAY_STEP, discount };
-    markPaid({ ...paying, code: discount?.code ?? "" });
-    return { answers: paying, step: DONE_STEP, discount };
+    const completed = markPaid({ ...paying, code: discount?.code ?? "" });
+    return { answers: paying, step: DONE_STEP, discount, completed };
   }
   const paid = readPaid().at(-1);
   return paid ? { answers: paid, step: DONE_STEP, discount: null } : null;

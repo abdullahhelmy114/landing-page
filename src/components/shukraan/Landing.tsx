@@ -8,6 +8,7 @@ const drJehan = { url: "/images/jehan-cream-office.png" };
 import { ACTIVITIES, CREDENTIALS, FAQ, PHRASES, STEPS, formatTL, type CourseType } from "./data";
 import { DiscountField, DiscountProvider, useCoursePrice, useDiscountState } from "./discount";
 import { SOCIAL_GLYPHS } from "./social-icons";
+import { courseKey, track } from "@/lib/analytics";
 import { RegisterForm, type Preset } from "./RegisterForm";
 import { useScrollMotion } from "./motion";
 import { Button } from "@/components/ui/button";
@@ -261,7 +262,13 @@ function OfferCard({ c, onChooseCourse }: { c: OfferCardData; onChooseCourse: (c
       </p>
       <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">{c.meta}</p>
       <p className="mt-1 text-sm text-muted-foreground">5 kişilik grup · Zoom üzerinden canlı</p>
-      <button type="button" onClick={() => onChooseCourse(c.course)} className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
+      <button
+        type="button"
+        onClick={() => {
+          track("price_card_click", { course: courseKey(c.course) });
+          onChooseCourse(c.course);
+        }}
+        className="mt-6 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.04]">
         Uygun grubu seç ↗
       </button>
     </div>
@@ -407,7 +414,12 @@ const SOCIAL = [
 /** The footer: the contact sentence and the academy's accounts as icon links. */
 function Footer() {
   return (
-    <footer id="iletisim" className="border-t border-gold/20 bg-navy-deep px-4 py-10 text-center text-on-navy sm:px-8">
+    <footer
+      id="iletisim"
+      // Extra room at the bottom so nothing in the footer ever sits under the floating WhatsApp button.
+      style={{ paddingBottom: "calc(88px + env(safe-area-inset-bottom))" }}
+      className="border-t border-gold/20 bg-navy-deep px-4 pt-10 text-center text-on-navy sm:px-8"
+    >
       <p className="mx-auto max-w-xl text-sm leading-relaxed text-on-navy/75">
         Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçebilirsin.
       </p>
@@ -419,6 +431,7 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}
+              onClick={s.key === "whatsapp" ? () => track("whatsapp_footer_click") : undefined}
               className="grid h-11 w-11 place-items-center rounded-full text-on-navy/70 transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-5 w-5 fill-current">
@@ -461,6 +474,13 @@ export function Landing({ referral }: { referral?: string }) {
     });
     return () => io.disconnect();
   }, []);
+  // The floating WhatsApp button reads this to sit above the «Kayıt ol» bar while it shows.
+  useEffect(() => {
+    document.documentElement.dataset["ctaBar"] = ctaHidden ? "off" : "on";
+    return () => {
+      delete document.documentElement.dataset["ctaBar"];
+    };
+  }, [ctaHidden]);
   return (
     <DiscountProvider value={discount}>
       <main className="min-h-screen bg-background">
