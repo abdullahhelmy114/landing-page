@@ -1,0 +1,31 @@
+{
+  "defaultLanguage": "tr",
+  "fallbackLanguage": "en",
+  "standardPage": "standart",
+  "languages": [
+    {
+      "code": "tr",
+      "label": "Türkçe",
+      "dir": "ltr"
+    },
+    {
+      "code": "en",
+      "label": "English",
+      "dir": "ltr"
+    },
+    {
+      "code": "ar",
+      "label": "العربية",
+      "dir": "rtl"
+    }
+  ],
+  "brand": {
+    "arabic": "أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو",
+    "latin": "ShukraanEdu Academy"
+  },
+  "tagline": {
+    "ar": "أَكَادِيمِيَّةُ «شُكْرَان إِيدْيُو» (ShukraanEdu Academy) لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ وَالتَّحْلِيلِ اللُّغَوِيِّ لِلْعَرَبِيَّةِ الْقُرْآنِيَّةِ — مُخَصَّصَةٌ لِلْمُتَحَدِّثِينَ بِهَا كَلُغَةٍ أُمٍّ وَلِغَيْرِ النَّاطِقِينَ بِهَا",
+    "en": "ShukraanEdu Academy — For Arabic language instruction and linguistic analysis of Quranic Arabic — designed for both native and non-native speakers.",
+    "tr": "ShukraanEdu Akademisi — Arapça öğretimi ve Kur'an Arapçasının dilbilimsel analizi için tasarlanmıştır - anadili Arapça olanlar ve olmayanlar için uygundur."
+  }
+}

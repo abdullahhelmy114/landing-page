@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { loadWhop } from "@whop/elements";
 import { Checkout, CheckoutElement, WhopElements, type Appearance } from "@whop/elements-react";
+import { usePage } from "./page/context";
+
+/** Languages Whop's checkout speaks; any other (Arabic among them) shows it in English. */
+const WHOP_LOCALES = ["en", "es", "zh", "nl", "pt", "de", "hu", "it", "fr", "ja", "pl", "tr"] as const;
+type WhopLocale = (typeof WHOP_LOCALES)[number];
 
 /** The page's palette (src/styles.css) in hex, for the checkout frame that page CSS cannot reach. */
 const COLORS = {
@@ -34,12 +39,14 @@ export function WhopCheckout({ planId, onPaid }: { planId: string; onPaid: () =>
   const [elements] = useState(loadWhop);
   const [returnUrl] = useState(() => `${window.location.origin}${window.location.pathname}`);
   const [retry, setRetry] = useState<(() => void) | null>(null);
+  const { t, lang } = usePage();
+  const locale: WhopLocale = (WHOP_LOCALES as readonly string[]).includes(lang) ? (lang as WhopLocale) : "en";
 
   return (
     <WhopElements elements={elements} onLoadError={(_error, again) => setRetry(() => again)}>
       {retry ? (
         <div className="rounded-2xl bg-secondary p-4 text-sm text-primary">
-          <p>Ödeme formu yüklenemedi. Bağlantını kontrol edip tekrar dene.</p>
+          <p>{t("checkout.failed")}</p>
           <button
             type="button"
             onClick={() => {
@@ -48,7 +55,7 @@ export function WhopCheckout({ planId, onPaid }: { planId: string; onPaid: () =>
             }}
             className="mt-3 rounded-full border border-primary/30 px-5 py-2.5 text-sm font-medium text-primary"
           >
-            Tekrar dene
+            {t("checkout.retry")}
           </button>
         </div>
       ) : (
@@ -56,11 +63,11 @@ export function WhopCheckout({ planId, onPaid }: { planId: string; onPaid: () =>
           plan={planId}
           returnUrl={returnUrl}
           appearance={APPEARANCE}
-          locale="tr"
+          locale={locale}
           onComplete={(done) => {
             if (done.result === "payment") onPaid();
           }}
-          fallback={<p className="py-10 text-center text-sm text-muted-foreground">Ödeme formu yükleniyor…</p>}
+          fallback={<p className="py-10 text-center text-sm text-muted-foreground">{t("checkout.loading")}</p>}
         >
           <CheckoutElement />
         </Checkout>

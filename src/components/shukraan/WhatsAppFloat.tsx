@@ -4,20 +4,35 @@ import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import { SOCIAL_GLYPHS } from "./social-icons";
 
-const MESSAGE = "Merhaba, Arapça konuşma kursu hakkında bir sorum var.";
-export const WHATSAPP_FLOAT_HREF = `https://wa.me/905518550135?text=${encodeURIComponent(MESSAGE)}`;
 
 /** Anything a visitor can press: the button steps aside rather than cover one. */
 const PRESSABLE = "a[href],button,input,select,textarea,summary,label,iframe,[role=button],[role=link],[tabindex]:not([tabindex='-1'])";
 
-/** Whether any visible, pressable element overlaps the given box (a full rectangle test). */
+/**
+ * Where an element will settle once its reveal animation ends: its box without the slide-in
+ * offset of its `.reveal` ancestor (the same box when nothing is sliding).
+ */
+function settledBox(el: Element, r: DOMRect) {
+  const host = el.closest(".reveal");
+  if (!host) return r;
+  const t = getComputedStyle(host).transform;
+  if (!t || t === "none") return r;
+  const m = new DOMMatrixReadOnly(t);
+  return new DOMRect(r.x - m.m41, r.y - m.m42, r.width, r.height);
+}
+
+/**
+ * Whether any visible, pressable element overlaps the given box (a full rectangle test), where it
+ * is now or where it is sliding to.
+ */
 function coversPressable(box: DOMRect, own: Element) {
   const m = 2; // a small margin, so nothing pressable even touches the button
+  const hits = (r: DOMRect) => !(r.right < box.left - m || r.left > box.right + m || r.bottom < box.top - m || r.top > box.bottom + m);
   for (const el of document.querySelectorAll<HTMLElement>(PRESSABLE)) {
     if (own.contains(el) || el.closest("[hidden]")) continue;
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) continue;
-    if (r.right < box.left - m || r.left > box.right + m || r.bottom < box.top - m || r.top > box.bottom + m) continue;
+    if (!hits(r) && !hits(settledBox(el, r))) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility === "hidden" || cs.pointerEvents === "none" || cs.display === "none") continue;
     return true;
@@ -37,7 +52,7 @@ function checkoutOnScreen() {
  * the Whop checkout is on screen), and on desktop shows a small label on hover, on focus and once
  * after 8 seconds.
  */
-export function WhatsAppFloat() {
+export function WhatsAppFloat({ href, ariaLabel, label: text }: { href: string; ariaLabel: string; label: string }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const label = useRef<HTMLSpanElement>(null);
   const [aside, setAside] = useState(false);
@@ -65,19 +80,31 @@ export function WhatsAppFloat() {
 
   useEffect(() => {
     let raf = 0;
+    // While anything on the page is animating (a section sliding in as it is revealed), the
+    // button checks every frame, so nothing pressable can slide under it unnoticed.
+    let animatingUntil = 0;
     const check = () => {
       raf = 0;
       const el = ref.current;
       if (!el) return;
       const phone = window.innerWidth < 768;
       setAside((phone && checkoutOnScreen()) || coversPressable(el.getBoundingClientRect(), el));
+      if (performance.now() < animatingUntil) schedule();
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(check);
     };
+    const onTransition = (e: TransitionEvent) => {
+      if (ref.current?.contains(e.target as Node)) return;
+      // The page's longest transition (.reveal) lasts 0.9 s.
+      animatingUntil = Math.max(animatingUntil, performance.now() + 1_000);
+      schedule();
+    };
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
+    document.addEventListener("transitionrun", onTransition, true);
+    document.addEventListener("transitionend", schedule, true);
     const mo = new MutationObserver(schedule);
     mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "open"] });
     const cta = new MutationObserver(schedule);
@@ -85,6 +112,8 @@ export function WhatsAppFloat() {
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      document.removeEventListener("transitionrun", onTransition, true);
+      document.removeEventListener("transitionend", schedule, true);
       mo.disconnect();
       cta.disconnect();
       if (raf) cancelAnimationFrame(raf);
@@ -94,10 +123,10 @@ export function WhatsAppFloat() {
   return (
     <a
       ref={ref}
-      href={WHATSAPP_FLOAT_HREF}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="WhatsApp'tan bize yaz"
+      aria-label={ariaLabel}
       data-aside={aside ? "true" : undefined}
       data-nudge={nudge ? "true" : undefined}
       onClick={() => track("whatsapp_float_click")}
@@ -107,7 +136,7 @@ export function WhatsAppFloat() {
         <path d={SOCIAL_GLYPHS.whatsapp} />
       </svg>
       <span ref={label} aria-hidden="true" className="wa-float-label">
-        Soru ya da sorun mu? Bize yaz
+        {text}
       </span>
     </a>
   );

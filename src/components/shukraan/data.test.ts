@@ -1,6 +1,18 @@
 /// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
-import { CREDENTIALS, FAQ, PHRASES, WHATSAPP_GROUPS, courseTitle, formatTL, groupIdFor, priceFor } from "./data";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import type { LangContent } from "@/lib/cms/types";
+import { WHATSAPP_GROUPS, courseTitle, formatTL, groupIdFor, priceFor } from "./data";
+
+// The page's texts live in content/ (one file per language); these checks read them there.
+const LANGS = ["tr", "en", "ar"] as const;
+const page = (lang: string) => JSON.parse(readFileSync(path.join(process.cwd(), "content/pages/standart", `${lang}.json`), "utf8")) as LangContent;
+const section = (lang: string, type: string) => page(lang).sections.find((s) => s.type === type)!.fields as Record<string, unknown>;
+const FAQ = (lang: string) => section(lang, "faq")["items"] as { q: string; aHtml: string }[];
+const PHRASES = (lang: string) => section(lang, "phrases")["items"] as { ar: string; level: string }[];
+const CREDENTIALS = (lang: string) => (section(lang, "instructor")["credentials"] as { text: string }[]).map((c) => c.text);
 
 describe("Course booking rules", () => {
   test("regular course costs 400 TL per lesson and 3.200 TL for eight", () => {
@@ -29,26 +41,32 @@ describe("Course booking rules", () => {
 });
 describe("Offer eligibility and wording", () => {
   test("no Sakarya offer, 20% discount or limited-time claim in FAQ", () => {
-    const text = JSON.stringify(FAQ);
-    expect(text).not.toMatch(/Sakarya|%20|Sınırlı süreli|sınırlı sürelidir/);
+    for (const lang of LANGS) {
+      const text = JSON.stringify(FAQ(lang));
+      expect(text).not.toMatch(/Sakarya|%20|Sınırlı süreli|sınırlı sürelidir/);
+    }
   });
   test("no timetable or waitlist wording in the FAQ or the phrases", () => {
-    const text = JSON.stringify([FAQ, PHRASES]);
+    const text = JSON.stringify([FAQ("tr"), PHRASES("tr")]);
     expect(text).not.toMatch(/saat|bekleme|Kasım/i);
   });
   test("the level notes stay: the FAQ answer and a level on every phrase", () => {
-    expect(FAQ[0]?.q).toBe("Bu kurs sıfırdan başlayanlar için uygun mu?");
-    expect(new Set(PHRASES.map((p) => p.level))).toEqual(new Set(["A2", "B1", "B2"]));
+    expect(FAQ("tr")[0]?.q).toBe("Bu kurs sıfırdan başlayanlar için uygun mu?");
+    for (const lang of LANGS) expect(new Set(PHRASES(lang).map((p) => p.level))).toEqual(new Set(["A2", "B1", "B2"]));
   });
   test("prices are not limited to Dâd members and the 380 TL reference is gone", () => {
-    const text = JSON.stringify(FAQ);
-    expect(text).not.toMatch(/Dâd|ضاد|380/);
+    for (const lang of LANGS) {
+      const text = JSON.stringify(FAQ(lang));
+      expect(text).not.toMatch(/Dâd|ضاد|380/);
+    }
   });
   test("regular course is named Normal Konuşma Kursu", () => {
     expect(courseTitle("regular")).toBe("Normal Konuşma Kursu");
     expect(courseTitle("intensive")).toBe("Yoğun Konuşma Kursu (+)");
+    expect(page("tr").ui["course.regular"]).toBe("Normal Konuşma Kursu");
+    expect(page("tr").ui["course.intensive"]).toBe("Yoğun Konuşma Kursu (+)");
   });
   test("disputed credential is not shown", () => {
-    expect(CREDENTIALS.join(" ")).not.toMatch(/mesleki doktora/);
+    for (const lang of LANGS) expect(CREDENTIALS(lang).join(" ")).not.toMatch(/mesleki doktora/);
   });
 });

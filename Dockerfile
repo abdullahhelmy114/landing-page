@@ -41,7 +41,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 # Default port; Coolify can override via environment variable PORT.
-# DATABASE_URL is read at runtime by the /api routes.
+# DATABASE_URL is read at runtime by the /api routes; ADMIN_PASSWORD turns on the control panel.
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
@@ -52,6 +52,13 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 # Each group's WhatsApp link and QR code, read by the server next to server.js (never served by URL).
 COPY --from=builder /app/whatsapp-gruplari ./whatsapp-gruplari
+# The standard page's content (ar/en/tr), the seed the control panel starts from.
+COPY --from=builder /app/content ./content
+
+# Everything the control panel writes (drafts, published pages, versions, trash, uploaded images)
+# lives here. Mount a persistent volume at /app/data in Coolify, or edits are lost on redeploy.
+ENV DATA_DIR=/app/data
+RUN mkdir -p /app/data
 
 EXPOSE 3000
 

@@ -1,0 +1,439 @@
+{
+  "seo": {
+    "title": "Arapça Konuşma Pratiği | ShukraanEdu Akademisi",
+    "description": "Dr. Jehan Ziyad ile canlı gruplarda Arapça konuşma pratiği. Normal kursta 8 ders / 3.200 TL, yoğun kursta 16 ders / 6.000 TL. Zoom üzerinden. A2–B2 seviyeleri için.",
+    "shareDescription": "Arapça biliyorsun. Peki, konuşmaya ne kadar fırsatın var? 8 ders · 3.200 TL veya yoğun kurs (+): 16 ders · 6.000 TL özel teklif.",
+    "image": "/images/og/og-tr.png"
+  },
+  "header": {
+    "nav": [
+      {
+        "id": "n1",
+        "label": "Kurs",
+        "target": "program"
+      },
+      {
+        "id": "n2",
+        "label": "Saatler",
+        "target": "saatler"
+      },
+      {
+        "id": "n3",
+        "label": "Eğitmen",
+        "target": "egitmen"
+      },
+      {
+        "id": "n4",
+        "label": "SSS",
+        "target": "sss"
+      }
+    ],
+    "cta": {
+      "label": "Kayıt ol ↗",
+      "target": "ucretler"
+    },
+    "mobileCta": "Kayıt ol · 8 veya 16 ders"
+  },
+  "footer": {
+    "contact": "Özel teklifler ve kurumsal iş birlikleri için bizimle iletişime geçebilirsin.",
+    "social": [
+      {
+        "id": "facebook",
+        "label": "Facebook",
+        "href": "https://www.facebook.com/profile.php?id=61596203246080"
+      },
+      {
+        "id": "instagram",
+        "label": "Instagram",
+        "href": "https://www.instagram.com/shukraanedu/"
+      },
+      {
+        "id": "whatsapp",
+        "label": "WhatsApp",
+        "href": "https://wa.me/905518550135"
+      },
+      {
+        "id": "threads",
+        "label": "Threads",
+        "href": "https://www.threads.com/@shukraanacademy"
+      }
+    ]
+  },
+  "ui": {
+    "unitPerLesson": "TL/50 dk",
+    "currency": "TL",
+    "numberGroup": ".",
+    "packageTotal": "{n} derslik paket toplamı:",
+    "lessons": "{n} ders",
+    "discount.placeholder": "İndirim kodu",
+    "discount.apply": "Uygula",
+    "discount.remove": "Kaldır",
+    "discount.applied": "İndirim uygulandı.",
+    "discount.invalid": "Bu kod geçerli değil.",
+    "discount.error": "Kod kontrol edilemedi. Lütfen tekrar dene.",
+    "course.regular": "Normal Konuşma Kursu",
+    "course.intensive": "Yoğun Konuşma Kursu (+)",
+    "form.step1.label": "Grup tercihi",
+    "form.step1.title": "Sana uygun grubu seç",
+    "form.step2.label": "İletişim",
+    "form.step2.title": "Sana nasıl ulaşalım?",
+    "form.step3.label": "Ödeme",
+    "form.step3.title": "Ödemeni tamamla",
+    "form.course": "Kurs türü *",
+    "form.gender": "Grup türü *",
+    "form.gender.placeholder": "Kadın / Erkek seç",
+    "form.gender.female": "Kadın grubu",
+    "form.gender.male": "Erkek grubu",
+    "form.name": "Adın ve soyadın *",
+    "form.name.placeholder": "Adın ve soyadın",
+    "form.phone": "WhatsApp numaran (ülke koduyla) *",
+    "form.phone.placeholder": "+90 5...",
+    "form.email": "E-posta adresin *",
+    "form.email.placeholder": "ad@ornek.com",
+    "form.goal": "Arapça konuşma hedefin *",
+    "form.goal.placeholder": "Arapçayı hangi durumlarda daha rahat konuşmak istiyorsun?",
+    "form.next": "Devam et →",
+    "form.back": "Geri",
+    "form.required": "Lütfen bu alanı doldur.",
+    "form.invalid": "Bazı bilgiler geçersiz görünüyor. Lütfen alanları kontrol et.",
+    "done.label": "Başvurun alındı",
+    "done.saved": "Başvurun akademiye kaydedildi.",
+    "done.join": "WhatsApp grubuna katıl ↗",
+    "done.hint": "Telefondaysan düğmeyi kullan. Başka bir cihazdaysan QR kodunu telefonunla okut.",
+    "done.noLink": "Ödemen alındı. Grubunun WhatsApp bağlantısı en kısa sürede sana iletilecek.",
+    "done.again": "Yeni başvuru / düzenle",
+    "done.title.female": "Kadınlar için Arapça Konuşma Grubu",
+    "done.title.male": "Erkekler için Arapça Konuşma Grubu",
+    "done.qrAlt": "{group} — WhatsApp QR kodu",
+    "group.regular.female": "Normal · Kadın",
+    "group.regular.male": "Normal · Erkek",
+    "group.intensive.female": "Yoğun (+) · Kadın",
+    "group.intensive.male": "Yoğun (+) · Erkek",
+    "checkout.loading": "Ödeme formu yükleniyor…",
+    "checkout.failed": "Ödeme formu yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+    "checkout.retry": "Tekrar dene",
+    "checkout.link": "Ödeme sayfasını aç ↗",
+    "checkout.paid": "Ödemen alındı. Teşekkürler! Ayrıntılar için bize WhatsApp'tan yazabilirsin.",
+    "float.aria": "WhatsApp'tan bize yaz",
+    "float.label": "Soru ya da sorun mu? Bize yaz",
+    "timetable.plan": "Kurs",
+    "timetable.group": "Grup",
+    "timetable.days": "Günler",
+    "timetable.time": "Saat",
+    "lockup.alt": "ShukraanEdu Akademisi logosu",
+    "lang.label": "Dil",
+    "whatsapp.button": "WhatsApp'tan yaz ↗",
+    "notFound.title": "Sayfa bulunamadı",
+    "notFound.text": "Aradığın sayfa yok ya da taşınmış.",
+    "notFound.home": "Ana sayfaya dön"
+  },
+  "sections": [
+    {
+      "id": "top",
+      "type": "hero",
+      "fields": {
+        "badges": [
+          {
+            "id": "b1",
+            "text": "A2 · B1 · B2 seviyeleri için"
+          }
+        ],
+        "arabicLine": "ممارسة المحادثة في اللغة العربية",
+        "title": "Arapça biliyorsun.",
+        "titleAccent": "Peki, konuşmaya ne kadar fırsatın var?",
+        "bodyHtml": "<b>Bildiğin Arapçayı konuşmaya taşı.</b> Dr. Jehan Ziyad ile Arapça Konuşma Kursu: canlı gruplarda öğrendiklerini kullan ve Arapçanı canlı tut.",
+        "primary": {
+          "label": "Bana uygun grubu bul ↗",
+          "target": "basvuru"
+        },
+        "secondary": {
+          "label": "Kursu incele",
+          "target": "program"
+        },
+        "note": "Zoom üzerinden · Kadın ve erkekler için ayrı gruplar",
+        "image": {
+          "src": "/images/classroom.jpg",
+          "alt": "Zoom üzerinden canlı Arapça konuşma dersi"
+        }
+      }
+    },
+    {
+      "id": "ornekler",
+      "type": "phrases",
+      "fields": {
+        "eyebrow": "Kursun tadına bak · Birkaç örnek",
+        "items": [
+          {
+            "id": "p1",
+            "ar": "كيف تعبّر عن رأيك؟",
+            "level": "B1"
+          },
+          {
+            "id": "p2",
+            "ar": "أيّ بلد تحبّ أن تزور؟",
+            "level": "A2"
+          },
+          {
+            "id": "p3",
+            "ar": "متى تتحدّث بالعربية؟",
+            "level": "A2"
+          },
+          {
+            "id": "p4",
+            "ar": "ما الذي يجعل يومك ناجحًا؟",
+            "level": "B1"
+          },
+          {
+            "id": "p5",
+            "ar": "ماذا تغيّر لو أدرتَ مدينتك يومًا؟",
+            "level": "B2"
+          },
+          {
+            "id": "p6",
+            "ar": "أتفضّل العمل وحدك أم ضمن فريق؟",
+            "level": "B2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "program",
+      "type": "program",
+      "fields": {
+        "marquee": "Söz sırası sende · Söz sırası sende",
+        "eyebrow": "Söz sırası sende",
+        "quote": "“Anlıyorum ama konuşurken duraksıyorum.”",
+        "introHtml": "Tanıdık geliyor mu? Konuşma pratiği için her şeyi kusursuz bilmen gerekmez. Bildiklerini kullanabileceğin, soru sorabileceğin ve geri bildirim alabileceğin düzenli bir ortam iyi bir başlangıçtır.",
+        "audienceHtml": "Bu kurs, kuralları ve kelimeleri bilen ama bunları konuşmada kullanma fırsatı arayan, en az A2 düzeyinde Arapça bilen ve A2–B2 aralığında konuşma pratiği yapmak isteyen katılımcılar içindir. Gruplar oluşturulurken seviye yakınlığı dikkate alınır.",
+        "activitiesTitle": "Derste neler yapacağız?",
+        "activities": [
+          {
+            "id": "a1",
+            "text": "Günlük konular üzerinden yönlendirilmiş diyaloglar"
+          },
+          {
+            "id": "a2",
+            "text": "Fikir belirtme, soru sorma ve cevap verme çalışmaları"
+          },
+          {
+            "id": "a3",
+            "text": "Kelime ve ifadeleri konuşma içinde kullanma"
+          },
+          {
+            "id": "a4",
+            "text": "Dinleme ve karşılıklı iletişim pratiği"
+          },
+          {
+            "id": "a5",
+            "text": "Eğitmen geri bildirimiyle ifadeleri geliştirme"
+          }
+        ]
+      }
+    },
+    {
+      "id": "duzen",
+      "type": "steps",
+      "fields": {
+        "eyebrow": "Haftana sığan bir düzen",
+        "title": "Planına uygun programı seç.",
+        "subtitle": "Normal veya yoğun seçeneklerle Arapça konuşma pratiği yap.",
+        "items": [
+          {
+            "id": "s1",
+            "n": "01",
+            "title": "Kurs türünü ve grubunu seç",
+            "body": "Normal veya Yoğun (+) kurstan birini, ardından sana uygun Kadın ya da Erkek grubunu seç."
+          },
+          {
+            "id": "s2",
+            "n": "02",
+            "title": "50 dakika ders + 10 dakika ara + 50 dakika ders",
+            "body": "Her buluşma, aralarında 10 dakika mola olan 50 dakikalık iki dersten oluşur."
+          },
+          {
+            "id": "s3",
+            "n": "03",
+            "title": "Normal: 8 ders · Yoğun (+): 16 ders",
+            "body": "Normal kurs: haftada 1 gün, her buluşmada 2 ders, 4 haftada 8 ders. Yoğun kurs (+): haftada 2 gün, her buluşmada 2 ders, 4 haftada 16 ders."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ucretler",
+      "type": "pricing",
+      "fields": {
+        "eyebrow": "Ücretler",
+        "title": "Bir kahve molası.",
+        "titleAccent": "Bir Arapça pratiği.",
+        "intro": "Bildiğin Arapçayı kullan, kendini ifade et ve düzenli pratikle ilerle.",
+        "discountNote": "İndirim kodlarıyla %40'a varan indirim.",
+        "showDiscount": true,
+        "coffee": {
+          "title": "Bir kahve molası kadar keyifli.",
+          "text": "Bu kez sohbet Arapça. Bildiklerini konuşmaya taşı.",
+          "small": "Arapça konuşmaya ayrılmış 50 dakika.",
+          "sip": "Bir yudum kahve, bir adım Arapça."
+        },
+        "cards": [
+          {
+            "id": "regular",
+            "course": "regular",
+            "title": "Normal Konuşma Kursu",
+            "price": "400",
+            "total": "3.200 TL",
+            "meta": "4 hafta · Haftada 1 gün · Her buluşmada 2 ders",
+            "live": "Zoom üzerinden canlı",
+            "button": "Uygun grubu seç ↗"
+          },
+          {
+            "id": "intensive",
+            "course": "intensive",
+            "title": "Yoğun Konuşma Kursu (+)",
+            "price": "375",
+            "total": "6.000 TL",
+            "meta": "4 hafta · Haftada 2 gün · Her buluşmada 2 ders",
+            "live": "Zoom üzerinden canlı",
+            "button": "Uygun grubu seç ↗"
+          }
+        ]
+      }
+    },
+    {
+      "id": "saatler",
+      "type": "timetable",
+      "fields": {
+        "eyebrow": "Ders saatleri",
+        "title": "Haftalık buluşma saatleri",
+        "intro": "Tüm saatler Türkiye saatidir. Her buluşma, aralarında 10 dakika mola olan 50 dakikalık iki dersten oluşur.",
+        "rows": [
+          {
+            "id": "normal-kadin",
+            "plan": "Normal Konuşma Kursu",
+            "group": "Kadın grubu",
+            "days": "Cumartesi",
+            "time": "14:00–15:50"
+          },
+          {
+            "id": "normal-erkek",
+            "plan": "Normal Konuşma Kursu",
+            "group": "Erkek grubu",
+            "days": "Cumartesi",
+            "time": "20:00–21:50"
+          },
+          {
+            "id": "yogun-kadin",
+            "plan": "Yoğun Konuşma Kursu (+)",
+            "group": "Kadın grubu",
+            "days": "Cumartesi ve Pazar",
+            "time": "14:00–15:50"
+          },
+          {
+            "id": "yogun-erkek",
+            "plan": "Yoğun Konuşma Kursu (+)",
+            "group": "Erkek grubu",
+            "days": "Cumartesi ve Pazar",
+            "time": "20:00–21:50"
+          }
+        ],
+        "noteHtml": "Saatler sana uymuyorsa, ödemenin ardından WhatsApp grubuna katıldığında bize yaz; saatleri değiştirme imkânına birlikte bakarız. Bir çözüm bulamazsak ücretin gecikmeden iade edilir. Kursla ilgili her sorun ve öneri WhatsApp grubunda konuşulur; uygulanacaklara oylamayla karar verilir."
+      }
+    },
+    {
+      "id": "egitmen",
+      "type": "instructor",
+      "fields": {
+        "eyebrow": "Eğitmenin",
+        "name": "Dr. Jehan Ziyad",
+        "role": "Kurucu ve Direktör, ShukraanEdu Akademisi",
+        "title": "Kıdemli Eğitimci ve Dilbilim Uzmanı",
+        "areas": "Arap Dilbilimi · Müfredat Geliştirme · Akademik Liderlik · İslami İlimler",
+        "bioHtml": "Ana dili Arapça; Arapça, Arap edebiyatı ve İslami ilimler alanlarındaki birikimiyle; yüz yüze ve çevrim içi eğitimde <b>30 yılı aşkın</b> deneyim.",
+        "credentialsTitle": "Akademik birikim ve öğretim deneyimi",
+        "credentials": [
+          {
+            "id": "c1",
+            "text": "Arap dili ve ilimleri ile İslami ilimler alanında lisans."
+          },
+          {
+            "id": "c2",
+            "text": "Edebiyat araştırmaları alanında, İslam edebiyatı uzmanlığında akademik yüksek lisans ve doktora."
+          },
+          {
+            "id": "c3",
+            "text": "Kur’an-ı Kerim okutma icazeti."
+          },
+          {
+            "id": "c4",
+            "text": "Mısır ve Suudi Arabistan’daki üniversiteler ile diğer eğitim ortamlarında yüz yüze öğretim ve çevrim içi eğitim deneyimi."
+          },
+          {
+            "id": "c5",
+            "text": "ShukraanEdu Akademisi kurucusu ve yöneticisi."
+          }
+        ],
+        "image": {
+          "src": "/images/jehan-cream-office.png",
+          "alt": "Dr. Jehan Ziyad"
+        }
+      }
+    },
+    {
+      "id": "basvuru",
+      "type": "payment",
+      "fields": {
+        "eyebrow": "İlk adımın",
+        "title": "Grubunu seç.",
+        "titleAccent": "Birlikte başlayalım."
+      }
+    },
+    {
+      "id": "sss",
+      "type": "faq",
+      "fields": {
+        "eyebrow": "Aklındaki sorular",
+        "title": "Başlamadan önce",
+        "items": [
+          {
+            "id": "q1",
+            "q": "Bu kurs sıfırdan başlayanlar için uygun mu?",
+            "aHtml": "Kursa katılım için en az A2 düzeyi gerekir. A2, B1 ve B2 düzeyindeki katılımcılar için gruplar oluşturulurken seviye yakınlığı dikkate alınır."
+          },
+          {
+            "id": "q2",
+            "q": "Haftada kaç gün katılacağım?",
+            "aHtml": "Normal kursta haftada bir gün, yoğun kursta (+) haftada iki gün buluşulur. Her buluşmada 50 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğun kurs 4 haftada 16 derstir."
+          },
+          {
+            "id": "q3",
+            "q": "Yerim ne zaman kesinleşir?",
+            "aHtml": "Ödemeni tamamladığında. Ödeme, kayıt formunun ödeme adımında bu sayfadan yapılır; hemen ardından grubunun WhatsApp bağlantısı ve QR kodu gösterilir."
+          },
+          {
+            "id": "q4",
+            "q": "Ders zamanları bana uymazsa ne olur?",
+            "aHtml": "Ödemenin ardından WhatsApp grubuna katıldığında bize yaz; ders zamanlarını değiştirme imkânına bakarız. Bir çözüm bulamazsak ücretin gecikmeden iade edilir."
+          },
+          {
+            "id": "q5",
+            "q": "Kursla ilgili bir sorunum ya da önerim olursa?",
+            "aHtml": "WhatsApp grubunda bize yaz: sorunlar ve öneriler orada konuşulur, uygulanacaklara oylamayla karar verilir."
+          }
+        ]
+      }
+    },
+    {
+      "id": "kapanis",
+      "type": "cta",
+      "fields": {
+        "title": "Tek hedef:",
+        "titleAccent": "Bildiğin Arapçayı konuşabilmen.",
+        "text": "",
+        "button": {
+          "label": "Kayıt ol",
+          "target": "ucretler"
+        }
+      }
+    }
+  ]
+}

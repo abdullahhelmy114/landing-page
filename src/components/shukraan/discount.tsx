@@ -3,7 +3,8 @@
 import { createContext, use, useCallback, useRef, useState, type ReactNode } from "react";
 import { checkDiscountCode, type Discount } from "@/lib/discount";
 import { track } from "@/lib/analytics";
-import { formatTL, priceFor, type CourseType, type Price } from "./data";
+import { priceFor, type CourseType, type Price } from "./data";
+import { usePage } from "./page/context";
 
 // ── One discount code for the whole page ─────────────────────────────────────────────────────
 type Status = "idle" | "checking" | "applied" | "invalid" | "error";
@@ -108,7 +109,8 @@ const amount = (p: Price, kind: Kind) =>
  */
 export function Amount({ course, kind }: { course: CourseType; kind: Kind }) {
   const { regular, discounted } = useCoursePrice(course);
-  const show = (p: Price) => `${formatTL(amount(p, kind))}${kind === "perLesson" ? "" : " TL"}`;
+  const { num, t } = usePage();
+  const show = (p: Price) => `${num(amount(p, kind))}${kind === "perLesson" ? "" : ` ${t("currency")}`}`;
   if (!discounted) return show(regular);
   return (
     <>
@@ -121,21 +123,17 @@ export function Amount({ course, kind }: { course: CourseType; kind: Kind }) {
 /** The discount-code field; every instance on the page edits the same code. */
 export function DiscountField({ tone = "light" }: { tone?: "light" | "navy" }) {
   const { discount, draft, status, setDraft, apply, remove } = useDiscount();
+  const { t } = usePage();
   const navy = tone === "navy";
   const message =
-    status === "applied"
-      ? "İndirim uygulandı."
-      : status === "invalid"
-        ? "Bu kod geçerli değil."
-        : status === "error"
-          ? "Kod kontrol edilemedi. Lütfen tekrar dene."
-          : "";
+    status === "applied" ? t("discount.applied") : status === "invalid" ? t("discount.invalid") : status === "error" ? t("discount.error") : "";
   return (
     <div data-discount-field>
       <div className="flex gap-2">
         <input
-          aria-label="İndirim kodu"
-          placeholder="İndirim kodu"
+          aria-label={t("discount.placeholder")}
+          placeholder={t("discount.placeholder")}
+          dir="ltr"
           autoComplete="off"
           spellCheck={false}
           value={discount ? discount.code : draft}
@@ -160,7 +158,7 @@ export function DiscountField({ tone = "light" }: { tone?: "light" | "navy" }) {
               navy ? "border-on-navy/40 text-on-navy hover:border-gold" : "border-primary/30 text-primary"
             }`}
           >
-            Kaldır
+            {t("discount.remove")}
           </button>
         ) : (
           <button
@@ -169,7 +167,7 @@ export function DiscountField({ tone = "light" }: { tone?: "light" | "navy" }) {
             disabled={status === "checking"}
             className="shrink-0 rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-gold transition hover:scale-[1.03] disabled:opacity-60"
           >
-            Uygula
+            {t("discount.apply")}
           </button>
         )}
       </div>

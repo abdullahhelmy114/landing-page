@@ -31,3 +31,6 @@ dist
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# Local control panel data
+data

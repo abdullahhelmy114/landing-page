@@ -36,3 +36,6 @@ dist-ssr
 /out/
 next-env.d.ts
 *.tsbuildinfo
+
+# Control panel data written locally (on the server it is the /app/data volume)
+/data/
