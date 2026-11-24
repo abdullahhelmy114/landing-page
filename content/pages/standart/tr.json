@@ -267,7 +267,7 @@
         "title": "Bir kahve molası.",
         "titleAccent": "Bir Arapça pratiği.",
         "intro": "Bildiğin Arapçayı kullan, kendini ifade et ve düzenli pratikle ilerle.",
-        "discountNote": "İndirim kodlarıyla %40'a varan indirim.",
+        "discountNote": "Bu kampanyada \"KONUSMA40\" indirim kodunu kullan, konuşma kursunda %40 indirim kazan.",
         "showDiscount": true,
         "coffee": {
           "title": "Bir kahve molası kadar keyifli.",
@@ -312,31 +312,31 @@
             "plan": "Normal Konuşma Kursu",
             "group": "Kadın grubu",
             "days": "Cumartesi",
-            "time": "14:00–15:50"
+            "time": "11:00 - 11:50 + 12:00 - 12:50"
           },
           {
             "id": "normal-erkek",
             "plan": "Normal Konuşma Kursu",
             "group": "Erkek grubu",
-            "days": "Cumartesi",
-            "time": "20:00–21:50"
+            "days": "Pazar",
+            "time": "11:00 - 11:50 + 12:00 - 12:50"
           },
           {
             "id": "yogun-kadin",
             "plan": "Yoğun Konuşma Kursu (+)",
             "group": "Kadın grubu",
             "days": "Cumartesi ve Pazar",
-            "time": "14:00–15:50"
+            "time": "14:00 - 14:50 + 15:00 - 15:50"
           },
           {
             "id": "yogun-erkek",
             "plan": "Yoğun Konuşma Kursu (+)",
             "group": "Erkek grubu",
             "days": "Cumartesi ve Pazar",
-            "time": "20:00–21:50"
+            "time": "20:00 - 20:50 + 21:00 - 21:50"
           }
         ],
-        "noteHtml": "Saatler sana uymuyorsa, ödemenin ardından WhatsApp grubuna katıldığında bize yaz; saatleri değiştirme imkânına birlikte bakarız. Bir çözüm bulamazsak ücretin gecikmeden iade edilir. Kursla ilgili her sorun ve öneri WhatsApp grubunda konuşulur; uygulanacaklara oylamayla karar verilir."
+        "noteHtml": ""
       }
     },
     {

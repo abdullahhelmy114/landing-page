@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
+import { pageHref } from "./links";
 import { readDraft, readPublished, readSite, type PageState } from "./store.server";
 import { sanitizeContent } from "./sanitize.server";
 import type { PageBundle, SiteConfig } from "./types";
 
-/** Where a page lives in a language: "/" and "/en" for the standard page, "/<slug>" and "/en/<slug>" for others. */
-export function pageHref(site: SiteConfig, slug: string, lang: string, referral?: string) {
-  const prefix = lang === site.defaultLanguage ? "" : `/${lang}`;
-  if (referral) return `${prefix}/${referral}`;
-  if (slug === site.standardPage) return prefix || "/";
-  return `${prefix}/${slug}`;
-}
+export { pageHref };
 
 function toBundle(site: SiteConfig, state: PageState, langCode: string, referral?: string): PageBundle | null {
   const lang = site.languages.find((l) => l.code === langCode);

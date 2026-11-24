@@ -24,8 +24,12 @@ export type LockupSetting = { tone: Tone; scheme: "auto" | Scheme };
 export type CheckoutMode = "standard" | "plan" | "link";
 
 export type PageSettings = {
-  /** standard: the two-course registration form; plan: one Whop plan embedded; link: a Whop checkout link. */
-  checkout: { mode: CheckoutMode; planId: string; url: string };
+  /**
+   * standard: the two-course registration form; plan: one Whop plan embedded; link: a Whop checkout
+   * link. promoCode (standard only): a discount code applied when the page opens, so the prices show
+   * the old price struck through and the price that is charged ("" for none).
+   */
+  checkout: { mode: CheckoutMode; planId: string; url: string; promoCode: string };
   whatsapp: { number: string; message: Record<string, string> };
   lockup: { header: LockupSetting; footer: LockupSetting };
 };

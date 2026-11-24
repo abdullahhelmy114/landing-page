@@ -50,8 +50,10 @@ days) and uploaded images (converted to WebP, metadata removed, 10 MB at most).
 In the panel, edit mode is the page itself: click any text or image to change it (per language:
 العربية · English · Türkçe), add, duplicate, hide, reorder (drag in «الأقسام») or delete
 sections, change page settings (course name and slug, Whop plan or checkout link, WhatsApp number
-and message, lockup colours, SEO and share image per language), copy a preview link, and press
-«نشر» to publish. Each publish keeps a version that can be restored. A language added in «الإعدادات
+and message, lockup colours, SEO and share image per language, and the offer code applied when the
+page opens, so prices show the old price struck through), copy a preview link, and press «نشر» to
+publish. Every section has «مشاركة» in the panel (never on the public page): its public link in that
+language, share buttons, and a PNG of the section for Instagram and stories. Each publish keeps a version that can be restored. A language added in «الإعدادات
 العامة» needs no code change: its pages start from the English text and its tagline falls back to
 English until it has its own.
 

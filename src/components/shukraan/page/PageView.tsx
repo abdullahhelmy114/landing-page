@@ -43,10 +43,14 @@ export function PageView({ bundle, referral, edit = null }: { bundle: PageBundle
   useScrollMotion();
   // One discount code for the whole page: entered in the prices or the payment step, shown in every price.
   const discount = useDiscountState();
-  const { applyReferral } = discount;
+  const { applyReferral, applyPromo } = discount;
+  // A referral link applies its own code; otherwise the page's offer code (if any) is applied, so
+  // the prices show the old price struck through and the price that is charged.
+  const promo = settings.checkout.mode === "standard" ? settings.checkout.promoCode : "";
   useEffect(() => {
     if (referral) void applyReferral(referral);
-  }, [referral, applyReferral]);
+    else if (promo) void applyPromo(promo);
+  }, [referral, applyReferral, promo, applyPromo]);
   const [preset, setPreset] = useState<Preset>(null);
   // A price card's button opens the form with its course chosen.
   const paymentId = content.sections.find((s) => s.type === "payment" && !s.hidden)?.id;

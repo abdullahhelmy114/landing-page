@@ -6,6 +6,7 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { PageView } from "@/components/shukraan/page/PageView";
 import type { EditApi } from "@/components/shukraan/page/context";
 import { SCHEMES, TONE_LABELS, resolveScheme } from "@/lib/cms/lockup";
+import { pageHref } from "@/lib/cms/links";
 import { applyOp, getAt, type Drafts, type Op } from "@/lib/cms/ops";
 import { SECTION_LABELS, sectionTitle } from "@/lib/cms/sections";
 import { SECTION_TYPES, type ImageField, type LockupSetting, type PageBundle, type PageMeta, type PageSettings, type Scheme, type SiteConfig, type TrashEntry, type Tone, type VersionInfo } from "@/lib/cms/types";
@@ -19,6 +20,8 @@ export type EditorInitial = {
   trash: TrashEntry[];
   versions: VersionInfo[];
   unpublished: boolean;
+  /** Whether visitors can see the page at all (it has been published at least once). */
+  published: boolean;
 };
 
 type Drawer = null | "sections" | "texts" | "settings" | "versions" | "trash" | { fields: string };
@@ -55,6 +58,8 @@ export function Editor({ slug, lang, initial }: { slug: string; lang: string; in
   const [trash, setTrash] = useState(initial.trash);
   const [versions, setVersions] = useState(initial.versions);
   const [unpublished, setUnpublished] = useState(initial.unpublished);
+  const [published, setPublished] = useState(initial.published);
+  const [share, setShare] = useState<string | null>(null);
   const [pending, setPending] = useState(0);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -122,6 +127,7 @@ export function Editor({ slug, lang, initial }: { slug: string; lang: string; in
         richRef.current = el;
         setRichOn(!!el);
       },
+      shareSection: (id) => setShare(id),
     }),
     [lang, apply],
   );
@@ -157,6 +163,7 @@ export function Editor({ slug, lang, initial }: { slug: string; lang: string; in
       const r = await enqueue(() => api<{ versions: VersionInfo[] }>(`page/${slug}/publish`, { body: { note } }));
       setVersions(r.versions);
       setUnpublished(false);
+      setPublished(true);
       setNotice("تم النشر. حُفظت نسخة يمكن الرجوع إليها.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "تعذّر النشر.");
@@ -366,6 +373,20 @@ export function Editor({ slug, lang, initial }: { slug: string; lang: string; in
             />
           )}
         </Panel>
+      )}
+
+      {share && (
+        <ShareDialog
+          site={site}
+          meta={meta}
+          lang={lang}
+          content={content}
+          sectionId={share}
+          published={published}
+          unpublished={unpublished}
+          onClose={() => setShare(null)}
+          setError={setError}
+        />
       )}
 
       {image && (
@@ -652,6 +673,13 @@ function SettingsPanel({
               {label}
             </label>
           ))}
+          {s.checkout.mode === "standard" && (
+            <label className="block text-sm">
+              كود العرض المطبَّق تلقائيًا (فارغ = بلا عرض)
+              <input className={input} dir="ltr" value={s.checkout.promoCode ?? ""} onChange={(e) => setS({ ...s, checkout: { ...s.checkout, promoCode: e.target.value.trim().toUpperCase() } })} placeholder="KONUSMA40" data-promo-code />
+              <span className="mt-1 block text-xs text-[#071027]/60">يُطبَّق عند فتح الصفحة، فيظهر السعر القديم مشطوبًا والسعر بعد الخصم، ويُدفع السعر بعد الخصم. يجب أن يكون الكود معرَّفًا على الخادم.</span>
+            </label>
+          )}
           {s.checkout.mode === "plan" && (
             <label className="block text-sm">
               معرّف الخطة (plan_…)
@@ -1030,6 +1058,153 @@ function ImageDialog({ site, content, path, onClose, apply, setError }: { site: 
           </button>
           <button type="button" className={lightBtn} onClick={onClose}>
             إلغاء
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Share a section (from the panel only): its public link, share buttons and an image ───────
+const HIDE_IN_IMAGE = ".cms-section-bar, .cms-item-tools, .cms-add-section, .cms-fields-btn, .cms-add";
+
+function ShareDialog({
+  site,
+  meta,
+  lang,
+  content,
+  sectionId,
+  published,
+  unpublished,
+  onClose,
+  setError,
+}: {
+  site: SiteConfig;
+  meta: PageMeta;
+  lang: string;
+  content: Drafts;
+  sectionId: string;
+  published: boolean;
+  unpublished: boolean;
+  onClose: () => void;
+  setError: (s: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const section = content[lang]?.sections.find((x) => x.id === sectionId);
+  if (!section) return null;
+  const url = `${window.location.origin}${pageHref(site, meta.slug, lang)}#${sectionId}`;
+  const text = sectionTitle(section) || content[lang]?.seo.title || site.brand.latin;
+  const e = encodeURIComponent;
+  const targets: [string, string][] = [
+    ["واتساب", `https://wa.me/?text=${e(`${text}\n${url}`)}`],
+    ["فيسبوك", `https://www.facebook.com/sharer/sharer.php?u=${e(url)}`],
+    ["X", `https://x.com/intent/post?text=${e(text)}&url=${e(url)}`],
+    ["تيليغرام", `https://t.me/share/url?url=${e(url)}&text=${e(text)}`],
+    ["لينكدإن", `https://www.linkedin.com/sharing/share-offsite/?url=${e(url)}`],
+  ];
+  const warn = meta.archived
+    ? "الصفحة مؤرشفة، فلن يفتح الرابط للزوار حتى تُستعاد."
+    : !published
+      ? "الصفحة لم تُنشر بعد، فلن يفتح الرابط للزوار حتى تضغط «نشر»."
+      : section.hidden
+        ? "هذا القسم مخفي، فلن يجده الزوار حتى تُظهره وتنشر."
+        : unpublished
+          ? "في المسودة تعديلات غير منشورة؛ يرى الزوار النسخة المنشورة حتى تضغط «نشر»."
+          : "";
+
+  /** The section as a PNG, as it looks on the page in this language (without the panel's buttons). */
+  const image = async (): Promise<Blob | null> => {
+    const el = document.getElementById(sectionId);
+    if (!el) return null;
+    (document.activeElement as HTMLElement | null)?.blur();
+    const { toBlob } = await import("html-to-image");
+    const bg = getComputedStyle(el).backgroundColor;
+    return toBlob(el, {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: bg && bg !== "rgba(0, 0, 0, 0)" ? bg : "#fbf8f1",
+      filter: (n) => !(n instanceof HTMLElement && n.matches(HIDE_IN_IMAGE)),
+    });
+  };
+  const fileName = `${meta.slug}-${sectionId}-${lang}.png`;
+  const download = async () => {
+    setBusy(true);
+    try {
+      const blob = await image();
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch {
+      setError("تعذّر تجهيز الصورة. جرّب مجددًا.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const nativeShare = async () => {
+    try {
+      const blob = await image().catch(() => null);
+      const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
+      if (file && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: text, text: `${text}\n${url}` });
+      else await navigator.share({ title: text, text, url });
+    } catch {
+      // The share sheet was closed.
+    }
+  };
+  return (
+    <div role="dialog" aria-modal="true" aria-label="مشاركة القسم" className="fixed inset-0 z-[90] grid place-items-center bg-black/50 p-4" dir="rtl" lang="ar" data-share-dialog>
+      <div className="w-full max-w-lg rounded-3xl bg-[#fbf6ea] p-6 text-[#071027] shadow-2xl">
+        <h2 className="text-lg font-semibold">مشاركة: {SECTION_LABELS[section.type]}</h2>
+        <p className="mt-1 truncate text-sm text-[#071027]/70">{text}</p>
+        <p className="mt-1 text-xs text-[#071027]/60">زر المشاركة يظهر في لوحة التحكم فقط، ولا يراه الزوار.</p>
+        {warn && <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{warn}</p>}
+        <label className="mt-4 block text-sm">
+          رابط القسم ({site.languages.find((l) => l.code === lang)?.label})
+          <span className="mt-1 flex gap-2">
+            <input readOnly dir="ltr" value={url} className={input} onFocus={(ev) => ev.currentTarget.select()} data-share-url />
+            <button
+              type="button"
+              className={lightBtn}
+              onClick={async () => {
+                await navigator.clipboard?.writeText(url);
+                setCopied(true);
+              }}
+            >
+              {copied ? "نُسخ" : "نسخ"}
+            </button>
+          </span>
+        </label>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {targets.map(([label, href]) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer" className={lightBtn} data-share-target={label}>
+              {label}
+            </a>
+          ))}
+          {typeof navigator.share === "function" && (
+            <button type="button" className={lightBtn} onClick={nativeShare}>
+              مشاركة من الجهاز…
+            </button>
+          )}
+        </div>
+        <div className="mt-5 rounded-xl bg-white p-3 ring-1 ring-[#071027]/10">
+          <p className="text-sm font-semibold">صورة القسم لإنستغرام والقصص</p>
+          {section.type === "payment" ? (
+            <p className="mt-1 text-xs text-[#071027]/60">قسم الدفع لا يُصوَّر (النموذج تفاعلي)؛ شارك رابطه.</p>
+          ) : (
+            <>
+              <p className="mt-1 text-xs text-[#071027]/60">صورة PNG للقسم كما يظهر في الصفحة بهذه اللغة، دون أزرار اللوحة.</p>
+              <button type="button" className={darkPrimary + " mt-2"} onClick={download} disabled={busy} data-share-image>
+                {busy ? "جارٍ التجهيز…" : "تنزيل الصورة"}
+              </button>
+            </>
+          )}
+        </div>
+        <div className="mt-6">
+          <button type="button" className={lightBtn} onClick={onClose}>
+            إغلاق
           </button>
         </div>
       </div>

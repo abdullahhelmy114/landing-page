@@ -11,8 +11,11 @@ export const SCHEMES: Record<Scheme, { name: string; bg: string; fg: string }> =
   4: { name: "كحلي داكن على ذهبي خردلي", bg: "#d0a348", fg: "#071027" },
 };
 
-/** The scheme picked automatically for a background: light gold on navy, navy on cream or gold. */
-export const AUTO_SCHEME: Record<Tone, Scheme> = { navy: 2, cream: 3, gold: 4 };
+/**
+ * The scheme picked automatically for a background: calm cream on navy (the owner's choice: no
+ * gold on navy), navy on cream or on mustard gold. Scheme 2 stays available to force.
+ */
+export const AUTO_SCHEME: Record<Tone, Scheme> = { navy: 1, cream: 3, gold: 4 };
 
 export const TONE_LABELS: Record<Tone, string> = { navy: "كحلي داكن", cream: "كريمي", gold: "ذهبي خردلي" };
 

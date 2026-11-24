@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { courseKey, track, trackOnce } from "@/lib/analytics";
 import { SECTION_LABELS } from "@/lib/cms/sections";
@@ -220,6 +220,22 @@ function Steps({ s, base }: SectionProps) {
 }
 
 // ── Pricing ──────────────────────────────────────────────────────────────────────────────────
+/** The offer line above the prices, with the offer's code picked out. */
+function PromoNote({ path, text, code }: { path: Path; text: string; code: string }) {
+  const { edit } = usePage();
+  const pos = code ? text.indexOf(code) : -1;
+  if (edit || pos < 0) return <Txt as="p" path={path} value={text} className="promo-note mt-5" />;
+  return (
+    <p className="promo-note mt-5">
+      {text.slice(0, pos)}
+      <b className="promo-code" dir="ltr">
+        {code}
+      </b>
+      {text.slice(pos + code.length)}
+    </p>
+  );
+}
+
 type Card = { id: string; course: string; title: string; price?: string; total?: string; meta: string; live: string; button: string };
 type Coffee = { title: string; text: string; small: string; sip: string };
 
@@ -328,7 +344,7 @@ function Pricing({ s, base, onChooseCourse }: SectionProps) {
           <Txt as="p" path={P("intro")} value={str(f["intro"])} className="mt-5 text-on-navy/80" multiline />
           {standard && f["showDiscount"] !== false && (
             <>
-              <Txt as="p" path={P("discountNote")} value={str(f["discountNote"])} className="mt-4 text-sm text-on-navy/85" />
+              <PromoNote path={P("discountNote")} text={str(f["discountNote"])} code={settings.checkout.promoCode} />
               <div className="mt-4 max-w-md">
                 <DiscountField tone="navy" />
               </div>
@@ -376,8 +392,22 @@ function Pricing({ s, base, onChooseCourse }: SectionProps) {
 }
 
 // ── Timetable ────────────────────────────────────────────────────────────────────────────────
+/** A meeting written lesson by lesson ("11:00 - 11:50 + 12:00 - 12:50"); each lesson stays on one line. */
+function LessonTimes({ value }: { value: string }) {
+  return (
+    <bdi dir="ltr" className="inline-block tabular-nums">
+      {value.split(/\s*\+\s*/).map((slot, i) => (
+        <Fragment key={i}>
+          {i > 0 && " + "}
+          <span className="whitespace-nowrap">{slot}</span>
+        </Fragment>
+      ))}
+    </bdi>
+  );
+}
+
 function Timetable({ s, base }: SectionProps) {
-  const { t } = usePage();
+  const { t, edit } = usePage();
   const f = s.fields;
   const P = p(base);
   const rows = arr<{ id: string; plan: string; group: string; days: string; time: string }>(f["rows"]);
@@ -390,7 +420,7 @@ function Timetable({ s, base }: SectionProps) {
           <Txt as="p" path={P("intro")} value={str(f["intro"])} className="mt-5 text-muted-foreground" multiline />
         </div>
         <div role="table" aria-label={str(f["title"])} className="reveal mt-10 overflow-hidden rounded-3xl bg-card shadow-elegant ring-1 ring-gold/25">
-          <div role="row" className="hidden grid-cols-[1.4fr_1fr_1fr_1fr] gap-4 bg-secondary/70 px-6 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-primary/70 md:grid">
+          <div role="row" className="hidden grid-cols-[1.25fr_0.9fr_1fr_1.65fr] gap-4 bg-secondary/70 px-6 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-primary/70 md:grid">
             <span role="columnheader">{t("timetable.plan")}</span>
             <span role="columnheader">{t("timetable.group")}</span>
             <span role="columnheader">{t("timetable.days")}</span>
@@ -399,7 +429,7 @@ function Timetable({ s, base }: SectionProps) {
           {rows.map((r, i) => {
             const R = (k: string) => P("rows", at(r.id), k);
             return (
-              <Item key={r.id} list={P("rows")} id={r.id} index={i} count={rows.length} attrs={{ role: "row" }} className="grid gap-1 border-t border-border px-6 py-4 first:border-t-0 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:items-center md:gap-4 md:first:border-t">
+              <Item key={r.id} list={P("rows")} id={r.id} index={i} count={rows.length} attrs={{ role: "row" }} className="grid gap-1 border-t border-border px-6 py-4 first:border-t-0 md:grid-cols-[1.25fr_0.9fr_1fr_1.65fr] md:items-center md:gap-4 md:first:border-t">
                 <span role="cell" className="font-semibold text-primary">
                   <Txt path={R("plan")} value={r.plan} />
                 </span>
@@ -411,9 +441,9 @@ function Timetable({ s, base }: SectionProps) {
                   <span className="text-muted-foreground md:hidden">{t("timetable.days")}: </span>
                   <Txt path={R("days")} value={r.days} />
                 </span>
-                <span role="cell" className="font-serif text-xl font-semibold text-primary">
+                <span role="cell" className="font-serif text-lg font-semibold text-primary">
                   <span className="font-sans text-sm font-normal text-muted-foreground md:hidden">{t("timetable.time")}: </span>
-                  <Txt path={R("time")} value={r.time} dir="ltr" className="inline-block" />
+                  {edit ? <Txt path={R("time")} value={r.time} dir="ltr" className="inline-block" /> : <LessonTimes value={r.time} />}
                 </span>
               </Item>
             );
@@ -814,6 +844,9 @@ function SectionFrame({ s, index, count, children }: { s: Section; index: number
         </button>
         <button type="button" onClick={() => edit.openFields(s.id)}>
           الحقول
+        </button>
+        <button type="button" onClick={() => edit.shareSection(s.id)} data-share-section={s.id}>
+          مشاركة
         </button>
         <button
           type="button"

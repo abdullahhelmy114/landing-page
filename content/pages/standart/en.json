@@ -267,7 +267,7 @@
         "title": "A coffee break.",
         "titleAccent": "An Arabic practice.",
         "intro": "Use the Arabic you know, express yourself and make progress with regular practice.",
-        "discountNote": "Up to 40% off with discount codes.",
+        "discountNote": "Use the discount code \"KONUSMA40\" and get 40% off the speaking course with this offer.",
         "showDiscount": true,
         "coffee": {
           "title": "As enjoyable as a coffee break.",
@@ -312,31 +312,31 @@
             "plan": "Normal Speaking Course",
             "group": "Women's group",
             "days": "Saturday",
-            "time": "14:00–15:50"
+            "time": "11:00 - 11:50 + 12:00 - 12:50"
           },
           {
             "id": "normal-erkek",
             "plan": "Normal Speaking Course",
             "group": "Men's group",
-            "days": "Saturday",
-            "time": "20:00–21:50"
+            "days": "Sunday",
+            "time": "11:00 - 11:50 + 12:00 - 12:50"
           },
           {
             "id": "yogun-kadin",
             "plan": "Intensive Speaking Course (+)",
             "group": "Women's group",
             "days": "Saturday and Sunday",
-            "time": "14:00–15:50"
+            "time": "14:00 - 14:50 + 15:00 - 15:50"
           },
           {
             "id": "yogun-erkek",
             "plan": "Intensive Speaking Course (+)",
             "group": "Men's group",
             "days": "Saturday and Sunday",
-            "time": "20:00–21:50"
+            "time": "20:00 - 20:50 + 21:00 - 21:50"
           }
         ],
-        "noteHtml": "If the times don't suit you, message us once you have paid and joined the WhatsApp group; we will look together at whether the times can be changed. If we can't find a solution, your fee is refunded without delay. Any problem or suggestion about the course is discussed in the WhatsApp group, and what we put into practice is decided by a vote."
+        "noteHtml": ""
       }
     },
     {

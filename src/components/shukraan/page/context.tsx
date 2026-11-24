@@ -16,6 +16,8 @@ export type EditApi = {
   openFields: (sectionId: string) => void;
   /** Tells the editor a rich-text field has focus (for its formatting buttons). */
   focusRich: (el: HTMLElement | null) => void;
+  /** Opens the share dialog for a section (its public link, share buttons and an image). */
+  shareSection: (sectionId: string) => void;
 };
 
 export type PageCtx = {

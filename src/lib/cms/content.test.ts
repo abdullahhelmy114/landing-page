@@ -62,14 +62,15 @@ describe("Sanitising", () => {
   });
   test("page settings: plan ids, links, numbers and schemes are checked", () => {
     const s = sanitizeSettings({
-      checkout: { mode: "plan", planId: "plan_abc123<script>", url: "javascript:x" },
+      checkout: { mode: "plan", planId: "plan_abc123<script>", url: "javascript:x", promoCode: "bad code<x>" },
       whatsapp: { number: "+90 551 855 01 35", message: { tr: "Merhaba" } },
       lockup: { header: { tone: "cream", scheme: 9 as unknown as Scheme }, footer: { tone: "x" as never, scheme: 4 } },
     } as PageSettings);
-    expect(s.checkout).toEqual({ mode: "plan", planId: "", url: "" });
+    expect(s.checkout).toEqual({ mode: "plan", planId: "", url: "", promoCode: "" });
     expect(s.whatsapp.number).toBe("905518550135");
     expect(s.lockup).toEqual({ header: { tone: "cream", scheme: "auto" }, footer: { tone: "navy", scheme: 4 } });
-    expect(sanitizeSettings({ ...s, checkout: { mode: "link", planId: "", url: "https://whop.com/checkout/plan_x" } }).checkout.url).toBe("https://whop.com/checkout/plan_x");
+    expect(sanitizeSettings({ ...s, checkout: { mode: "link", planId: "", url: "https://whop.com/checkout/plan_x", promoCode: "" } }).checkout.url).toBe("https://whop.com/checkout/plan_x");
+    expect(sanitizeSettings({ ...s, checkout: { mode: "standard", planId: "", url: "", promoCode: " konusma40 " } }).checkout.promoCode).toBe("KONUSMA40");
   });
   test("the panel API refuses malformed operations and prototype keys", () => {
     expect(parseOps({ ops: [{ op: "setText", lang: "tr", path: ["__proto__", "x"], value: "y" }] })).toBeNull();
@@ -148,11 +149,14 @@ describe("Draft operations", () => {
 });
 
 describe("Languages, tagline and lockup", () => {
-  test("the academy name and the three taglines are exactly as given", () => {
+  test("the academy name and the three taglines are exactly as given (24 November)", () => {
     expect(site.brand).toEqual({ arabic: "أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو", latin: "ShukraanEdu Academy" });
-    expect(site.tagline["en"]).toBe("ShukraanEdu Academy — For Arabic language instruction and linguistic analysis of Quranic Arabic — designed for both native and non-native speakers.");
-    expect(site.tagline["tr"]).toBe("ShukraanEdu Akademisi — Arapça öğretimi ve Kur'an Arapçasının dilbilimsel analizi için tasarlanmıştır - anadili Arapça olanlar ve olmayanlar için uygundur.");
-    expect(site.tagline["ar"]).toBe("أَكَادِيمِيَّةُ «شُكْرَان إِيدْيُو» (ShukraanEdu Academy) لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ وَالتَّحْلِيلِ اللُّغَوِيِّ لِلْعَرَبِيَّةِ الْقُرْآنِيَّةِ — مُخَصَّصَةٌ لِلْمُتَحَدِّثِينَ بِهَا كَلُغَةٍ أُمٍّ وَلِغَيْرِ النَّاطِقِينَ بِهَا");
+    expect(site.tagline["ar"]).toBe("تعليم اللّغةِ العربيّةِ الفصحى والتّحليلِ اللّغويِّ للقرآنِ الكريمِ للناطقين بالعربية وبغيرها");
+    expect(site.tagline["en"]).toBe("Teaching Classical Arabic (Fuṣḥā) and the linguistic analysis of the Holy Quran, for native and non-native speakers of Arabic");
+    expect(site.tagline["tr"]).toBe("Fasih Arapça öğretimi ve Kur'an-ı Kerim'in dilbilimsel analizi; Arapçayı ana dili olarak konuşanlar ve konuşmayanlar için");
+  });
+  test("the tagline does not repeat the academy's name (it is already in the lockup above it)", () => {
+    for (const t of Object.values(site.tagline)) expect(t).not.toMatch(/Shukraan|شُكْرَان|شكران/i);
   });
   test("a language without its own tagline shows the English one", () => {
     expect(taglineFor(site.tagline, "fr", site.fallbackLanguage)).toBe(site.tagline["en"]!);
@@ -180,8 +184,10 @@ describe("Languages, tagline and lockup", () => {
     for (const n of [1, 2, 3, 4] as Scheme[]) expect(contrast(SCHEMES[n].fg, SCHEMES[n].bg)).toBeGreaterThanOrEqual(4.5);
   });
   test("the scheme follows the background unless a page or section forces one", () => {
-    expect(AUTO_SCHEME).toEqual({ navy: 2, cream: 3, gold: 4 });
-    expect(resolveScheme({ tone: "navy", scheme: "auto" })).toBe(2);
+    // On navy: calm cream (the owner's choice of 24 November: no gold on navy).
+    expect(AUTO_SCHEME).toEqual({ navy: 1, cream: 3, gold: 4 });
+    expect(resolveScheme({ tone: "navy", scheme: "auto" })).toBe(1);
+    expect(SCHEMES[1].fg).toBe("#f3ead7");
     expect(resolveScheme({ tone: "cream", scheme: "auto" })).toBe(3);
     expect(resolveScheme({ tone: "gold", scheme: "auto" })).toBe(4);
     expect(resolveScheme({ tone: "navy", scheme: 1 })).toBe(1);
@@ -209,15 +215,31 @@ describe("Wording", () => {
   test("no Whop payment-page sentence and no 'from $99 a month' line", () => {
     expect(all).not.toMatch(/يُدفَعُ عبرَ صفحةِ Whop|من 99\$|\$99/);
   });
-  test("the new times: women Sat (+Sun) 14:00, men Sat (+Sun) 20:00, in every language", () => {
-    for (const [, c] of Object.entries(drafts())) {
-      const rows = c.sections.find((s) => s.type === "timetable")!.fields["rows"] as { id: string; time: string }[];
+  test("the times (24 November): regular women Sat 11:00, regular men Sun 11:00, intensive Sat+Sun 14:00 and 20:00, lesson by lesson", () => {
+    const days: Record<string, string[]> = {
+      tr: ["Cumartesi", "Pazar", "Cumartesi ve Pazar", "Cumartesi ve Pazar"],
+      en: ["Saturday", "Sunday", "Saturday and Sunday", "Saturday and Sunday"],
+      ar: ["السبت", "الأحد", "السبت والأحد", "السبت والأحد"],
+    };
+    for (const [lang, c] of Object.entries(drafts())) {
+      const rows = c.sections.find((s) => s.type === "timetable")!.fields["rows"] as { id: string; days: string; time: string }[];
       expect(rows.map((r) => [r.id, r.time])).toEqual([
-        ["normal-kadin", "14:00–15:50"],
-        ["normal-erkek", "20:00–21:50"],
-        ["yogun-kadin", "14:00–15:50"],
-        ["yogun-erkek", "20:00–21:50"],
+        ["normal-kadin", "11:00 - 11:50 + 12:00 - 12:50"],
+        ["normal-erkek", "11:00 - 11:50 + 12:00 - 12:50"],
+        ["yogun-kadin", "14:00 - 14:50 + 15:00 - 15:50"],
+        ["yogun-erkek", "20:00 - 20:50 + 21:00 - 21:50"],
       ]);
+      expect(rows.map((r) => r.days)).toEqual(days[lang]!);
     }
+  });
+  test("the timetable's reschedule/refund/vote paragraph is gone", () => {
+    for (const [, c] of Object.entries(drafts())) expect(c.sections.find((s) => s.type === "timetable")!.fields["noteHtml"]).toBe("");
+    expect(all).not.toContain("إن لم تناسبك المواعيد، فراسلنا بعد الدفع");
+  });
+  test("the prices name the offer code, which the page applies on opening", () => {
+    const settings = read<PageSettings>("content/pages/standart/settings.json");
+    expect(settings.checkout.promoCode).toBe("KONUSMA40");
+    expect(drafts()["ar"]!.sections.find((s) => s.type === "pricing")!.fields["discountNote"]).toBe('استخدم كود الخصم "KONUSMA40" واحصل على 40% خصم على دورة المحادثة لهذا العرض.');
+    for (const [, c] of Object.entries(drafts())) expect(String(c.sections.find((s) => s.type === "pricing")!.fields["discountNote"])).toContain("KONUSMA40");
   });
 });

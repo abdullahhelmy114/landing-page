@@ -170,7 +170,7 @@ export function Dashboard({ initialPages, initialSite }: { initialPages: Row[]; 
     <main className="admin-root min-h-screen bg-[#f3ead7]/60 text-[#071027]" dir="rtl" lang="ar">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-[#071027] px-5 py-4 text-[#f3ead7] sm:px-8">
         <div className="flex items-center gap-3">
-          <span className="h-10 w-8 bg-[#e8cf8f] [mask:url(/images/logo_gold.png)_center/contain_no-repeat]" aria-hidden />
+          <span className="h-10 w-8 bg-[#f3ead7] [mask:url(/images/logo_gold.png)_center/contain_no-repeat]" aria-hidden />
           <div>
             <p className="font-[Amiri] text-xl font-bold">لوحة التحكم</p>
             <p className="text-xs opacity-70">صفحات الهبوط · أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو</p>

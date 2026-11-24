@@ -18,6 +18,11 @@ export type DiscountState = {
   apply: () => Promise<Discount | null>;
   /** Applies the code of a referral link's path (/konusma40 …), checked by the server. */
   applyReferral: (path: string) => Promise<Discount | null>;
+  /**
+   * Applies the page's offer code when it opens (no analytics event, since nobody typed it), unless
+   * a code was already set: typed, removed, from a referral link or kept from a return from Whop.
+   */
+  applyPromo: (code: string) => Promise<Discount | null>;
   remove: () => void;
   /** Restores a code kept in session storage (a return from Whop). */
   restore: (discount: Discount | null) => void;
@@ -30,14 +35,16 @@ export function useDiscountState(): DiscountState {
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const request = useRef(0);
+  // Whether a code has been set or removed by anything other than the page's offer.
+  const touched = useRef(false);
 
-  const check = useCallback(async (input: { code: string } | { ref: string }) => {
+  const check = useCallback(async (input: { code: string } | { ref: string }, quiet = false) => {
     const id = ++request.current;
     setStatus("checking");
     const result = await checkDiscountCode(input);
     if (id !== request.current) return null;
-    // A code the visitor applied (not a referral link) is counted, without the code itself.
-    if ("code" in input && result !== "error") track("discount_code_result", { valid: result !== null });
+    // A code the visitor applied (not a referral link or the page's offer) is counted, without the code itself.
+    if ("code" in input && !quiet && result !== "error") track("discount_code_result", { valid: result !== null });
     if (result === "error" || result === null) {
       setStatus(result === null ? "invalid" : "error");
       return null;
@@ -47,15 +54,27 @@ export function useDiscountState(): DiscountState {
     setStatus("applied");
     return result;
   }, []);
-  const apply = () => check({ code: draft });
-  const applyReferral = useCallback((path: string) => check({ ref: path }), [check]);
+  const apply = () => {
+    touched.current = true;
+    return check({ code: draft });
+  };
+  const applyReferral = useCallback(
+    (path: string) => {
+      touched.current = true;
+      return check({ ref: path });
+    },
+    [check],
+  );
+  const applyPromo = useCallback((code: string) => (touched.current ? Promise.resolve(null) : check({ code }, true)), [check]);
   const remove = () => {
+    touched.current = true;
     request.current += 1;
     setDiscount(null);
     setDraft("");
     setStatus("idle");
   };
   const restore = useCallback((d: Discount | null) => {
+    touched.current = true;
     request.current += 1;
     setDiscount(d);
     setDraft(d?.code ?? "");
@@ -71,6 +90,7 @@ export function useDiscountState(): DiscountState {
     },
     apply,
     applyReferral,
+    applyPromo,
     remove,
     restore,
   };

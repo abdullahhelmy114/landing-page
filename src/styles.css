@@ -471,6 +471,30 @@
 .rich a { text-decoration: underline; text-underline-offset: 3px; }
 .rich p + p { margin-top: 0.75em; }
 .hero-body b { color: var(--gold-soft); }
+/* The offer line above the prices: the code stands out so it can be read and typed. */
+.promo-note {
+  display: inline-block;
+  max-width: 40rem;
+  border: 1px solid color-mix(in oklab, var(--gold) 55%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--gold) 12%, transparent);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--on-navy);
+}
+.promo-code {
+  display: inline-block;
+  margin-inline: 0.15em;
+  border-radius: 0.4rem;
+  background: var(--gold);
+  color: #071027;
+  padding: 0 0.45em;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
 .bio b { color: var(--gold); }
 
 .preview-banner {

@@ -78,8 +78,14 @@ export function sanitizeSettings(s: PageSettings): PageSettings {
   const mode = s.checkout?.mode === "plan" || s.checkout?.mode === "link" ? s.checkout.mode : "standard";
   const planId = String(s.checkout?.planId ?? "").trim();
   const url = safeHref(String(s.checkout?.url ?? ""));
+  const promo = String(s.checkout?.promoCode ?? "").trim().toUpperCase();
   return {
-    checkout: { mode, planId: /^plan_[A-Za-z0-9]{4,40}$/.test(planId) ? planId : "", url: /^https:\/\//.test(url) ? url : "" },
+    checkout: {
+      mode,
+      planId: /^plan_[A-Za-z0-9]{4,40}$/.test(planId) ? planId : "",
+      url: /^https:\/\//.test(url) ? url : "",
+      promoCode: /^[A-Z0-9_-]{1,40}$/.test(promo) ? promo : "",
+    },
     whatsapp: {
       number: String(s.whatsapp?.number ?? "").replace(/\D/g, "").slice(0, 15),
       message: Object.fromEntries(Object.entries(s.whatsapp?.message ?? {}).map(([k, v]) => [k, strip(String(v)).slice(0, 500)])),
