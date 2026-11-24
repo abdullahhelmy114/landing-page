@@ -239,7 +239,9 @@ describe("Wording", () => {
   test("the prices name the offer code, which the page applies on opening", () => {
     const settings = read<PageSettings>("content/pages/standart/settings.json");
     expect(settings.checkout.promoCode).toBe("KONUSMA40");
-    expect(drafts()["ar"]!.sections.find((s) => s.type === "pricing")!.fields["discountNote"]).toBe('استخدم كود الخصم "KONUSMA40" واحصل على 40% خصم على دورة المحادثة لهذا العرض.');
+    expect(drafts()["ar"]!.sections.find((s) => s.type === "pricing")!.fields["discountNote"]).toBe('استخدم كود الخصم "KONUSMA40" واحصل على خصم يصل إلى 40% على دورة المحادثة لهذا العرض.');
+    // "Up to 40%": the regular course is 37.5% off (3,200 → 2,000 TL), the intensive 40% (6,000 → 3,600 TL).
+    for (const [, c] of Object.entries(drafts())) expect(String(c.sections.find((s) => s.type === "pricing")!.fields["discountNote"])).toMatch(/up to 40%|%40'a varan|يصل إلى 40%/);
     for (const [, c] of Object.entries(drafts())) expect(String(c.sections.find((s) => s.type === "pricing")!.fields["discountNote"])).toContain("KONUSMA40");
   });
 });
