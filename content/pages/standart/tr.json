@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "Arapça Konuşma Pratiği | ShukraanEdu Akademisi",
+    "title": "Arapça Konuşma Pratiği | ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو",
     "description": "Dr. Jehan Ziyad ile canlı gruplarda Arapça konuşma pratiği. Normal kursta 8 ders / 3.200 TL, yoğun kursta 16 ders / 6.000 TL. Zoom üzerinden. A2–B2 seviyeleri için.",
     "shareDescription": "Arapça biliyorsun. Peki, konuşmaya ne kadar fırsatın var? 8 ders · 3.200 TL veya yoğun kurs (+): 16 ders · 6.000 TL özel teklif.",
     "image": "/images/og/og-tr.png"
@@ -120,7 +120,7 @@
     "timetable.group": "Grup",
     "timetable.days": "Günler",
     "timetable.time": "Saat",
-    "lockup.alt": "ShukraanEdu Akademisi logosu",
+    "lockup.alt": "ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو",
     "lang.label": "Dil",
     "whatsapp.button": "WhatsApp'tan yaz ↗",
     "notFound.title": "Sayfa bulunamadı",
@@ -318,8 +318,8 @@
             "id": "normal-erkek",
             "plan": "Normal Konuşma Kursu",
             "group": "Erkek grubu",
-            "days": "Pazar",
-            "time": "11:00 - 11:50 + 12:00 - 12:50"
+            "days": "Cumartesi",
+            "time": "17:00 - 17:50 + 18:00 - 18:50"
           },
           {
             "id": "yogun-kadin",
@@ -345,7 +345,7 @@
       "fields": {
         "eyebrow": "Eğitmenin",
         "name": "Dr. Jehan Ziyad",
-        "role": "Kurucu ve Direktör, ShukraanEdu Akademisi",
+        "role": "Kurucu ve Direktör, ŞukraanEdu Akademisi",
         "title": "Kıdemli Eğitimci ve Dilbilim Uzmanı",
         "areas": "Arap Dilbilimi · Müfredat Geliştirme · Akademik Liderlik · İslami İlimler",
         "bioHtml": "Ana dili Arapça; Arapça, Arap edebiyatı ve İslami ilimler alanlarındaki birikimiyle; yüz yüze ve çevrim içi eğitimde <b>30 yılı aşkın</b> deneyim.",
@@ -369,7 +369,7 @@
           },
           {
             "id": "c5",
-            "text": "ShukraanEdu Akademisi kurucusu ve yöneticisi."
+            "text": "ŞukraanEdu Akademisi kurucusu ve yöneticisi."
           }
         ],
         "image": {
@@ -403,6 +403,11 @@
             "id": "q2",
             "q": "Haftada kaç gün katılacağım?",
             "aHtml": "Normal kursta haftada bir gün, yoğun kursta (+) haftada iki gün buluşulur. Her buluşmada 50 dakikalık iki ders yapılır; arada 10 dakika mola verilir. Normal kurs 4 haftada 8 ders, yoğun kurs 4 haftada 16 derstir."
+          },
+          {
+            "id": "q6",
+            "q": "Normal ve yoğun kurs aynı derste buluşur mu?",
+            "aHtml": "Hayır. Yoğun kurstakiler daha ileride olduğu için iki kurs hiçbir derste birleşmez."
           },
           {
             "id": "q3",

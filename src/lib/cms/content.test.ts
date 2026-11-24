@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { parseOps } from "./api.server";
-import { groupDigits, makeT, taglineFor } from "./i18n";
+import { groupDigits, makeT, nameFor, taglineFor } from "./i18n";
 import { AUTO_SCHEME, contrast, resolveScheme, SCHEMES } from "./lockup";
 import { applyOp, getAt, OpError, type Drafts } from "./ops";
 import { safeHref, safeSrc, sanitizeContent, sanitizeRich, sanitizeSettings } from "./sanitize.server";
@@ -122,9 +122,11 @@ describe("Draft operations", () => {
   test("list items are added, moved and deleted in every language", () => {
     const d = drafts();
     const list = ["sections", "#sss", "fields", "items"];
-    applyOp(d, { op: "listAdd", path: list, after: "q1" });
     const ids = (l: string) => (getAt(d[l], list) as { id: string }[]).map((x) => x.id);
-    expect(ids("tr")).toHaveLength(6);
+    const before = ids("tr").length;
+    applyOp(d, { op: "listAdd", path: list, after: "q1" });
+    expect(ids("tr")).toHaveLength(before + 1);
+    expect(ids("tr")[1]).not.toBe("q2");
     expect(ids("ar")).toEqual(ids("tr"));
     applyOp(d, { op: "listMove", path: list, id: "q5", to: 0 });
     expect(ids("en")[0]).toBe("q5");
@@ -150,10 +152,34 @@ describe("Draft operations", () => {
 
 describe("Languages, tagline and lockup", () => {
   test("the academy name and the three taglines are exactly as given (24 November)", () => {
-    expect(site.brand).toEqual({ arabic: "أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو", latin: "ShukraanEdu Academy" });
+    expect(site.brand.arabic).toBe("أَكاديمِيَّةُ شُكْران إِيدْيُو");
+    expect(site.brand.latin).toBe("ShukraanEdu Academy");
     expect(site.tagline["ar"]).toBe("تعليم اللّغةِ العربيّةِ الفصحى والتّحليلِ اللّغويِّ للقرآنِ الكريمِ للناطقين بالعربية وبغيرها");
     expect(site.tagline["en"]).toBe("Teaching Classical Arabic (Fuṣḥā) and the linguistic analysis of the Holy Quran, for native and non-native speakers of Arabic");
     expect(site.tagline["tr"]).toBe("Fasih Arapça öğretimi ve Kur'an-ı Kerim'in dilbilimsel analizi; Arapçayı ana dili olarak konuşanlar ve konuşmayanlar için");
+  });
+  test("the name in the lockup, per page language, exactly as written (follow-up 10)", () => {
+    expect(nameFor(site.brand, "ar")).toBe("أَكاديمِيَّةُ شُكْران إِيدْيُو | ShukraanEdu Academy");
+    expect(nameFor(site.brand, "en")).toBe("ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو");
+    expect(nameFor(site.brand, "tr")).toBe("ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو");
+    // Any other language: the English form.
+    expect(nameFor(site.brand, "fr")).toBe(nameFor(site.brand, "en"));
+  });
+  test("page titles, share titles and the logo's alt text use the same name forms", () => {
+    const d = drafts();
+    for (const lang of ["tr", "en", "ar"]) {
+      expect(d[lang]!.seo.title.endsWith(` | ${nameFor(site.brand, lang)}`)).toBe(true);
+      expect(d[lang]!.ui["lockup.alt"]).toBe(nameFor(site.brand, lang));
+    }
+  });
+  test("the Turkish page says «ŞukraanEdu Akademisi», never «ShukraanEdu Akademisi»; the old Arabic spelling is gone", () => {
+    const d = drafts();
+    expect(JSON.stringify(d["tr"])).not.toContain("ShukraanEdu Akademisi");
+    expect(JSON.stringify(d["tr"])).toContain("ŞukraanEdu Akademisi");
+    expect(JSON.stringify([d, site])).not.toContain("أَكَادِيمِيَّةُ شُكْرَان");
+    // Handles and links are unchanged.
+    expect(d["tr"]!.footer.social.map((x) => x.href)).toEqual(d["en"]!.footer.social.map((x) => x.href));
+    expect(d["tr"]!.footer.social.some((x) => x.href.includes("shukraanedu"))).toBe(true);
   });
   test("the tagline does not repeat the academy's name (it is already in the lockup above it)", () => {
     for (const t of Object.values(site.tagline)) expect(t).not.toMatch(/Shukraan|شُكْرَان|شكران/i);
@@ -171,6 +197,9 @@ describe("Languages, tagline and lockup", () => {
     const fr = makeT({}, d["en"]!.ui);
     expect(fr("lessons", { n: 8 })).toBe("8 lessons");
     expect(fr("missing.key")).toBe("missing.key");
+    // Without a number, "|" is plain text: the logo's alt text keeps the whole name form.
+    expect(ar("lockup.alt")).toBe(d["ar"]!.ui["lockup.alt"]!);
+    expect(ar("lockup.alt")).toContain(" | ShukraanEdu Academy");
     expect(groupDigits(3200, ".")).toBe("3.200");
     expect(groupDigits(6000, ",")).toBe("6,000");
   });
@@ -215,21 +244,31 @@ describe("Wording", () => {
   test("no Whop payment-page sentence and no 'from $99 a month' line", () => {
     expect(all).not.toMatch(/يُدفَعُ عبرَ صفحةِ Whop|من 99\$|\$99/);
   });
-  test("the times (24 November): regular women Sat 11:00, regular men Sun 11:00, intensive Sat+Sun 14:00 and 20:00, lesson by lesson", () => {
+  test("the times (follow-up 10): regular Saturday women 11:00, men 17:00; intensive Saturday and Sunday 14:00 and 20:00, lesson by lesson", () => {
     const days: Record<string, string[]> = {
-      tr: ["Cumartesi", "Pazar", "Cumartesi ve Pazar", "Cumartesi ve Pazar"],
-      en: ["Saturday", "Sunday", "Saturday and Sunday", "Saturday and Sunday"],
-      ar: ["السبت", "الأحد", "السبت والأحد", "السبت والأحد"],
+      tr: ["Cumartesi", "Cumartesi", "Cumartesi ve Pazar", "Cumartesi ve Pazar"],
+      en: ["Saturday", "Saturday", "Saturday and Sunday", "Saturday and Sunday"],
+      ar: ["السبت", "السبت", "السبت والأحد", "السبت والأحد"],
     };
     for (const [lang, c] of Object.entries(drafts())) {
       const rows = c.sections.find((s) => s.type === "timetable")!.fields["rows"] as { id: string; days: string; time: string }[];
       expect(rows.map((r) => [r.id, r.time])).toEqual([
         ["normal-kadin", "11:00 - 11:50 + 12:00 - 12:50"],
-        ["normal-erkek", "11:00 - 11:50 + 12:00 - 12:50"],
+        ["normal-erkek", "17:00 - 17:50 + 18:00 - 18:50"],
         ["yogun-kadin", "14:00 - 14:50 + 15:00 - 15:50"],
         ["yogun-erkek", "20:00 - 20:50 + 21:00 - 21:50"],
       ]);
       expect(rows.map((r) => r.days)).toEqual(days[lang]!);
+      // The two courses never share a session.
+      const slots = rows.map((r) => r.days + " " + r.time);
+      expect(new Set(slots).size).toBe(4);
+    }
+  });
+  test("the FAQ says in one short line that the two courses never share a session", () => {
+    for (const [lang, c] of Object.entries(drafts())) {
+      const q6 = (c.sections.find((s) => s.type === "faq")!.fields["items"] as { id: string; aHtml: string }[]).find((i) => i.id === "q6");
+      expect([lang, !!q6]).toEqual([lang, true]);
+      expect(q6!.aHtml.length).toBeLessThan(120);
     }
   });
   test("the timetable's reschedule/refund/vote paragraph is gone", () => {
@@ -239,7 +278,7 @@ describe("Wording", () => {
   test("the prices name the offer code, which the page applies on opening", () => {
     const settings = read<PageSettings>("content/pages/standart/settings.json");
     expect(settings.checkout.promoCode).toBe("KONUSMA40");
-    expect(drafts()["ar"]!.sections.find((s) => s.type === "pricing")!.fields["discountNote"]).toBe('استخدم كود الخصم "KONUSMA40" واحصل على خصم يصل إلى 40% على دورة المحادثة لهذا العرض.');
+    expect(drafts()["ar"]!.sections.find((s) => s.type === "pricing")!.fields["discountNote"]).toBe('استخدم كود الخصم "KONUSMA40" واحصل على خصم يصل إلى 40% على دورة المحادثة.');
     // "Up to 40%": the regular course is 37.5% off (3,200 → 2,000 TL), the intensive 40% (6,000 → 3,600 TL).
     for (const [, c] of Object.entries(drafts())) expect(String(c.sections.find((s) => s.type === "pricing")!.fields["discountNote"])).toMatch(/up to 40%|%40'a varan|يصل إلى 40%/);
     for (const [, c] of Object.entries(drafts())) expect(String(c.sections.find((s) => s.type === "pricing")!.fields["discountNote"])).toContain("KONUSMA40");

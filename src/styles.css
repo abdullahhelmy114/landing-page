@@ -5,7 +5,94 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * ShukraanEdu Akademisi — Royal Navy × Gold.
+ * Fonts, self-hosted in public/fonts (SIL Open Font License 1.1, licences beside the files):
+ * Amiri for Arabic text, Carlito for Latin text. Latin text asks for Calibri first, which machines
+ * with Microsoft Office have; Calibri itself is never embedded. Amiri is limited to the Arabic
+ * range, so in one stack Arabic letters come from Amiri and Latin letters from Calibri/Carlito.
+ */
+@font-face {
+  font-family: "Amiri";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/amiri-arabic-400-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Amiri";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/amiri-arabic-700-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-400-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-ext-400-italic.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-700-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Carlito";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/carlito-latin-ext-700-italic.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/*
+ * ŞukraanEdu Akademisi — Royal Navy × Gold.
  * Navy axis hue ~265, gold hue ~85, warm ivory canvas hue ~85.
  */
 
@@ -41,9 +128,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Calibri Light", Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
-  --font-arabic: "Traditional Arabic", "Amiri", serif;
+  /* Arabic letters in Amiri; Latin letters in "Calibri, Carlito, sans-serif" (see the @font-face rules). */
+  --font-serif: "Amiri", Calibri, Carlito, sans-serif;
+  --font-sans: "Amiri", Calibri, Carlito, sans-serif;
+  /* Amiri's Arabic subset has no space: spaces and Latin come from Calibri/Carlito, never a system serif. */
+  --font-arabic: "Amiri", Calibri, Carlito, sans-serif;
 }
 
 :root {
@@ -328,7 +417,7 @@
   .wa-float { display: none !important; }
 }
 
-/* ── Lockup: emblem, Arabic name, ShukraanEdu Academy, tagline (src/components/shukraan/page/Lockup.tsx) ── */
+/* ── Lockup: emblem, the name in the page language's form, tagline (src/components/shukraan/page/Lockup.tsx) ── */
 .lockup {
   display: flex;
   align-items: center;
@@ -336,28 +425,27 @@
   color: var(--lk-fg);
   min-width: 0;
 }
+/* The emblem (shukraan-emblem.svg) is drawn in currentColor: the scheme's colour. */
 .lockup-emblem {
   flex: none;
-  width: 46px;
-  aspect-ratio: 611 / 800;
-  background-color: var(--lk-fg);
-  -webkit-mask: url("/images/logo_gold.png") center / contain no-repeat;
-  mask: url("/images/logo_gold.png") center / contain no-repeat;
+  width: 48px;
+  height: auto;
+  aspect-ratio: 816 / 997;
+  fill: currentColor;
 }
 .lockup-text { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
-.lockup-ar {
-  font-family: "Amiri", "Traditional Arabic", serif;
-  font-weight: 700;
-  font-size: 21px;
-  line-height: 1.5;
+/* The name: "Arabic | Latin" or "Latin | Arabic". The line breaks at "|" first, and inside a half
+   only when that half alone is wider than the screen (never sideways scrolling). */
+.lockup-name { font-weight: 700; line-height: 1.45; }
+.lockup-name-part { display: inline-block; max-width: 100%; }
+.lockup-sep { opacity: 0.7; font-weight: 400; white-space: pre; }
+/* Phones: the single line does not fit, so the two halves sit on two lines, without the bar. */
+@media (max-width: 639.98px) {
+  .lockup-name-part { display: block; }
+  .lockup-sep { display: none; }
 }
-.lockup-latin {
-  font-family: var(--font-serif);
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
-}
+.lockup-ar { font-family: "Amiri", Calibri, Carlito, sans-serif; font-size: 21px; }
+.lockup-latin { font-family: Calibri, Carlito, sans-serif; font-size: 19px; }
 /* The tagline never goes under 13px: on narrow screens it wraps instead of shrinking. */
 .lockup-tagline {
   margin-top: 4px;
@@ -368,21 +456,20 @@
   overflow-wrap: break-word;
   white-space: normal;
 }
-.lockup-tagline:lang(ar) { font-family: "IBM Plex Sans Arabic", "Amiri", sans-serif; line-height: 1.8; }
-[dir="ltr"] .lockup-ar { text-align: left; }
-[dir="rtl"] .lockup-latin { text-align: right; }
+.lockup-tagline:lang(ar) { line-height: 1.8; font-size: 14px; }
 @media (min-width: 640px) {
   .lockup { gap: 18px; }
-  .lockup-emblem { width: 58px; }
+  .lockup-emblem { width: 60px; }
   .lockup-ar { font-size: 25px; }
-  .lockup-latin { font-size: 19px; }
+  .lockup-latin { font-size: 22px; }
   .lockup-tagline { font-size: 14px; }
+  .lockup-tagline:lang(ar) { font-size: 16px; }
 }
 .lockup-center { justify-content: center; }
 /* Very narrow phones: stack the emblem above the names. */
 @media (max-width: 379.98px) {
   .lockup { flex-direction: column; align-items: center; text-align: center; }
-  .lockup .lockup-ar, .lockup .lockup-latin { text-align: center; }
+  .lockup .lockup-name { text-align: center; }
 }
 .lockup-link { display: block; border-radius: 12px; }
 .lockup-link:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
@@ -436,7 +523,6 @@
   color: inherit;
   opacity: 0.8;
 }
-.lang-switch a:lang(ar) { font-family: "IBM Plex Sans Arabic", sans-serif; }
 .lang-switch a[aria-current="page"] { background: color-mix(in oklab, currentColor 16%, transparent); opacity: 1; font-weight: 600; }
 .lang-switch a:hover { opacity: 1; }
 .scroll-progress {
@@ -452,11 +538,10 @@
 [dir="rtl"] .scroll-progress { transform-origin: right; }
 
 /* ── Arabic pages: an Arabic typeface, no letter-spacing (it breaks joined letters), no slanting. ── */
-.page-root:lang(ar), .admin-root {
-  font-family: "IBM Plex Sans Arabic", var(--font-sans);
+.page-root, .admin-root {
+  font-family: var(--font-sans);
 }
 .page-root:lang(ar) h1, .page-root:lang(ar) h2, .page-root:lang(ar) h3, .page-root:lang(ar) .font-serif {
-  font-family: "Amiri", "IBM Plex Sans Arabic", serif;
   letter-spacing: 0;
 }
 .page-root:lang(ar) [class*="tracking-"], .page-root:lang(ar) .uppercase { letter-spacing: 0 !important; text-transform: none; }
@@ -491,7 +576,7 @@
   background: var(--gold);
   color: #071027;
   padding: 0 0.45em;
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-family: var(--font-sans);
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -504,7 +589,7 @@
   background: #d0a348;
   color: #071027;
   text-align: center;
-  font: 600 14px/1.4 "IBM Plex Sans Arabic", sans-serif;
+  font: 600 14px/1.4 var(--font-sans);
   padding: 8px 12px;
 }
 
@@ -533,7 +618,7 @@
   border: 2px dashed #d0a348;
   border-radius: 20px;
   color: #b08a35;
-  font: 600 15px "IBM Plex Sans Arabic", sans-serif;
+  font: 600 15px var(--font-sans);
   background: color-mix(in oklab, #d0a348 8%, transparent);
 }
 .cms-item { position: relative; }
@@ -555,7 +640,7 @@
   height: 26px;
   border-radius: 9999px;
   color: #f3ead7;
-  font: 600 14px/1 system-ui, sans-serif;
+  font: 600 14px/1 var(--font-sans);
 }
 .cms-tool:hover:not(:disabled) { background: #d0a348; color: #071027; }
 .cms-tool:disabled { opacity: 0.35; }
@@ -576,7 +661,7 @@
   border-radius: 14px;
   background: #071027;
   color: #f3ead7;
-  font: 500 13px/1.3 "IBM Plex Sans Arabic", system-ui, sans-serif;
+  font: 500 13px/1.3 var(--font-sans);
   box-shadow: 0 6px 18px rgb(7 16 39 / 0.35);
 }
 .cms-section-bar code { font-size: 11px; opacity: 0.6; }
@@ -597,7 +682,7 @@
   padding: 6px 16px;
   color: #071027;
   background: #fbf6ea;
-  font: 600 13px "IBM Plex Sans Arabic", system-ui, sans-serif;
+  font: 600 13px var(--font-sans);
 }
 .cms-add:hover, .cms-fields-btn:hover { background: #d0a348; }
 .cms-fields-btn { position: absolute; top: 8px; inset-inline-start: 8px; z-index: 30; }
@@ -616,7 +701,7 @@
   padding: 6px 14px;
   background: rgb(255 255 255 / 0.1);
   color: #f3ead7;
-  font: 500 13px "IBM Plex Sans Arabic", system-ui, sans-serif;
+  font: 500 13px var(--font-sans);
 }
 .cms-add-menu button:hover { background: #d0a348; color: #071027; }
 .cms-add-menu .cms-add-cancel { background: transparent; text-decoration: underline; }
@@ -625,7 +710,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 14px;
-  font: 500 13px "IBM Plex Sans Arabic", system-ui, sans-serif;
+  font: 500 13px var(--font-sans);
   color: #071027;
 }
-.cms-note { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+.cms-note { font-family: var(--font-sans); }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { Emblem } from "@/components/shukraan/Emblem";
 import { PageView } from "@/components/shukraan/page/PageView";
 import type { EditApi } from "@/components/shukraan/page/context";
 import { SCHEMES, TONE_LABELS, resolveScheme } from "@/lib/cms/lockup";
@@ -603,7 +604,7 @@ function LockupPicker({ label, value, onChange }: { label: string; value: Lockup
         </label>
       </div>
       <div className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: SCHEMES[scheme].bg, color: SCHEMES[scheme].fg }}>
-        <span className="h-6 w-5 [mask:url(/images/logo_gold.png)_center/contain_no-repeat]" style={{ background: SCHEMES[scheme].fg }} aria-hidden />
+        <Emblem className="h-6 w-auto" style={{ color: SCHEMES[scheme].fg }} />
         النظام المستخدم: {scheme} · {SCHEMES[scheme].name}
       </div>
     </fieldset>

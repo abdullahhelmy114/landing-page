@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
+import { nameFor } from "./i18n";
 import { pageHref } from "./links";
 import { readDraft, readPublished, readSite, type PageState } from "./store.server";
 import { sanitizeContent } from "./sanitize.server";
@@ -68,7 +69,7 @@ export async function pageMetadata(b: PageBundle, opts: { noindex?: boolean } = 
       description: seo.shareDescription || seo.description,
       type: "website",
       locale: OG_LOCALE[b.lang.code] ?? b.lang.code,
-      images: [{ url: image, width: 1200, height: 630, alt: b.site.brand.latin }],
+      images: [{ url: image, width: 1200, height: 630, alt: nameFor(b.site.brand, b.lang.code) }],
     },
     twitter: { card: "summary_large_image", title: seo.title, description: seo.shareDescription || seo.description, images: [image] },
     ...(opts.noindex ? { robots: { index: false, follow: true } } : {}),

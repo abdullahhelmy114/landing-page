@@ -12,17 +12,29 @@ const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 const UMAMI_SRC = process.env.NEXT_PUBLIC_UMAMI_SRC || "https://cloud.umami.is/script.js";
 const UMAMI_ON = Boolean(UMAMI_WEBSITE_ID) && process.env.NODE_ENV === "production";
 
+const NAME_TR = "ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو";
+
 export const metadata: Metadata = {
-  title: "ShukraanEdu Akademisi",
-  description: "Dr. Jehan Ziyad ile Arapça konuşma pratiği · ShukraanEdu Akademisi",
+  title: NAME_TR,
+  description: "Dr. Jehan Ziyad ile Arapça konuşma pratiği · ŞukraanEdu Akademisi",
   authors: [{ name: "Dr. Jehan Ziyad" }],
   openGraph: {
-    title: "ShukraanEdu Akademisi",
-    description: "Arapça konuşma pratiği · ShukraanEdu Akademisi",
+    title: NAME_TR,
+    description: "Arapça konuşma pratiği · ŞukraanEdu Akademisi",
     type: "website",
   },
   twitter: { card: "summary_large_image", site: "@Lovable" },
-  icons: { icon: [{ url: "/favicon.ico", type: "image/x-icon" }] },
+  // The emblem from shukraan-emblem-files.zip.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
+      { url: "/icons/icon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/icon-180.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -32,14 +44,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={code} dir={dir} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* The root layout wraps every route, so these fonts load site-wide. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-        />
+        {/* Amiri (Arabic) and Carlito (Latin) are self-hosted in /fonts (OFL); see src/styles.css. */}
+        <link rel="preload" href="/fonts/carlito-latin-400-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/amiri-arabic-400-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
         {children}

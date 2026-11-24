@@ -9,7 +9,12 @@ export type SiteConfig = {
   /** The standard template, served at "/" and "/<language>". */
   standardPage: string;
   languages: Language[];
-  brand: { arabic: string; latin: string };
+  /**
+   * The academy's name: in Arabic and in Latin letters, and the form the lockup shows on each
+   * language's page ("Arabic | Latin" on Arabic pages, "Latin | Arabic" elsewhere), exactly as the
+   * owner wrote it. A language without its own form uses the English one.
+   */
+  brand: { arabic: string; latin: string; names: Record<string, string> };
   tagline: Record<string, string>;
 };
 

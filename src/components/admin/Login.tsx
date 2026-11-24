@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Emblem } from "@/components/shukraan/Emblem";
 import { api, ApiError } from "./api";
 
 /** The panel's login: one password. */
@@ -25,9 +26,9 @@ export function Login({ configured }: { configured: boolean }) {
   return (
     <main className="admin-root grid min-h-screen place-items-center bg-[#071027] px-4" dir="rtl" lang="ar">
       <form onSubmit={submit} className="w-full max-w-sm rounded-3xl bg-[#fbf6ea] p-8 shadow-2xl">
-        <div className="mx-auto mb-4 h-16 w-12 bg-[#071027] [mask:url(/images/logo_gold.png)_center/contain_no-repeat]" aria-hidden />
-        <h1 className="text-center font-[Amiri] text-2xl font-bold text-[#071027]">لوحة التحكم</h1>
-        <p className="mt-1 text-center text-sm text-[#071027]/70">أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو</p>
+        <Emblem className="mx-auto mb-4 h-16 w-auto text-[#071027]" />
+        <h1 className="text-center font-arabic text-2xl font-bold text-[#071027]">لوحة التحكم</h1>
+        <p className="mt-1 text-center text-sm text-[#071027]/70">أَكاديمِيَّةُ شُكْران إِيدْيُو</p>
         {!configured && <p className="mt-6 rounded-xl bg-red-50 p-3 text-sm text-red-800">لم تُضبط كلمة مرور لوحة التحكم على الخادم. أضِف المتغيّر ADMIN_PASSWORD في Coolify ثم أعِد النشر.</p>}
         <label className="mt-6 block text-sm font-medium text-[#071027]" htmlFor="pw">
           كلمة المرور

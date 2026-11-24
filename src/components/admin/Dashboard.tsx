@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import type { PageSummary } from "@/lib/cms/store.server";
 import type { SiteConfig } from "@/lib/cms/types";
+import { Emblem } from "@/components/shukraan/Emblem";
 import { api, arDate } from "./api";
 
 type Row = PageSummary & { unpublished: boolean };
@@ -170,10 +171,10 @@ export function Dashboard({ initialPages, initialSite }: { initialPages: Row[]; 
     <main className="admin-root min-h-screen bg-[#f3ead7]/60 text-[#071027]" dir="rtl" lang="ar">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-[#071027] px-5 py-4 text-[#f3ead7] sm:px-8">
         <div className="flex items-center gap-3">
-          <span className="h-10 w-8 bg-[#f3ead7] [mask:url(/images/logo_gold.png)_center/contain_no-repeat]" aria-hidden />
+          <Emblem className="h-10 w-auto text-[#f3ead7]" />
           <div>
-            <p className="font-[Amiri] text-xl font-bold">لوحة التحكم</p>
-            <p className="text-xs opacity-70">صفحات الهبوط · أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو</p>
+            <p className="font-arabic text-xl font-bold">لوحة التحكم</p>
+            <p className="text-xs opacity-70">صفحات الهبوط · أَكاديمِيَّةُ شُكْران إِيدْيُو</p>
           </div>
         </div>
         <button
@@ -228,6 +229,12 @@ export function Dashboard({ initialPages, initialSite }: { initialPages: Row[]; 
                 <input className={input} dir="ltr" value={site.brand.latin} onChange={(e) => setSite({ ...site, brand: { ...site.brand, latin: e.target.value } })} />
               </label>
             </div>
+            {site.languages.map((l) => (
+              <label key={`name-${l.code}`} className="block text-sm">
+                اسم الأكاديمية في الشعار — {l.label}
+                <input className={input} dir={l.dir} lang={l.code} value={site.brand.names?.[l.code] ?? ""} placeholder={site.brand.names?.["en"]} onChange={(e) => setSite({ ...site, brand: { ...site.brand, names: { ...site.brand.names, [l.code]: e.target.value } } })} />
+              </label>
+            ))}
             {site.languages.map((l) => (
               <label key={l.code} className="block text-sm">
                 العبارة التعريفية — {l.label}

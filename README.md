@@ -57,6 +57,16 @@ language, share buttons, and a PNG of the section for Instagram and stories. Eac
 العامة» needs no code change: its pages start from the English text and its tagline falls back to
 English until it has its own.
 
+### Emblem, fonts and share images
+
+The emblem is `public/images/shukraan-emblem.svg` (one path in `currentColor`, drawn inline by
+`src/components/shukraan/Emblem.tsx` so each lockup scheme tints it); the favicon and app icons are
+in `public/favicon.ico` and `public/icons/`. Fonts are self-hosted in `public/fonts` under the SIL
+Open Font License (licences beside the files): Amiri for Arabic, Carlito for Latin text, which asks
+for Calibri first where it is installed (Calibri itself is never embedded). The share images in
+`public/images/og/` are drawn with Amiri and Carlito by `scripts/share-images.cjs` (see its header
+for how to run it); it fails if any other font is used.
+
 ## Self-hosting with Coolify
 
 This project includes a `Dockerfile` and `docker-compose.yml` for self-hosting on [Coolify](https://coolify.io) or any Docker-based platform.

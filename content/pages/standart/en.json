@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "Arabic Speaking Practice | ShukraanEdu Academy",
+    "title": "Arabic Speaking Practice | ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
     "description": "Arabic speaking practice in live groups with Dr. Jehan Ziyad. Normal course: 8 lessons / 3,200 TL; intensive course: 16 lessons / 6,000 TL. On Zoom. For levels A2–B2.",
     "shareDescription": "You know Arabic. But how often do you get to speak it? 8 lessons · 3,200 TL or the intensive course (+): 16 lessons · 6,000 TL.",
     "image": "/images/og/og-en.png"
@@ -120,7 +120,7 @@
     "timetable.group": "Group",
     "timetable.days": "Days",
     "timetable.time": "Time",
-    "lockup.alt": "ShukraanEdu Academy logo",
+    "lockup.alt": "ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
     "lang.label": "Language",
     "whatsapp.button": "Message us on WhatsApp ↗",
     "notFound.title": "Page not found",
@@ -318,8 +318,8 @@
             "id": "normal-erkek",
             "plan": "Normal Speaking Course",
             "group": "Men's group",
-            "days": "Sunday",
-            "time": "11:00 - 11:50 + 12:00 - 12:50"
+            "days": "Saturday",
+            "time": "17:00 - 17:50 + 18:00 - 18:50"
           },
           {
             "id": "yogun-kadin",
@@ -403,6 +403,11 @@
             "id": "q2",
             "q": "How many days a week will I attend?",
             "aHtml": "The Normal course meets one day a week and the Intensive course (+) two days a week. Each meeting has two 50-minute lessons with a 10-minute break in between. The Normal course is 8 lessons in 4 weeks; the Intensive course is 16 lessons in 4 weeks."
+          },
+          {
+            "id": "q6",
+            "q": "Do the two courses ever meet together?",
+            "aHtml": "No. The intensive learners are further ahead, so the two courses never share a session."
           },
           {
             "id": "q3",

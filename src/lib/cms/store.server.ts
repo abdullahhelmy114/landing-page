@@ -113,7 +113,15 @@ export async function writeSite(next: SiteConfig) {
       fallbackLanguage: pick(next.fallbackLanguage, codes.includes("en") ? "en" : codes[0]!),
       standardPage: next.standardPage,
       languages: langs.map((l) => ({ code: l.code, label: l.label.trim().slice(0, 40), dir: l.dir === "rtl" ? "rtl" : "ltr" })),
-      brand: { arabic: String(next.brand.arabic).slice(0, 120), latin: String(next.brand.latin).slice(0, 120) },
+      brand: {
+        arabic: String(next.brand.arabic).slice(0, 120),
+        latin: String(next.brand.latin).slice(0, 120),
+        names: Object.fromEntries(
+          Object.entries(next.brand.names ?? {})
+            .filter(([k, v]) => isLangCode(k) && typeof v === "string" && v.trim())
+            .map(([k, v]) => [k, v.trim().slice(0, 200)]),
+        ),
+      },
       tagline: Object.fromEntries(Object.entries(next.tagline).filter(([k, v]) => isLangCode(k) && typeof v === "string").map(([k, v]) => [k, v.slice(0, 400)])),
     };
     await writeJson(path.join(dataDir(), "site.json"), site);

@@ -20,8 +20,13 @@
     }
   ],
   "brand": {
-    "arabic": "أَكَادِيمِيَّةُ شُكْرَان إِيدْيُو",
-    "latin": "ShukraanEdu Academy"
+    "arabic": "أَكاديمِيَّةُ شُكْران إِيدْيُو",
+    "latin": "ShukraanEdu Academy",
+    "names": {
+      "ar": "أَكاديمِيَّةُ شُكْران إِيدْيُو | ShukraanEdu Academy",
+      "en": "ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
+      "tr": "ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو"
+    }
   },
   "tagline": {
     "ar": "تعليم اللّغةِ العربيّةِ الفصحى والتّحليلِ اللّغويِّ للقرآنِ الكريمِ للناطقين بالعربية وبغيرها",

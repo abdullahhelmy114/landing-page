@@ -8,6 +8,7 @@ import { SECTION_TYPES, type ImageField, type Section, type SectionType } from "
 import { cn } from "@/lib/utils";
 import type { CourseType } from "../data";
 import { DiscountField, useCoursePrice } from "../discount";
+import { Emblem } from "../Emblem";
 import { Eyebrow } from "../Eyebrow";
 import { RegisterForm, type Preset } from "../RegisterForm";
 import { SOCIAL_GLYPHS } from "../social-icons";
@@ -563,8 +564,9 @@ function Payment({ s, base, preset }: SectionProps) {
   const mode = settings.checkout.mode;
   return (
     <section id={s.id} data-cta-zone className="relative scroll-mt-4 overflow-hidden py-24 sm:py-32">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img data-speed="-0.2" src="/images/logo_navy.png" alt="" className="pointer-events-none absolute -start-24 top-10 h-[34rem] w-auto opacity-[0.04]" />
+      <span data-speed="-0.2" aria-hidden="true" className="pointer-events-none absolute -start-24 top-10 h-[34rem] text-primary opacity-[0.04]">
+        <Emblem className="h-full w-auto" />
+      </span>
       <div className="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_1.15fr]">
         <div className="reveal lg:sticky lg:top-12 lg:self-start">
           <Eye path={P("eyebrow")} value={f["eyebrow"]} />
