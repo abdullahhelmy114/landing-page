@@ -24,7 +24,12 @@ const nextConfig: NextConfig = {
           "*": ["node_modules/wrangler/**", "node_modules/workerd/**", "node_modules/@cloudflare/**", "node_modules/miniflare/**", "node_modules/esbuild/**", "node_modules/@esbuild/**", "node_modules/typescript/**", "node_modules/@opennextjs/aws/**", ".open-next/**", ".wrangler/**", ".git/**", "node_modules/@next/swc-*/**"],
         },
       }
-    : {}),
+    : {
+        // sharp is loaded with a dynamic import (images/convert.server.ts, so a Worker never loads
+        // it), and the file tracer then finds its .node file but not the libvips libraries it
+        // needs (@img/sharp-libvips-* on Linux, the DLLs beside it on Windows): ship them all.
+        outputFileTracingIncludes: { "*": ["./node_modules/@img/**/*"] },
+      }),
   // The control panel, preview links and the panel's API: never indexed, cached or framed (the proxy
   // sets the same; this also covers hosts where it does not run).
   async headers() {
