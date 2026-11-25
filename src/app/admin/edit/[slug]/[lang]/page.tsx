@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "تحرير الصفحة", robots: { index: false, follow: false } };
 
 export default async function EditPage({ params }: { params: Promise<{ slug: string; lang: string }> }) {
-  if (!verifySession((await cookies()).get(SESSION_COOKIE)?.value)) redirect("/admin");
+  if (!(await verifySession((await cookies()).get(SESSION_COOKIE)?.value))) redirect("/admin");
   const { slug, lang } = await params;
   const site = await readSite();
   if (!site.languages.some((l) => l.code === lang)) notFound();

@@ -28,17 +28,22 @@ Whop plan IDs for the two courses live in `src/lib/whop-plans.ts` (regular price
 themselves are in `src/components/shukraan/data.ts`). Discount
 codes and the discounted plans they open live only on the server, in
 `src/lib/discount-codes.server.ts`; `/api/public/discount` checks a code. Each group's
-WhatsApp link and QR code are files in `whatsapp-gruplari/` (see its README.txt); the server
-reads them and returns them with the saved registration, so they never have a URL.
+WhatsApp link and QR code are files in `whatsapp-gruplari/` (see its README.txt). The build
+(`bun run build`, `bun run cf:build`, the Dockerfile) bundles them into the git-ignored
+`src/lib/generated/whatsapp-bundle.json`, with each QR code drawn and read back by two decoders;
+the server returns them with the saved registration, so they never have a URL.
 
 ## Content, languages and the control panel
 
 The landing page's texts are not in the code. The standard page lives in `content/` as JSON, one
 file per language (`content/pages/standart/tr.json`, `en.json`, `ar.json`), with the brand name,
 the tagline per language and the language list in `content/site.json`. These files are the seed;
-everything edited in the control panel is stored in `DATA_DIR` (a persistent volume in Docker,
-`/app/data`): drafts, published pages, the last 30 published versions, deleted sections (kept 30
-days) and uploaded images (converted to WebP, metadata removed, 10 MB at most).
+everything edited in the control panel (drafts, published pages, the last 30 published versions,
+deleted sections kept 30 days, preview links, and uploaded images converted to WebP with metadata
+removed, 10 MB at most) is stored behind one storage interface (`src/lib/cms/repo/`):
+
+- Docker / Coolify: files in `DATA_DIR` (a persistent volume, `/app/data`);
+- Cloudflare Workers (`STORAGE=cloudflare`): D1 for the data and R2 for the images (see below).
 
 | Path | Shows |
 | --- | --- |
@@ -66,6 +71,101 @@ Open Font License (licences beside the files): Amiri for Arabic, Carlito for Lat
 for Calibri first where it is installed (Calibri itself is never embedded). The share images in
 `public/images/og/` are drawn with Amiri and Carlito by `scripts/share-images.cjs` (see its header
 for how to run it); it fails if any other font is used.
+
+## Cloudflare Workers
+
+The same app runs as a Cloudflare Worker through [OpenNext](https://opennext.js.org/cloudflare)
+(`@opennextjs/cloudflare`). `wrangler.jsonc` holds the configuration; `worker.ts` answers
+scanners' probes (`/.env`, `/.git/…`, `/backup.sql`, `/wp-admin` …) with a 404 before Next.js
+runs, then hands every other request to the OpenNext Worker. `patches/` fixes one OpenNext bug
+(it parsed the Cookie header through an import that is undefined on Workers) and is applied by
+`bun install`; `bun run cf:build` stops if it was not.
+
+| Name | Kind | What it is |
+| --- | --- | --- |
+| `DB` | D1 binding, database `landing-page` | Pages, drafts, published versions, trash, preview links, site settings, login rate limit (`migrations/`) |
+| `MEDIA` | R2 binding, bucket `landing-page-media` | Uploaded images (`media/…`) and share images (`share/og-<lang>.png`) |
+| `IMAGES` | Images binding | Converts uploads to WebP; without it (or if it fails) the Worker's WebAssembly encoder does |
+| `ASSETS` | Static assets | `.open-next/assets` (built) |
+| `STORAGE` | Variable (`wrangler.jsonc`) | `cloudflare`: use D1 and R2 instead of files |
+| `ADMIN_PASSWORD` | Secret | The control panel's password; empty turns `/admin` off |
+| `DATABASE_URL` | Secret | The Neon connection string for the registration routes |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID`, `NEXT_PUBLIC_UMAMI_SRC` | Build variables | Umami (see below); read by `next build`, so set them where the build runs |
+
+### One-time setup and deploy
+
+Run these from the repository, with Bun installed. `wrangler` asks you to log in the first time
+(`bunx wrangler login`). Secrets are typed at a prompt, never on the command line.
+
+1. `bun install`
+2. `bunx wrangler d1 create landing-page`, then copy the `database_id` it prints into
+   `wrangler.jsonc` (`d1_databases` → `database_id`, replacing the zeros) and commit it.
+3. `bunx wrangler r2 bucket create landing-page-media`
+4. `bun run cf:migrate` (`wrangler d1 migrations apply landing-page --remote`): creates the tables.
+5. `bun run cf:seed` (`node scripts/import-seed.mjs --remote`): loads `content/*.json` into D1 and
+   uploads the share images to R2. It leaves pages already edited in the panel alone;
+   `node scripts/import-seed.mjs --remote --force` overwrites them.
+6. `bunx wrangler secret put ADMIN_PASSWORD` and `bunx wrangler secret put DATABASE_URL` (if the
+   Worker does not exist yet, wrangler offers to create it: answer yes).
+7. Set the build variables in the shell (or leave them unset for no analytics), then build:
+   `NEXT_PUBLIC_UMAMI_WEBSITE_ID=<id> NEXT_PUBLIC_UMAMI_SRC=<script url> bun run cf:build`
+8. `bun run cf:deploy` (`wrangler deploy`)
+
+To try it locally first: put `ADMIN_PASSWORD=<a test password>` in `.dev.vars` (git-ignored), run
+`bunx wrangler d1 migrations apply landing-page --local`, `node scripts/import-seed.mjs --local`,
+`bun run cf:build` and `bun run cf:dev` (http://localhost:8787, with local D1, R2 and Images).
+
+### In the Cloudflare dashboard
+
+- **Workers & Pages → landing-page → Settings → Domains & Routes**: a deploy first serves the
+  Worker on its `workers.dev` address only (`wrangler.jsonc` names no domain, so no deploy takes
+  the live site by itself). When you switch from Coolify, choose **Add → Custom domain** and enter
+  `muhadese.shukraanedu.com` (its zone must be on this Cloudflare account; remove the old DNS
+  record pointing at Coolify first, or Cloudflare refuses the domain).
+- **Settings → Variables and Secrets**: `ADMIN_PASSWORD` and `DATABASE_URL` are listed as secrets
+  (values hidden) and `STORAGE` as plain text. Changing `ADMIN_PASSWORD` signs every session out.
+- **Settings → Bindings**: `DB`, `MEDIA`, `IMAGES` and `ASSETS` should be listed.
+- **Images**: the `IMAGES` binding uses Cloudflare Images transformations (the Free plan includes
+  a monthly allowance). If your plan has none, remove the `images` line from `wrangler.jsonc`;
+  uploads then use the WebAssembly encoder.
+- **Settings → Build** (only if you connect the Git repository to Workers Builds instead of
+  deploying from your machine): build command `bun run cf:build`, deploy command
+  `bunx wrangler deploy`, and add `NEXT_PUBLIC_UMAMI_WEBSITE_ID` and `NEXT_PUBLIC_UMAMI_SRC` under
+  **Build variables and secrets** (build variables are separate from the Worker's runtime ones).
+  Every push to the production branch then builds and deploys, so do steps 2–6 first. The build
+  reads `whatsapp-gruplari/` from the repository, which holds the private group links: keep the
+  repository private.
+- **Observability**: Workers Logs are on (`observability` in `wrangler.jsonc`).
+
+### Firewall rules (Security → WAF)
+
+The Worker already answers probes with a 404 in a few milliseconds without running the page;
+these rules stop them at Cloudflare's edge so they never reach the Worker.
+
+1. **Custom rule "Block probes"**, action *Block*, expression:
+
+   ```
+   (http.request.uri.path contains "/." and not starts_with(http.request.uri.path, "/.well-known/"))
+   or http.request.uri.path.extension in {"env" "git" "sql" "bak" "old" "orig" "swp" "zip" "tar" "gz" "tgz" "7z" "rar" "php" "asp" "aspx" "jsp" "cgi" "ini" "log" "sqlite" "db" "pem" "key"}
+   or starts_with(lower(http.request.uri.path), "/wp-")
+   or starts_with(lower(http.request.uri.path), "/phpmyadmin")
+   or starts_with(lower(http.request.uri.path), "/cgi-bin")
+   or starts_with(lower(http.request.uri.path), "/vendor/")
+   or starts_with(lower(http.request.uri.path), "/node_modules/")
+   or lower(http.request.uri.path) in {"/xmlrpc.php" "/server-status" "/config.json"}
+   ```
+
+2. **Managed rules**: keep the *Cloudflare Free Managed Ruleset* on; on Pro or higher also turn on
+   the *Cloudflare Managed Ruleset* and the *OWASP Core Ruleset*.
+3. **Rate limiting rule "Panel login"**: when `http.request.uri.path eq "/api/admin/login" and
+   http.request.method eq "POST"`, counted per IP, 5 requests per 10 seconds (the Free plan's
+   period), action *Block* for 10 seconds; on Pro or higher, for example 10 per minute, blocked for
+   an hour. The
+   panel keeps its own limit as well (5 failed logins per 15 minutes per IP).
+4. **Security → Bots → Bot Fight Mode**: on.
+
+The panel's login limit keys on `CF-Connecting-IP` on Workers (the visitor's address as Cloudflare
+sees it) and on the last `X-Forwarded-For` entry elsewhere.
 
 ## Self-hosting with Coolify
 
@@ -109,6 +209,7 @@ Then open `http://localhost:3000`.
 | `NEXT_PUBLIC_UMAMI_SRC` | `https://cloud.umami.is/script.js` | Umami script URL (change it for a self-hosted Umami) |
 | `ADMIN_PASSWORD` | — | The control panel's password. Empty turns `/admin` off. Changing it signs every session out |
 | `DATA_DIR` | `/app/data` in Docker (`./data` locally) | Where the panel stores pages, versions, trash and uploads; mount a persistent volume here |
+| `STORAGE` | — | Leave unset on Docker (files in `DATA_DIR`); `cloudflare` on Workers (D1 and R2) |
 
 #### Control panel security
 

@@ -6,6 +6,9 @@ export type Route =
   | { kind: "redirect"; to: string }
   | { kind: "none" };
 
+/** What a page path segment can be: a language, a referral code or a page slug. */
+const SEGMENT = /^[A-Za-z0-9-]{1,60}$/;
+
 /**
  * What a public path shows:
  *   /                 the standard page in the default language
@@ -14,6 +17,8 @@ export type Route =
  *   /kurs, /en/kurs   a course page made in the panel
  */
 export async function resolveRoute(segs: string[]): Promise<Route> {
+  // Anything else (a file name, a dot, an encoded character…) is no page: answered without any read.
+  if (segs.length > 2 || !segs.every((s) => SEGMENT.test(s))) return { kind: "none" };
   const site = await readSite();
   const isLang = (s: string) => site.languages.some((l) => l.code === s);
   const def = site.defaultLanguage;

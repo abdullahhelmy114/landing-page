@@ -39,3 +39,9 @@ next-env.d.ts
 
 # Control panel data written locally (on the server it is the /app/data volume)
 /data/
+
+# Built from whatsapp-gruplari/ (holds the private WhatsApp links)
+/src/lib/generated/
+# Cloudflare build output and local state
+/.open-next/
+/.wrangler/

@@ -76,15 +76,15 @@ async function handle(req: NextRequest, path: string[]): Promise<Response> {
   if (route === "login" && method === "POST") {
     if (!loginConfigured()) return fail("لم تُضبط كلمة مرور لوحة التحكم (ADMIN_PASSWORD) على الخادم.", 503);
     const ip = clientIp(req.headers);
-    const wait = retryAfter(ip);
+    const wait = await retryAfter(ip);
     if (wait > 0) return json({ error: `محاولات كثيرة. حاول مجددًا بعد ${Math.ceil(wait / 60)} دقيقة.`, retryAfter: wait }, 429, { "Retry-After": String(wait) });
     const b = (await body(req)) as { password?: unknown } | null;
     const password = typeof b?.password === "string" ? b.password : "";
     if (!checkPassword(password)) {
-      recordFailure(ip);
-      return json({ error: "كلمة المرور غير صحيحة.", attemptsLeft: attemptsLeft(ip) }, 401);
+      await recordFailure(ip);
+      return json({ error: "كلمة المرور غير صحيحة.", attemptsLeft: await attemptsLeft(ip) }, 401);
     }
-    clearFailures(ip);
+    await clearFailures(ip);
     const s = createSession();
     const res = json({ ok: true });
     res.cookies.set(sessionCookie(s.value, s.maxAge));
@@ -92,7 +92,7 @@ async function handle(req: NextRequest, path: string[]): Promise<Response> {
   }
   if (route === "logout" && method === "POST") {
     const jar = await cookies();
-    revokeSession(jar.get(SESSION_COOKIE)?.value);
+    await revokeSession(jar.get(SESSION_COOKIE)?.value);
     const res = json({ ok: true });
     res.cookies.set(sessionCookie("", 0));
     return res;
@@ -183,7 +183,7 @@ async function handle(req: NextRequest, path: string[]): Promise<Response> {
     const draft = await restoreFromTrash(slug, id);
     return json({ content: draft.content, trash: await readTrash(slug), unpublished: true });
   }
-  if (action === "preview" && method === "POST") return json({ token: previewToken(slug) });
+  if (action === "preview" && method === "POST") return json({ token: await previewToken(slug) });
   return fail("غير موجود.", 404);
 }
 

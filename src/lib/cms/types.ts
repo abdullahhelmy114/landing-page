@@ -39,7 +39,7 @@ export type PageSettings = {
   lockup: { header: LockupSetting; footer: LockupSetting };
 };
 
-export type PageMeta = { slug: string; courseName: string; archived: boolean; createdAt?: string; updatedAt?: string };
+export type PageMeta = { slug: string; courseName: string; archived: boolean; createdAt?: string; updatedAt?: string; publishedAt?: string };
 
 export const SECTION_TYPES = [
   "hero",

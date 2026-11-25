@@ -2,17 +2,65 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { BarcodeFormat, BinaryBitmap, DecodeHintType, HybridBinarizer, QRCodeReader, RGBLuminanceSource } from "@zxing/library";
 import jsQR from "jsqr";
-import { PNG } from "pngjs";
 import QRCode from "qrcode";
 import { WHATSAPP_GROUPS, type WhatsAppInvite } from "@/components/shukraan/data";
+import BUNDLE from "./generated/whatsapp-bundle.json";
+import { decodePng, encodePngRGB, type RGBAImage } from "./png";
 
 /**
- * Each WhatsApp group's invite lives in whatsapp-gruplari/ at the project root (outside public/,
+ * Each WhatsApp group's invite comes from whatsapp-gruplari/ at the project root (outside public/,
  * so nothing in it has a URL): <file>.txt holds the link and logolar/<file>.png the logo set in the
- * middle of its QR code, which the server draws. The standalone build and the Docker image carry
- * the folder next to server.js. Server-only.
+ * middle of its QR code, which the server draws. The build bundles both into the server
+ * (scripts/bundle-whatsapp.mjs -> generated/whatsapp-bundle.json), so no host reads the folder at
+ * run time; Cloudflare Workers have no file system. Without a bundle (tests, `next dev`), the
+ * folder itself is read. Server-only.
  */
 export const INVITES_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "whatsapp-gruplari");
+
+/** A QR code drawn and checked at build time (scripts/bundle-whatsapp.mjs). */
+export type PrerenderedQr = { qr: string; width: number; verified: boolean };
+
+/** Where the link files and logos (and, from the build, finished QR codes) are read from. */
+export type InviteSource = {
+  id: string;
+  text(file: string): Promise<string | null>;
+  logo(file: string): Promise<Uint8Array | null>;
+  prerendered?(file: string): Promise<PrerenderedQr | null>;
+};
+
+/** The folder on disk (tests, `next dev`). */
+export const folderSource = (dir: string): InviteSource => ({
+  id: dir,
+  text: (file) => readFile(path.join(dir, `${file}.txt`), "utf8").catch(() => null),
+  logo: async (file) => {
+    const b = await readFile(path.join(dir, "logolar", `${file}.png`)).catch(() => null);
+    return b ? new Uint8Array(b) : null;
+  },
+});
+
+type Bundle = Record<string, { text: string | null; logo: string | null; qr?: string; width?: number; verified?: boolean }>;
+
+/** The copy built into the server (scripts/bundle-whatsapp.mjs). */
+export const bundleSource = (bundle: Bundle): InviteSource => ({
+  id: "bundle",
+  text: async (file) => bundle[file]?.text ?? null,
+  logo: async (file) => {
+    const b64 = bundle[file]?.logo;
+    return b64 ? new Uint8Array(Buffer.from(b64, "base64")) : null;
+  },
+  prerendered: async (file) => {
+    const g = bundle[file];
+    return g?.qr && g.width ? { qr: g.qr, width: g.width, verified: g.verified === true } : null;
+  },
+});
+
+/** The bundle when the build made one with any group in it; otherwise the folder. */
+export function defaultSource(): InviteSource {
+  const bundle = BUNDLE as Bundle;
+  return Object.values(bundle).some((g) => g.text !== null || g.logo !== null) ? bundleSource(bundle) : folderSource(INVITES_DIR);
+}
+
+const asSource = (s: string | InviteSource) => (typeof s === "string" ? folderSource(s) : s);
 
 const LINK_PREFIX = "https://chat.whatsapp.com/";
 
@@ -110,7 +158,7 @@ const mix = (a: RGB, b: RGB, t: number): RGB => [a[0] + (b[0] - a[0]) * t, a[1] 
  * outside its circle) in the middle on a white disc with a thin gold ring; the modules under it are
  * left out. Returns the PNG and the width, in CSS pixels, the page shows it at.
  */
-export function renderQr(url: string, logo: PNG | null, mask?: number): { png: Buffer; width: number; rgba: Uint8Array; size: number } {
+export function renderQr(url: string, logo: RGBAImage | null, mask?: number): { width: number; rgba: Uint8Array; size: number } {
   const qr = QRCode.create(url, mask === undefined ? { errorCorrectionLevel: "H" } : { errorCorrectionLevel: "H", maskPattern: mask as QRCode.QRCodeMaskPattern });
   const n = qr.modules.size;
   const m = QR_MODULE_PX;
@@ -129,7 +177,7 @@ export function renderQr(url: string, logo: PNG | null, mask?: number): { png: B
   const logoImg = logo ? resizeRGBA(logo.data, logo.width, logo.height, logoPx, logoPx) : null;
   const logoX = Math.round(c - logoPx / 2);
 
-  const png = new PNG({ width: size, height: size });
+  const png = { width: size, height: size, data: new Uint8Array(size * size * 4) };
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       let col: RGB = WHITE;
@@ -160,7 +208,7 @@ export function renderQr(url: string, logo: PNG | null, mask?: number): { png: B
       png.data[o + 3] = 255;
     }
   }
-  return { png: PNG.sync.write(png, { colorType: 2, deflateLevel: 9 }), width: size / 2, rgba: png.data, size };
+  return { width: size / 2, rgba: png.data, size };
 }
 
 /** Whether jsQR and ZXing, two independent decoders, both read `url` back from an RGBA image. */
@@ -184,42 +232,50 @@ export function decodesTo(url: string, rgba: Uint8Array | Uint8ClampedArray, w: 
  * The QR code the page receives: the encoder's own mask first, then the other masks, keeping the
  * first one that both decoders read at the size the page shows it and at half that size.
  */
-export function bestQr(url: string, logo: PNG | null): { png: Buffer; width: number } {
-  let first: { png: Buffer; width: number } | null = null;
+export async function bestQr(url: string, logo: RGBAImage | null): Promise<{ png: Uint8Array; width: number }> {
+  let chosen: ReturnType<typeof renderQr> | null = null;
   for (const mask of [undefined, 0, 1, 2, 3, 4, 5, 6, 7]) {
-    const { png, width, rgba, size } = renderQr(url, logo, mask);
-    first ??= { png, width };
-    const readable = [width, Math.round(width / 2)].every((w) => decodesTo(url, resizeRGBA(rgba, size, size, w, w), w, w));
-    if (readable) return { png, width };
+    const qr = renderQr(url, logo, mask);
+    chosen ??= qr;
+    const readable = [qr.width, Math.round(qr.width / 2)].every((w) => decodesTo(url, resizeRGBA(qr.rgba, qr.size, qr.size, w, w), w, w));
+    if (readable) {
+      chosen = qr;
+      break;
+    }
   }
-  return first!;
+  const { width, rgba, size } = chosen!;
+  return { png: await encodePngRGB({ width: size, height: size, data: rgba }), width };
 }
 
 // ── A group's invite ────────────────────────────────────────────────────────────────────────
 const cache = new Map<string, Promise<WhatsAppInvite>>();
 
 /** A group's logo from logolar/<file>.png, or null if it has none. */
-async function readLogo(dir: string, file: string): Promise<PNG | null> {
-  const bytes = await readFile(path.join(dir, "logolar", `${file}.png`)).catch(() => null);
+async function readLogo(src: InviteSource, file: string): Promise<RGBAImage | null> {
+  const bytes = await src.logo(file);
   if (!bytes) return null;
   try {
-    return PNG.sync.read(bytes);
+    return await decodePng(bytes);
   } catch {
     return null;
   }
 }
 
 /** A group's invite (its link and QR code with its logo), or null while it has no real link. */
-export async function readInvite(dir: string, file: string): Promise<WhatsAppInvite | null> {
-  const text = await readFile(path.join(dir, `${file}.txt`), "utf8").catch(() => null);
+export async function readInvite(from: string | InviteSource, file: string): Promise<WhatsAppInvite | null> {
+  const src = asSource(from);
+  const text = await src.text(file);
   const url = text === null ? null : parseLink(text);
   if (!url) return null;
-  const key = `${dir}\n${file}\n${url}`;
+  // Drawn at build time: nothing to compute here (Workers limit CPU time per request).
+  const pre = await src.prerendered?.(file);
+  if (pre?.qr.startsWith("data:image/png;base64,")) return { url, qr: pre.qr, width: pre.width };
+  const key = `${src.id}\n${file}\n${url}`;
   let invite = cache.get(key);
   if (!invite) {
-    invite = readLogo(dir, file).then((logo) => {
-      const { png, width } = bestQr(url, logo);
-      return { url, qr: `data:image/png;base64,${png.toString("base64")}`, width };
+    invite = readLogo(src, file).then(async (logo) => {
+      const { png, width } = await bestQr(url, logo);
+      return { url, qr: `data:image/png;base64,${Buffer.from(png).toString("base64")}`, width };
     });
     cache.set(key, invite);
     invite.catch(() => cache.delete(key));
@@ -228,9 +284,9 @@ export async function readInvite(dir: string, file: string): Promise<WhatsAppInv
 }
 
 /** The invite for a saved group id ("Kadın", "Erkek+" …); an unknown id has none. */
-export async function inviteForGroup(groupId: string, dir = INVITES_DIR): Promise<WhatsAppInvite | null> {
+export async function inviteForGroup(groupId: string, from: string | InviteSource = defaultSource()): Promise<WhatsAppInvite | null> {
   const group = WHATSAPP_GROUPS.find((g) => g.id === groupId);
-  return group ? readInvite(dir, group.file) : null;
+  return group ? readInvite(from, group.file) : null;
 }
 
 /**
@@ -238,21 +294,28 @@ export async function inviteForGroup(groupId: string, dir = INVITES_DIR): Promis
  * and how many QR codes the server drew that both decoders read back (this also warms the cache).
  */
 export async function describeInvites(
-  dir = INVITES_DIR,
+  from: string | InviteSource = defaultSource(),
 ): Promise<{ groups: number; found: number; linked: number; logos: number; verified: number }> {
+  const src = asSource(from);
   let found = 0;
   let linked = 0;
   let logos = 0;
   let verified = 0;
   for (const g of WHATSAPP_GROUPS) {
-    const text = await readFile(path.join(dir, `${g.file}.txt`), "utf8").catch(() => null);
+    const text = await src.text(g.file);
     if (text !== null) found += 1;
-    if (await readLogo(dir, g.file)) logos += 1;
+    if (await readLogo(src, g.file)) logos += 1;
     if (text === null || !parseLink(text)) continue;
     linked += 1;
-    const invite = await readInvite(dir, g.file).catch(() => null);
+    // A QR code drawn at build time was read back by both decoders there.
+    const pre = await src.prerendered?.(g.file);
+    if (pre) {
+      if (pre.verified) verified += 1;
+      continue;
+    }
+    const invite = await readInvite(src, g.file).catch(() => null);
     if (!invite) continue;
-    const png = PNG.sync.read(Buffer.from(invite.qr.split(",")[1] ?? "", "base64"));
+    const png = await decodePng(new Uint8Array(Buffer.from(invite.qr.split(",")[1] ?? "", "base64")));
     const w = invite.width;
     if (decodesTo(invite.url, resizeRGBA(png.data, png.width, png.height, w, w), w, w)) verified += 1;
   }

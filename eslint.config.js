@@ -13,5 +13,5 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "dist/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", ".open-next/**", ".wrangler/**", "out/**", "build/**", "dist/**", "next-env.d.ts"]),
 ]);

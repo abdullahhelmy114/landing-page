@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "لوحة التحكم", robots: { in
 
 export default async function AdminHome() {
   const session = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!verifySession(session)) return <Login configured={loginConfigured()} />;
+  if (!(await verifySession(session))) return <Login configured={loginConfigured()} />;
   const [site, pages] = await Promise.all([readSite(), listPages()]);
   const rows = await Promise.all(pages.map(async (p) => ({ ...p, unpublished: await hasUnpublished(p.slug) })));
   return <Dashboard initialPages={rows} initialSite={site} />;

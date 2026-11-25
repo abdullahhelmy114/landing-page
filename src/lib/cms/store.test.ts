@@ -1,12 +1,13 @@
 /// <reference types="bun" />
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { mkdtempSync, readdirSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readdirSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
 import { MAX_UPLOAD, readMedia, saveUpload } from "./media.server";
 import { getAt } from "./ops";
+import { useRepo } from "./repo/index.server";
+import { BACKENDS, type Backend } from "./repo/test-backends";
 import {
   applyDraftOps,
   duplicatePage,
@@ -27,14 +28,16 @@ import {
   readSite,
 } from "./store.server";
 
-let dir = "";
+// Every test runs twice: on the file store (Docker) and on the D1/R2 store (Cloudflare Workers).
+describe.each(BACKENDS.map((b) => [b.name, b] as const))("%s store", (_name: string, backend: Backend) => {
+let current: ReturnType<Backend["make"]>;
 beforeEach(() => {
-  dir = mkdtempSync(path.join(tmpdir(), "shukraan-data-"));
-  process.env["DATA_DIR"] = dir;
+  current = backend.make();
+  useRepo(current.repo);
 });
 afterEach(() => {
-  delete process.env["DATA_DIR"];
-  rmSync(dir, { recursive: true, force: true });
+  useRepo(null);
+  current.cleanup();
 });
 
 const TITLE = ["sections", "#top", "fields", "title"];
@@ -183,8 +186,15 @@ describe("Uploads", () => {
     expect(meta.icc).toBeUndefined();
     expect(meta.orientation).toBeUndefined();
     expect([meta.width, meta.height]).toEqual([48, 64]);
-    expect(stored!.includes(Buffer.from("Secret Person"))).toBe(false);
-    expect(readdirSync(path.join(dir, "media"))).toEqual([r.src.slice("/media/".length)]);
+    expect(Buffer.from(stored!).includes(Buffer.from("Secret Person"))).toBe(false);
+    // Stored once: a file under DATA_DIR/media, or an R2 object indexed in D1's media table.
+    const name = r.src.slice("/media/".length);
+    if (backend.name === "file") expect(readdirSync(path.join(process.env["DATA_DIR"]!, "media"))).toEqual([name]);
+    else {
+      expect([...current.bucket!.objects.keys()]).toEqual([`media/${name}`]);
+      expect(current.bucket!.objects.get(`media/${name}`)!.contentType).toBe("image/webp");
+      expect(current.db!.sqlite.query("SELECT key, content_type FROM media").all()).toEqual([{ key: `media/${name}`, content_type: "image/webp" }]);
+    }
   });
   test("files over 10 MB are refused", async () => {
     const big = new Uint8Array(MAX_UPLOAD + 1);
@@ -199,4 +209,5 @@ describe("Uploads", () => {
     expect(await readMedia("0123456789abcdef01234567.png")).toBeNull();
     expect(await readMedia("0123456789abcdef01234567.webp")).toBeNull();
   });
+});
 });

@@ -1,4 +1,4 @@
-import { readMedia } from "@/lib/cms/media.server";
+import { readMedia } from "@/lib/cms/media-read.server";
 
 // Images uploaded in the control panel (WebP, stored on the data volume).
 export const dynamic = "force-dynamic";

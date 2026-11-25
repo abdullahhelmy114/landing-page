@@ -16,7 +16,7 @@ export default async function Preview({ params, searchParams }: Props) {
   const { slug, lang } = await params;
   const { t } = await searchParams;
   const session = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!verifyPreview(slug, t) && !verifySession(session)) notFound();
+  if (!(await verifyPreview(slug, t)) && !(await verifySession(session))) notFound();
   const bundle = await loadDraft(slug, lang);
   if (!bundle) notFound();
   return (

@@ -42,7 +42,7 @@ export function safeHref(v: string): string {
 /** An image the page may show: a site image, an uploaded one, or an https URL; otherwise "". */
 export function safeSrc(v: string): string {
   const s = v.trim();
-  if (/^\/(images|media)\/[\w./-]+$/.test(s) && !s.includes("..")) return s;
+  if (/^\/(images|media|share)\/[\w./-]+$/.test(s) && !s.includes("..")) return s;
   if (/^https:\/\/[^\s"'<>\\]+$/i.test(s)) return s;
   return "";
 }

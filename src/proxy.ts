@@ -1,14 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isProbe, PROBE_RESPONSE_INIT } from "@/lib/probes";
+
 /**
- * Passes the request path to the root layout (for <html lang dir>), and keeps the control panel,
- * preview links and the panel's API out of search engines, caches and frames.
+ * Passes the request path to the root layout (for <html lang dir>), and answers scanners' probes
+ * (/.env, /.git/HEAD, /backup.sql …) with a plain 404 before any page runs. The control panel,
+ * preview links and the panel's API are kept out of search engines, caches and frames (also set in
+ * next.config.ts, for hosts where the proxy does not run).
  */
 export function proxy(req: NextRequest) {
-  const headers = new Headers(req.headers);
-  headers.set("x-pathname", req.nextUrl.pathname);
-  const res = NextResponse.next({ request: { headers } });
   const p = req.nextUrl.pathname;
+  if (isProbe(p)) return new NextResponse("Not found", PROBE_RESPONSE_INIT);
+  const headers = new Headers(req.headers);
+  headers.set("x-pathname", p);
+  const res = NextResponse.next({ request: { headers } });
   if (p === "/admin" || p.startsWith("/admin/") || p.startsWith("/preview/") || p.startsWith("/api/admin")) {
     res.headers.set("X-Robots-Tag", "noindex, nofollow");
     res.headers.set("Cache-Control", "no-store");

@@ -1,0 +1,34 @@
+// Cloudflare Workers configuration (OpenNext). Build with `bun run cf:build`, try locally with
+// `bun run cf:dev`, deploy with `bun run cf:deploy`. The README lists the one-time setup commands.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "landing-page",
+  // worker.ts answers scanners' probes with a 404, then hands requests to .open-next/worker.js.
+  "main": "worker.ts",
+  "compatibility_date": "2026-11-19",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "observability": { "enabled": true },
+  // No custom domain here, so a deploy lands on workers.dev and never takes the live domain by
+  // itself: add muhadese.shukraanedu.com in the dashboard (README) when switching from Coolify.
+
+  // Plain-text settings. The secrets ADMIN_PASSWORD and DATABASE_URL are set with
+  // `wrangler secret put <name>` (and in .dev.vars for `wrangler dev`); NEXT_PUBLIC_UMAMI_* are
+  // build-time variables.
+  "vars": { "STORAGE": "cloudflare" },
+
+  // Pages, drafts, versions, trash, preview links, site settings and the login rate limit.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "landing-page",
+      // Replace with the id printed by `wrangler d1 create landing-page`.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Uploaded images (media/…) and share images (share/…).
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "landing-page-media" }],
+  // Converts uploads to WebP. Without it the Worker uses its built-in WebAssembly encoder.
+  "images": { "binding": "IMAGES" }
+}
