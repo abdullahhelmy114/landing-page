@@ -1,0 +1,26 @@
+{
+  "checkout": {
+    "mode": "standard",
+    "planId": "",
+    "url": "",
+    "promoCode": "KONUSMA40"
+  },
+  "whatsapp": {
+    "number": "905518550135",
+    "message": {
+      "tr": "Merhaba, Arapça konuşma kursu hakkında bir sorum var.",
+      "en": "Hello, I have a question about the Arabic speaking course.",
+      "ar": "مرحبًا، لديّ سؤال عن دورة المحادثة العربية."
+    }
+  },
+  "lockup": {
+    "header": {
+      "tone": "navy",
+      "scheme": "auto"
+    },
+    "footer": {
+      "tone": "navy",
+      "scheme": "auto"
+    }
+  }
+}

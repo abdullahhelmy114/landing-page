@@ -1,0 +1,36 @@
+{
+  "defaultLanguage": "tr",
+  "fallbackLanguage": "en",
+  "standardPage": "standart",
+  "languages": [
+    {
+      "code": "tr",
+      "label": "Türkçe",
+      "dir": "ltr"
+    },
+    {
+      "code": "en",
+      "label": "English",
+      "dir": "ltr"
+    },
+    {
+      "code": "ar",
+      "label": "العربية",
+      "dir": "rtl"
+    }
+  ],
+  "brand": {
+    "arabic": "أَكاديمِيَّةُ شُكْران إِيدْيُو",
+    "latin": "ShukraanEdu Academy",
+    "names": {
+      "ar": "أَكاديمِيَّةُ شُكْران إِيدْيُو | ShukraanEdu Academy",
+      "en": "ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
+      "tr": "ŞukraanEdu Akademisi | أَكاديمِيَّةُ شُكْران إِيدْيُو"
+    }
+  },
+  "tagline": {
+    "ar": "تعليم اللّغةِ العربيّةِ الفصحى والتّحليلِ اللّغويِّ للقرآنِ الكريمِ للناطقين بالعربية وبغيرها",
+    "en": "Teaching Classical Arabic (Fuṣḥā) and the linguistic analysis of the Holy Quran, for native and non-native speakers of Arabic",
+    "tr": "Fasih Arapça öğretimi ve Kur'an-ı Kerim'in dilbilimsel analizi; Arapçayı ana dili olarak konuşanlar ve konuşmayanlar için"
+  }
+}

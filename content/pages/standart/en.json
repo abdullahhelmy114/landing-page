@@ -1,0 +1,444 @@
+{
+  "seo": {
+    "title": "Arabic Speaking Practice | ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
+    "description": "Arabic speaking practice in live groups with Dr. Jehan Ziyad. Normal course: 8 lessons / 3,200 TL; intensive course: 16 lessons / 6,000 TL. On Zoom. For levels A2–B2.",
+    "shareDescription": "You know Arabic. But how often do you get to speak it? 8 lessons · 3,200 TL or the intensive course (+): 16 lessons · 6,000 TL.",
+    "image": "/images/og/og-en.png"
+  },
+  "header": {
+    "nav": [
+      {
+        "id": "n1",
+        "label": "Course",
+        "target": "program"
+      },
+      {
+        "id": "n2",
+        "label": "Times",
+        "target": "saatler"
+      },
+      {
+        "id": "n3",
+        "label": "Teacher",
+        "target": "egitmen"
+      },
+      {
+        "id": "n4",
+        "label": "FAQ",
+        "target": "sss"
+      }
+    ],
+    "cta": {
+      "label": "Register ↗",
+      "target": "ucretler"
+    },
+    "mobileCta": "Register · 8 or 16 lessons"
+  },
+  "footer": {
+    "contact": "Get in touch with us for special offers and corporate partnerships.",
+    "social": [
+      {
+        "id": "facebook",
+        "label": "Facebook",
+        "href": "https://www.facebook.com/profile.php?id=61596203246080"
+      },
+      {
+        "id": "instagram",
+        "label": "Instagram",
+        "href": "https://www.instagram.com/shukraanedu/"
+      },
+      {
+        "id": "whatsapp",
+        "label": "WhatsApp",
+        "href": "https://wa.me/905518550135"
+      },
+      {
+        "id": "threads",
+        "label": "Threads",
+        "href": "https://www.threads.com/@shukraanacademy"
+      }
+    ]
+  },
+  "ui": {
+    "unitPerLesson": "TL / 50 min",
+    "currency": "TL",
+    "numberGroup": ",",
+    "packageTotal": "{n}-lesson package total:",
+    "lessons": "{n} lessons",
+    "discount.placeholder": "Discount code",
+    "discount.apply": "Apply",
+    "discount.remove": "Remove",
+    "discount.applied": "Discount applied.",
+    "discount.invalid": "This code is not valid.",
+    "discount.error": "The code could not be checked. Please try again.",
+    "course.regular": "Normal Speaking Course",
+    "course.intensive": "Intensive Speaking Course (+)",
+    "form.step1.label": "Group choice",
+    "form.step1.title": "Choose the group that suits you",
+    "form.step2.label": "Contact",
+    "form.step2.title": "How can we reach you?",
+    "form.step3.label": "Payment",
+    "form.step3.title": "Complete your payment",
+    "form.course": "Course type *",
+    "form.gender": "Group type *",
+    "form.gender.placeholder": "Choose women's or men's",
+    "form.gender.female": "Women's group",
+    "form.gender.male": "Men's group",
+    "form.name": "Your full name *",
+    "form.name.placeholder": "Your full name",
+    "form.phone": "Your WhatsApp number (with country code) *",
+    "form.phone.placeholder": "+90 5...",
+    "form.email": "Your email address *",
+    "form.email.placeholder": "name@example.com",
+    "form.goal": "Your Arabic speaking goal *",
+    "form.goal.placeholder": "In which situations would you like to speak Arabic more comfortably?",
+    "form.next": "Continue →",
+    "form.back": "Back",
+    "form.required": "Please fill in this field.",
+    "form.invalid": "Some details look invalid. Please check the fields.",
+    "done.label": "Registration received",
+    "done.saved": "Your registration has been saved by the academy.",
+    "done.join": "Join the WhatsApp group ↗",
+    "done.hint": "On your phone, use the button. On another device, scan the QR code with your phone.",
+    "done.noLink": "Your payment has been received. Your group's WhatsApp link will be sent to you shortly.",
+    "done.again": "New registration / edit",
+    "done.title.female": "Arabic Speaking Group for Women",
+    "done.title.male": "Arabic Speaking Group for Men",
+    "done.qrAlt": "{group} — WhatsApp QR code",
+    "group.regular.female": "Normal · Women",
+    "group.regular.male": "Normal · Men",
+    "group.intensive.female": "Intensive (+) · Women",
+    "group.intensive.male": "Intensive (+) · Men",
+    "checkout.loading": "Loading the payment form…",
+    "checkout.failed": "The payment form could not be loaded. Check your connection and try again.",
+    "checkout.retry": "Try again",
+    "checkout.link": "Open the payment page ↗",
+    "checkout.paid": "Your payment has been received. Thank you! Message us on WhatsApp for the details.",
+    "float.aria": "Message us on WhatsApp",
+    "float.label": "A question or a problem? Message us",
+    "timetable.plan": "Course",
+    "timetable.group": "Group",
+    "timetable.days": "Days",
+    "timetable.time": "Time",
+    "lockup.alt": "ShukraanEdu Academy | أَكاديمِيَّةُ شُكْران إِيدْيُو",
+    "lang.label": "Language",
+    "whatsapp.button": "Message us on WhatsApp ↗",
+    "notFound.title": "Page not found",
+    "notFound.text": "The page you're looking for doesn't exist or has moved.",
+    "notFound.home": "Go to the home page"
+  },
+  "sections": [
+    {
+      "id": "top",
+      "type": "hero",
+      "fields": {
+        "badges": [
+          {
+            "id": "b1",
+            "text": "For levels A2 · B1 · B2"
+          }
+        ],
+        "arabicLine": "ممارسة المحادثة في اللغة العربية",
+        "title": "You know Arabic.",
+        "titleAccent": "But how often do you get to speak it?",
+        "bodyHtml": "<b>Bring the Arabic you know into conversation.</b> The Arabic Speaking Course with Dr. Jehan Ziyad: use what you have learned in live groups and keep your Arabic alive.",
+        "primary": {
+          "label": "Find my group ↗",
+          "target": "basvuru"
+        },
+        "secondary": {
+          "label": "Explore the course",
+          "target": "program"
+        },
+        "note": "On Zoom · Separate groups for women and men",
+        "image": {
+          "src": "/images/classroom.jpg",
+          "alt": "A live Arabic speaking class on Zoom"
+        }
+      }
+    },
+    {
+      "id": "ornekler",
+      "type": "phrases",
+      "fields": {
+        "eyebrow": "Get a taste of the course · A few examples",
+        "items": [
+          {
+            "id": "p1",
+            "ar": "كيف تعبّر عن رأيك؟",
+            "level": "B1"
+          },
+          {
+            "id": "p2",
+            "ar": "أيّ بلد تحبّ أن تزور؟",
+            "level": "A2"
+          },
+          {
+            "id": "p3",
+            "ar": "متى تتحدّث بالعربية؟",
+            "level": "A2"
+          },
+          {
+            "id": "p4",
+            "ar": "ما الذي يجعل يومك ناجحًا؟",
+            "level": "B1"
+          },
+          {
+            "id": "p5",
+            "ar": "ماذا تغيّر لو أدرتَ مدينتك يومًا؟",
+            "level": "B2"
+          },
+          {
+            "id": "p6",
+            "ar": "أتفضّل العمل وحدك أم ضمن فريق؟",
+            "level": "B2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "program",
+      "type": "program",
+      "fields": {
+        "marquee": "Your turn to speak · Your turn to speak",
+        "eyebrow": "Your turn to speak",
+        "quote": "“I understand, but I hesitate when I speak.”",
+        "introHtml": "Sound familiar? You don't need to know everything perfectly to practise speaking. A regular setting where you can use what you know, ask questions and get feedback is a good place to start.",
+        "audienceHtml": "This course is for learners who know the rules and the words but are looking for a chance to use them in conversation: those who know Arabic at least at A2 level and want speaking practice in the A2–B2 range. Groups are formed with similar levels in mind.",
+        "activitiesTitle": "What will we do in class?",
+        "activities": [
+          {
+            "id": "a1",
+            "text": "Guided dialogues on everyday topics"
+          },
+          {
+            "id": "a2",
+            "text": "Practice in giving opinions, asking and answering questions"
+          },
+          {
+            "id": "a3",
+            "text": "Using words and expressions in conversation"
+          },
+          {
+            "id": "a4",
+            "text": "Listening and two-way communication practice"
+          },
+          {
+            "id": "a5",
+            "text": "Refining your expressions with the teacher's feedback"
+          }
+        ]
+      }
+    },
+    {
+      "id": "duzen",
+      "type": "steps",
+      "fields": {
+        "eyebrow": "A routine that fits your week",
+        "title": "Choose the plan that suits you.",
+        "subtitle": "Practise speaking Arabic with the Normal or Intensive option.",
+        "items": [
+          {
+            "id": "s1",
+            "n": "01",
+            "title": "Choose your course and your group",
+            "body": "Choose the Normal or Intensive (+) course, then the women's or men's group that suits you."
+          },
+          {
+            "id": "s2",
+            "n": "02",
+            "title": "50-minute lesson + 10-minute break + 50-minute lesson",
+            "body": "Each meeting is two 50-minute lessons with a 10-minute break in between."
+          },
+          {
+            "id": "s3",
+            "n": "03",
+            "title": "Normal: 8 lessons · Intensive (+): 16 lessons",
+            "body": "Normal course: 1 day a week, 2 lessons per meeting, 8 lessons in 4 weeks. Intensive course (+): 2 days a week, 2 lessons per meeting, 16 lessons in 4 weeks."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ucretler",
+      "type": "pricing",
+      "fields": {
+        "eyebrow": "Fees",
+        "title": "A coffee break.",
+        "titleAccent": "An Arabic practice.",
+        "intro": "Use the Arabic you know, express yourself and make progress with regular practice.",
+        "discountNote": "Use the discount code \"KONUSMA40\" and get up to 40% off the speaking course with this offer.",
+        "showDiscount": true,
+        "coffee": {
+          "title": "As enjoyable as a coffee break.",
+          "text": "This time, the chat is in Arabic. Bring what you know into conversation.",
+          "small": "50 minutes set aside for speaking Arabic.",
+          "sip": "A sip of coffee, a step in Arabic."
+        },
+        "cards": [
+          {
+            "id": "regular",
+            "course": "regular",
+            "title": "Normal Speaking Course",
+            "price": "400",
+            "total": "3,200 TL",
+            "meta": "4 weeks · 1 day a week · 2 lessons per meeting",
+            "live": "Live on Zoom",
+            "button": "Choose your group ↗"
+          },
+          {
+            "id": "intensive",
+            "course": "intensive",
+            "title": "Intensive Speaking Course (+)",
+            "price": "375",
+            "total": "6,000 TL",
+            "meta": "4 weeks · 2 days a week · 2 lessons per meeting",
+            "live": "Live on Zoom",
+            "button": "Choose your group ↗"
+          }
+        ]
+      }
+    },
+    {
+      "id": "saatler",
+      "type": "timetable",
+      "fields": {
+        "eyebrow": "Class times",
+        "title": "Weekly meeting times",
+        "intro": "All times are Türkiye time. Each meeting is two 50-minute lessons with a 10-minute break in between.",
+        "rows": [
+          {
+            "id": "normal-kadin",
+            "plan": "Normal Speaking Course",
+            "group": "Women's group",
+            "days": "Saturday",
+            "time": "11:00 - 11:50 + 12:00 - 12:50"
+          },
+          {
+            "id": "normal-erkek",
+            "plan": "Normal Speaking Course",
+            "group": "Men's group",
+            "days": "Saturday",
+            "time": "17:00 - 17:50 + 18:00 - 18:50"
+          },
+          {
+            "id": "yogun-kadin",
+            "plan": "Intensive Speaking Course (+)",
+            "group": "Women's group",
+            "days": "Saturday and Sunday",
+            "time": "14:00 - 14:50 + 15:00 - 15:50"
+          },
+          {
+            "id": "yogun-erkek",
+            "plan": "Intensive Speaking Course (+)",
+            "group": "Men's group",
+            "days": "Saturday and Sunday",
+            "time": "20:00 - 20:50 + 21:00 - 21:50"
+          }
+        ],
+        "noteHtml": ""
+      }
+    },
+    {
+      "id": "egitmen",
+      "type": "instructor",
+      "fields": {
+        "eyebrow": "Your teacher",
+        "name": "Dr. Jehan Ziyad",
+        "role": "Founder and Director, ShukraanEdu Academy",
+        "title": "Senior Educator and Linguistics Specialist",
+        "areas": "Arabic Linguistics · Curriculum Development · Academic Leadership · Islamic Sciences",
+        "bioHtml": "Arabic is her native language. With her background in Arabic, Arabic literature and the Islamic sciences, she brings <b>over 30 years</b> of experience in face-to-face and online teaching.",
+        "credentialsTitle": "Academic background and teaching experience",
+        "credentials": [
+          {
+            "id": "c1",
+            "text": "Bachelor's degree in Arabic language and sciences and in the Islamic sciences."
+          },
+          {
+            "id": "c2",
+            "text": "Academic master's degree and doctorate in literary studies, specialising in Islamic literature."
+          },
+          {
+            "id": "c3",
+            "text": "Ijazah in teaching the recitation of the Holy Qur'an."
+          },
+          {
+            "id": "c4",
+            "text": "Face-to-face and online teaching experience at universities in Egypt and Saudi Arabia and in other educational settings."
+          },
+          {
+            "id": "c5",
+            "text": "Founder and director of ShukraanEdu Academy."
+          }
+        ],
+        "image": {
+          "src": "/images/jehan-cream-office.png",
+          "alt": "Dr. Jehan Ziyad"
+        }
+      }
+    },
+    {
+      "id": "basvuru",
+      "type": "payment",
+      "fields": {
+        "eyebrow": "Your first step",
+        "title": "Choose your group.",
+        "titleAccent": "Let's get started."
+      }
+    },
+    {
+      "id": "sss",
+      "type": "faq",
+      "fields": {
+        "eyebrow": "Questions on your mind",
+        "title": "Before you start",
+        "items": [
+          {
+            "id": "q1",
+            "q": "Is this course suitable for complete beginners?",
+            "aHtml": "You need at least A2 level to join. Groups for A2, B1 and B2 participants are formed with similar levels in mind."
+          },
+          {
+            "id": "q2",
+            "q": "How many days a week will I attend?",
+            "aHtml": "The Normal course meets one day a week and the Intensive course (+) two days a week. Each meeting has two 50-minute lessons with a 10-minute break in between. The Normal course is 8 lessons in 4 weeks; the Intensive course is 16 lessons in 4 weeks."
+          },
+          {
+            "id": "q6",
+            "q": "Do the two courses ever meet together?",
+            "aHtml": "No. The intensive learners are further ahead, so the two courses never share a session."
+          },
+          {
+            "id": "q3",
+            "q": "When is my place confirmed?",
+            "aHtml": "When you complete your payment. You pay on this page, in the payment step of the registration form; right after that, your group's WhatsApp link and QR code are shown."
+          },
+          {
+            "id": "q4",
+            "q": "What if the times don't suit me?",
+            "aHtml": "Message us once you have paid and joined the WhatsApp group; we will see whether the times can be changed. If we can't find a solution, your fee is refunded without delay."
+          },
+          {
+            "id": "q5",
+            "q": "What if I have a problem or a suggestion about the course?",
+            "aHtml": "Write to us in the WhatsApp group: problems and suggestions are discussed there, and what we put into practice is decided by a vote."
+          }
+        ]
+      }
+    },
+    {
+      "id": "kapanis",
+      "type": "cta",
+      "fields": {
+        "title": "One goal:",
+        "titleAccent": "Speaking the Arabic you know.",
+        "text": "",
+        "button": {
+          "label": "Register",
+          "target": "ucretler"
+        }
+      }
+    }
+  ]
+}
